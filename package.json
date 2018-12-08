@@ -1,0 +1,19 @@
+{
+  "name": "ggtu-map",
+  "version": "1.0.0",
+  "description": "GGTU Map library",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rmdir /S /Q dist && tsc"
+  },
+  "author": "Konstantin Arefyev",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^3.1.6"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.1.12"
+  },
+  "types": "dist/index.d.ts"
+}
