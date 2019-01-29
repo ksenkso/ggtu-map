@@ -1,20 +1,17 @@
-import Primitive from './Primitive';
-import Selection from '../core/Selection';
+import Primitive, {PrimitiveOptions} from './Primitive';
 import {ICoords} from '../utils/Vector';
 import {IPoint} from '../interfaces/IPoint';
 import {ILine} from '../interfaces/ILine';
-import {Define} from "../core/di";
 
 export type LineFactory = (container: SVGGElement, from: IPoint, to: IPoint) => Line;
-@Define
 export default class Line extends Primitive implements ILine {
     constructor(
-      selection: Selection,
-      container: SVGElement,
+      container: SVGSVGElement,
       public from: IPoint,
-      public to: IPoint
+      public to: IPoint,
+      options?: PrimitiveOptions
     ) {
-        super(selection, container);
+        super(container, options);
         this.init();
         this.container.appendChild(this.element);
     }

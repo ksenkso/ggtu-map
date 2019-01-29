@@ -1,17 +1,14 @@
 import Vector, {ICoords} from '../utils/Vector';
-import Primitive from './Primitive';
-import Selection from '../core/Selection';
-import UndoRedoStack from '../core/UndoRedoStack';
-import ConnectPointsCommand from '../commands/ConnectPointsCommand';
+import Primitive, {PrimitiveOptions} from './Primitive';
 import {IPoint} from '../interfaces/IPoint';
 import {ILine} from '../interfaces/ILine';
-import {create, Define} from "../core/di";
-import DragAndDrop from "../core/DragAndDrop";
-import MoveCommand from "../commands/MoveCommand";
 import Scene from "../core/Scene";
 
-@Define
+export type PointOptions = PrimitiveOptions & {
+  radius?: number
+}
 export default class Point extends Primitive implements IPoint {
+  private readonly radius: number;
   public points: Set<IPoint> = new Set<IPoint>();
   public from: ILine[] = [];
   public to: ILine[] = [];
@@ -21,16 +18,14 @@ export default class Point extends Primitive implements IPoint {
   }
 
   constructor(
-    selection: Selection,
-    private commandManager: UndoRedoStack,
     container: SVGGElement,
     public path: SVGGElement,
     public center: ICoords = {x: 0, y: 0},
-    private readonly radius = 2
+    options: PointOptions
   ) {
-    super(selection, container);
+    super(container);
+    this.radius = options.radius ? options.radius : 2;
     this.center = center;
-    this.radius = radius;
     this.path = path;
     this.points = new Set();
     this.from = [];
@@ -53,7 +48,7 @@ export default class Point extends Primitive implements IPoint {
 
   onClick(e: MouseEvent) {
     e.stopPropagation();
-    const previousObject = this.selection.current;
+    /*const previousObject = this.selection.current;
     if (previousObject && previousObject instanceof Point) {
       if (e.ctrlKey) {
         if (this.path !== previousObject.path) {
@@ -67,14 +62,13 @@ export default class Point extends Primitive implements IPoint {
             path: this.path
           }) as ConnectPointsCommand;
           this.commandManager.do(connectCommand);
-          /*const connectCommandFactory = <ConnectPointsCommandFactory><unknown>this.injector.get(ConnectPointsCommand);
+          /!*const connectCommandFactory = <ConnectPointsCommandFactory><unknown>this.injector.get(ConnectPointsCommand);
           const command = connectCommandFactory({from: previousObject, to: this, path: this.path});
-          this.commandManager.do(command);*/
+          this.commandManager.do(command);*!/
         }
       }
-    }
+    }*/
     super.onClick(e);
-
   }
 
   moveToPath(sourceObject: IPoint): void {
@@ -91,12 +85,12 @@ export default class Point extends Primitive implements IPoint {
   }
 
   onPointMouseDown(e) {
-    DragAndDrop.IS_DRAGGING = true;
+    /*DragAndDrop.IS_DRAGGING = true;
     DragAndDrop.draggable = this;
     const position = this.getPosition();
     this.commandManager.bufferCommand = MoveCommand;
     DragAndDrop.delta = Vector.sub(position, Scene.getMouseCoords(e));
-    this.commandManager.bufferArgs = [this, position];
+    this.commandManager.bufferArgs = [this, position];*/
   }
 
   setPosition(newPosition: ICoords) {

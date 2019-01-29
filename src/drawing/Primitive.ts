@@ -1,20 +1,23 @@
 import Selection from '../core/Selection';
 import {IPrimitive} from '../interfaces/IPrimitive';
 import Scene from "../core/Scene";
+import EventEmitter from "../utils/EventEmitter";
 
-export default abstract class Primitive implements IPrimitive {
+export type PrimitiveOptions = {
+  selection?: Selection
+};
+export default class Primitive extends EventEmitter implements IPrimitive {
   static SVGNamespace = 'http://www.w3.org/2000/svg';
   private _isSelected = false;
   // private renderer: Renderer2;
   public element: SVGElement;
+  protected selection?: Selection;
 
   set isSelected(value) {
     this._isSelected = value;
     if (value) {
       this.element.classList.add('primitive_active');
-      // GLOBALS.selection.add(this);
     } else {
-      // GLOBALS.selection.splice(GLOBALS.selection.indexOf(this));
       this.element.classList.remove('primitive_active');
     }
   }
@@ -23,9 +26,11 @@ export default abstract class Primitive implements IPrimitive {
     return this._isSelected;
   }
 
-  static createElement(type: string): SVGElement {
+  static createElement(type: string, isPrimitive = true): SVGElement {
     const element = <SVGElement>document.createElementNS(Primitive.SVGNamespace, type);
-    element.classList.add('primitive');
+    if (isPrimitive) {
+      element.classList.add('primitive');
+    }
     return element;
   }
 
@@ -34,9 +39,14 @@ export default abstract class Primitive implements IPrimitive {
   }
 
   constructor(
-    protected selection: Selection,
-    protected container: SVGElement
-  ) {}
+    protected container: SVGElement,
+    options?: PrimitiveOptions
+  ) {
+    super();
+    if (options && options.selection) {
+      this.selection = options.selection;
+    }
+  }
 
   public destroy() {
     this.element.remove();
@@ -53,11 +63,21 @@ export default abstract class Primitive implements IPrimitive {
     } else {
       this.selection.set([this]);
     }
+    this.emit('click', {
+      originalEvent: e,
+      target: this
+    });
   }
 
-  onDestroy(): any {}
+  onDestroy(): any {
+    this.selection = null;
+  }
 
+  /**
+   * Performs necessary actions to wire a primitive and a scene.
+   * Call `super.appendTo(scene)` when implementing custom primitives.
+   */
   appendTo(scene: Scene): void {
-
+    this.selection = scene.selection;
   }
 }
