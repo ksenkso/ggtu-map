@@ -1,18 +1,22 @@
 {
   "name": "ggtu-map",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "GGTU Map library",
-  "main": "dist/index.js",
+  "main": "dist/ggtu-map.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rmdir /S /Q dist && tsc"
+    "build": "webpack"
   },
   "author": "Konstantin Arefyev",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "^3.1.6"
+    "gulp": "^4.0.0",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.2.2"
   },
   "dependencies": {
+    "axios": "^0.18.0",
+    "qs": "^6.6.0",
     "reflect-metadata": "^0.1.12"
   },
   "types": "dist/index.d.ts"
