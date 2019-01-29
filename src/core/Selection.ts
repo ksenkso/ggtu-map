@@ -1,7 +1,5 @@
 import {IPrimitive} from '../interfaces/IPrimitive';
-import {Singleton} from "./di";
 
-@Singleton
 export default class Selection {
   public elements: IPrimitive[] = [];
 
@@ -12,6 +10,9 @@ export default class Selection {
   get previous(): IPrimitive | undefined {
     return this.elements[this.elements.length - 2];
   }
+
+  constructor() {}
+
 
   add(element: IPrimitive) {
     element.isSelected = true;
