@@ -1,10 +1,7 @@
 import Vector, {ICoords} from "../utils/Vector";
 import Scene from "./Scene";
 import Point from "../drawing/Point";
-import UndoRedoStack from "./UndoRedoStack";
-import {Define} from "./di";
 
-@Define
 export default class DragAndDrop {
   public static IS_DRAGGING = false;
   public static draggable: Point = null;
@@ -15,7 +12,7 @@ export default class DragAndDrop {
     return Vector.magnitude(DragAndDrop.movement);
   }
 
-  constructor(private readonly commandManager: UndoRedoStack) {
+  constructor() {
     Scene.container.addEventListener('mousemove', DragAndDrop.onMouseMove);
     Scene.container.addEventListener('mouseup', this.onMouseUp.bind(this));
   }
@@ -41,10 +38,10 @@ export default class DragAndDrop {
   }
 
   public onMouseUp(e: MouseEvent) {
-    if (DragAndDrop.hasMovement && DragAndDrop.IS_DRAGGING && this.commandManager.bufferCommand) {
+    /*if (DragAndDrop.hasMovement && DragAndDrop.IS_DRAGGING && this.commandManager.bufferCommand) {
       this.commandManager.bufferArgs.push(Vector.add(Scene.getMouseCoords(e), DragAndDrop.delta));
       this.commandManager.doBuffer();
-    }
+    }*/
     DragAndDrop.IS_DRAGGING = false;
     DragAndDrop.draggable = null;
   }
