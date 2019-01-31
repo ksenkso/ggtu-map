@@ -1,9 +1,10 @@
 import qs = require('qs');
-import {AuthState, IUser} from "../api/common";
+import {AuthState, IEndpoint, IUser} from "../api/common";
 import BuildingsEndpoint, {IBuildingsEndpoint} from "../api/endpoints/BuildingsEndpoint";
 import axios, {AxiosInstance, AxiosResponse} from "axios";
 import PlacesEndpoint, {IPlacesEndpoint} from "../api/endpoints/PlacesEndpoint";
 import LocationsEndpoint, {ILocationsEndpoint} from "../api/endpoints/LocationsEndpoint";
+import TransitionsEndpoint, {ITransition} from "../api/endpoints/TransitionsEndpoint";
 
 export interface ITokenInfo {
   text: string;
@@ -62,10 +63,10 @@ export default class ApiClient {
     return this.userInfo.user.token;
     //return this.api.defaults.headers['Authorization'].substring(7);
   }
-  private _token: string;
   public locations: ILocationsEndpoint;
   public buildings: IBuildingsEndpoint;
   public places: IPlacesEndpoint;
+  public transitions: IEndpoint<ITransition>;
   public readonly userInfo: UserInfo;
   private readonly api: AxiosInstance;
 
@@ -81,6 +82,7 @@ export default class ApiClient {
     this.buildings = new BuildingsEndpoint(this.api);
     this.locations = new LocationsEndpoint(this.api);
     this.places = new PlacesEndpoint(this.api);
+    this.transitions = new TransitionsEndpoint(this.api);
   }
 
   public getTransport(): AxiosInstance {
@@ -118,12 +120,5 @@ export default class ApiClient {
       this.userInfo.user = null;
     }
     return response.data.ok;
-  }
-
-  public async getMap(name: string): Promise<string> {
-    const response: AxiosResponse<string> = await axios.get(ApiClient.base + '/maps/' + name);
-    if (response) {
-      return response.data;
-    }
   }
 }
