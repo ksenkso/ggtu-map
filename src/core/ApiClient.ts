@@ -110,15 +110,20 @@ export default class ApiClient {
    * @throws Error
    */
   async checkToken(token: string): Promise<boolean> {
-    const response: AxiosResponse<AuthState> = await this.api.get<AuthState>('auth', {params: {token}});
-    if (response.data.ok) {
-      this.token = token;
-      const user = this.userInfo.user;
-      user.token = token;
-      this.userInfo.user = user;
-    } else {
-      this.userInfo.user = null;
+    try {
+      const response: AxiosResponse<AuthState> = await this.api.get<AuthState>('auth', {params: {token}});
+      if (response.data.ok) {
+        this.token = token;
+        const user = this.userInfo.user;
+        user.token = token;
+        this.userInfo.user = user;
+      }
+      return response.data.ok;
+    } catch (e) {
+      // this.userInfo.user = null;
+      return false;
     }
-    return response.data.ok;
+
+
   }
 }
