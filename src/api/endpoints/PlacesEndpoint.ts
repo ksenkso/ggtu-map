@@ -1,5 +1,4 @@
 import {
-  DeleteState,
   IEndpoint,
   GGTURequestConditions,
   IPartial,
@@ -25,18 +24,14 @@ export default class PlacesEndpoint extends BaseEndpoint implements IPlacesEndpo
     }
   }
 
-  async delete(id: number): Promise<DeleteState | null> {
+  async delete(id: number): Promise<Boolean | null> {
     const response = await this.api.delete(this.route + id);
-    if (response.status === 200) {
-      return response.data as DeleteState;
-    } else {
-      return null;
-    }
+    return response.status === 200;
   }
 
   async get(id: number, params?: IGetParams): Promise<IPlace | null> {
     let path = this.route + id;
-    if (params.expanded) {
+    if (params && params.expanded) {
       path += '/expanded';
     }
     const response = await this.api.get<IPlace>(path);

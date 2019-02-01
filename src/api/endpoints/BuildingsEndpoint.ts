@@ -1,8 +1,6 @@
 import {
-  DeleteState,
   IEndpoint,
   GGTURequestConditions,
-  GGTURequestOptions,
   IBuilding,
   ILocation,
   IPartial,
@@ -30,17 +28,13 @@ export default class BuildingsEndpoint extends BaseEndpoint implements IBuilding
     }
   }
 
-  async delete(id: number): Promise<DeleteState | null> {
+  async delete(id: number): Promise<Boolean | null> {
     const response = await this.api.delete(this.route + id);
-    if (response.status === 200) {
-      return response.data as DeleteState;
-    } else {
-      return null;
-    }
+    return response.status === 200;
   }
 
   async get(id: number, params?: IGetParams): Promise<IBuilding | null> {
-    const config = BuildingsEndpoint.parseParams(params);
+    // const config = BuildingsEndpoint.parseParams(params);
     const response = await this.api.get<IBuilding>(this.route + id);
     if (response.status === 200) {
       return response.data;

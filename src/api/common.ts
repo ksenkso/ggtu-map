@@ -23,8 +23,6 @@ export interface AuthState {
   error?: Error;
 }
 
-export type DeleteState = AuthState;
-
 export interface IGetParams {
   where?: WhereCondition;
   with?: string;
@@ -42,23 +40,28 @@ export interface IEndpoint<T> {
 
   update(id: number, fields: IPartial<T>): Promise<T>;
 
-  delete(id: number): Promise<DeleteState>;
+  delete(id: number): Promise<Boolean>;
 }
 
 
 export interface ILocation {
+  id?: number;
   name: string;
   BuildingId: number;
+  map?: string;
 }
 
 export type PlaceType = 'cabinet' | 'wc' | 'gym' | 'other';
-
+export interface IDictionary<T = any> {
+  [key: string]: T
+}
 export interface IPlace {
-  id: number;
+  id?: number;
   name: string;
   LocationId: number;
   type: PlaceType;
   container: string;
+  props?: IDictionary
 }
 
 export interface IUser {
@@ -72,9 +75,10 @@ export interface IUser {
 export type BuildingType = 'study' | 'other';
 
 export interface IBuilding {
-  id: number;
+  id?: number;
   name: string;
   type: BuildingType;
+  container: string
 }
 
 export class BaseEndpoint {
