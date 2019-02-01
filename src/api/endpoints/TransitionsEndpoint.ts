@@ -1,6 +1,5 @@
 import {
   BaseEndpoint,
-  DeleteState,
   GGTURequestConditions,
   IEndpoint,
   IGetParams,
@@ -8,10 +7,8 @@ import {
 } from "../common";
 import {AxiosInstance} from "axios";
 export interface ITransition {
-  id: number | null;
+  id?: number | null;
   LocationId: number | null;
-  inId: number | null;
-  outId: number | null;
   container: string | null;
 }
 export default class TransitionsEndpoint extends BaseEndpoint implements IEndpoint<ITransition> {
@@ -29,10 +26,10 @@ export default class TransitionsEndpoint extends BaseEndpoint implements IEndpoi
     }
   }
 
-  async delete(id: number): Promise<DeleteState | null> {
+  async delete(id: number): Promise<Boolean | null> {
     const response = await this.api.delete(this.route + id);
     if (response.status === 200) {
-      return response.data as DeleteState;
+      return response.data as Boolean;
     } else {
       return null;
     }
