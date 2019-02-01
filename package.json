@@ -4,20 +4,28 @@
   "description": "GGTU Map library",
   "main": "dist/ggtu-map.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --require tests/unit/setup.js --require ts-node/register tests/**/*.ts",
     "build": "webpack"
   },
   "author": "Konstantin Arefyev",
   "license": "ISC",
   "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.2.0",
     "gulp": "^4.0.0",
+    "mocha": "^5.2.0",
     "ts-loader": "^5.3.3",
+    "ts-node": "^8.0.2",
     "typescript": "^3.2.2"
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "dotenv": "^6.2.0",
     "qs": "^6.6.0",
-    "reflect-metadata": "^0.1.12"
+    "reflect-metadata": "^0.1.12",
+    "request": "^2.88.0"
   },
   "types": "dist/index.d.ts"
 }
