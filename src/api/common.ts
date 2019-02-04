@@ -1,4 +1,4 @@
-import {AxiosRequestConfig} from "axios";
+import {AxiosInstance, AxiosRequestConfig} from "axios";
 export interface WhereCondition {
   [key: string]: number | string
 }
@@ -36,13 +36,13 @@ export interface IGetParams {
 export interface IEndpoint<T> {
   get(id: number, params?: IGetParams): Promise<T | null>
 
-  getAll(conditions?: GGTURequestConditions, options?: IGetParams): Promise<T[] | null>
+  getAll(options?: IGetParams): Promise<T[] | null>
 
   create(data: T): Promise<T>;
 
   update(id: number, fields: IPartial<T>): Promise<T>;
 
-  delete(id: number): Promise<DeleteState>;
+  delete(id: number): Promise<Boolean>;
 }
 
 
@@ -78,6 +78,7 @@ export interface IBuilding {
 }
 
 export class BaseEndpoint {
+  protected route: string;
   static parseParams(getParams: IGetParams): AxiosRequestConfig {
 
     const params: any = {};
@@ -100,5 +101,47 @@ export class BaseEndpoint {
       }
     }
     return {params};
+  }
+
+  constructor(protected api: AxiosInstance) {}
+
+  async create<T = any>(model: T): Promise<T> {
+    const response = await this.api.post<T>(this.route, model);
+    if (response.status === 201) {
+      return response.data;
+    } else {
+      return null;
+    }
+  }
+
+  async delete(id: number): Promise<Boolean> {
+    const response = await this.api.delete(this.route + id);
+    return response.status === 200;
+  }
+  async get<T = any>(id: number, params?: IGetParams): Promise<T | null> {
+    const response = await this.api.get<T>(this.route + id, {params});
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      return null;
+    }
+  }
+
+  async getAll<T = any>(params?: IGetParams): Promise<T[] | null> {
+    const response = await this.api.get<T[]>(this.route, {params});
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      return null;
+    }
+  }
+
+  async update<T = any>(id: number, fields: IPartial<T>): Promise<T | null> {
+    const response = await this.api.patch<T>(this.route + id, fields);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      return null;
+    }
   }
 }
