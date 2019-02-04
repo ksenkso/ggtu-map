@@ -1,25 +1,18 @@
-import {
-  DeleteState,
-  IEndpoint,
-  GGTURequestConditions,
-  GGTURequestOptions, IBuilding, IGetParams,
-  ILocation,
-  IPartial,
-  IPlace, BaseEndpoint
-} from "../common";
+import {BaseEndpoint, DeleteState, IEndpoint, IGetParams, ILocation, IPartial, IPlace} from "../common";
 import {AxiosInstance} from "axios";
 
 export interface ILocationsEndpoint extends IEndpoint<ILocation> {
-  uploadMap(map: File): Promise<ILocation>;
   getPlaces(locationId: number, params?: IGetParams): Promise<IPlace[]>
 }
+
 export default class LocationsEndpoint extends BaseEndpoint implements ILocationsEndpoint {
   protected route: string = 'locations/';
+
   constructor(private api: AxiosInstance) {
     super();
   }
 
-  async create(data: ILocation): Promise<ILocation|null> {
+  async create(data: ILocation): Promise<ILocation | null> {
     const response = await this.api.post<ILocation>(this.route, data);
     if (response.status === 201) {
       return response.data;
@@ -46,8 +39,8 @@ export default class LocationsEndpoint extends BaseEndpoint implements ILocation
       return null;
     }
   }
-  //TODO: implement `where`
-  async getAll(conditions?: GGTURequestConditions, params?: IGetParams): Promise<ILocation[]| null> {
+
+  async getAll(params?: IGetParams): Promise<ILocation[] | null> {
     const config = LocationsEndpoint.parseParams(params);
     const response = await this.api.get<ILocation[]>(this.route, config);
     if (response.status === 200) {
@@ -75,11 +68,6 @@ export default class LocationsEndpoint extends BaseEndpoint implements ILocation
     } else {
       return null;
     }
-  }
-
-  uploadMap(map: File): Promise<ILocation | null> {
-  //  TODO: implement map upload
-    return undefined;
   }
 
 }
