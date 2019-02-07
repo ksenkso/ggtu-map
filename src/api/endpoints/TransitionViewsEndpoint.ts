@@ -10,7 +10,7 @@ export interface ITransitionView {
 
 
 export default class TransitionViewsEndpoint extends BaseEndpoint implements IEndpoint<ITransitionView> {
-  protected route: string = 'transitions-views/';
+  protected route: string = 'transition-views/';
   constructor(api: AxiosInstance) {
     super(api);
   }
