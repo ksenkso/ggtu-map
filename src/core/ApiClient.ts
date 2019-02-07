@@ -1,10 +1,10 @@
 import qs = require('qs');
-import {AuthState, IEndpoint, IUser} from "../api/common";
+import {AuthState, IUser} from "../api/common";
 import BuildingsEndpoint, {IBuildingsEndpoint} from "../api/endpoints/BuildingsEndpoint";
 import axios, {AxiosInstance, AxiosResponse} from "axios";
 import PlacesEndpoint, {IPlacesEndpoint} from "../api/endpoints/PlacesEndpoint";
 import LocationsEndpoint, {ILocationsEndpoint} from "../api/endpoints/LocationsEndpoint";
-import TransitionsEndpoint, {ITransition} from "../api/endpoints/TransitionsEndpoint";
+import TransitionsEndpoint, {ITransitionsEndpoint} from "../api/endpoints/TransitionsEndpoint";
 
 export interface ITokenInfo {
   text: string;
@@ -66,7 +66,7 @@ export default class ApiClient {
   public locations: ILocationsEndpoint;
   public buildings: IBuildingsEndpoint;
   public places: IPlacesEndpoint;
-  public transitions: IEndpoint<ITransition>;
+  public transitions: ITransitionsEndpoint;
   public readonly userInfo: UserInfo;
   private readonly api: AxiosInstance;
 
