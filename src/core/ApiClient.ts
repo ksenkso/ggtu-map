@@ -1,5 +1,5 @@
 import qs = require('qs');
-import {AuthState, IUser} from "../api/common";
+import {AuthState, IEndpoint, IUser} from "../api/common";
 import BuildingsEndpoint, {IBuildingsEndpoint} from "../api/endpoints/BuildingsEndpoint";
 import axios, {AxiosInstance, AxiosResponse} from "axios";
 import PlacesEndpoint, {IPlacesEndpoint} from "../api/endpoints/PlacesEndpoint";
@@ -47,6 +47,7 @@ export default class ApiClient {
   private static instance: ApiClient;
   public static base = 'http://localhost:3000';
   public static apiBase = ApiClient.base + '/v1';
+  public static  mapsBase = ApiClient.base + '/maps';
 
   public static getInstance(user?: IUser) {
     if (!ApiClient.instance) {
@@ -123,7 +124,15 @@ export default class ApiClient {
       // this.userInfo.user = null;
       return false;
     }
+  }
 
-
+  public getEndpointByType(type: string): IEndpoint<any> {
+    switch (type) {
+      case 'place': return this.places;
+      case 'building': return this.buildings;
+      case 'transition': return this.transitions;
+      case 'transition-view': return this.transitions.views;
+    }
+    return null;
   }
 }

@@ -1,4 +1,8 @@
 import {AxiosInstance, AxiosRequestConfig} from "axios";
+import {ITransition} from "./endpoints/TransitionsEndpoint";
+import {ITransitionView} from "./endpoints/TransitionViewsEndpoint";
+import {IBuilding} from "./endpoints/BuildingsEndpoint";
+import {IPlace} from "./endpoints/PlacesEndpoint";
 export interface WhereCondition {
   [key: string]: number | string
 }
@@ -44,25 +48,17 @@ export interface IEndpoint<T> {
 }
 
 
-export interface ILocation {
-  id?: number;
-  name: string;
-  BuildingId: number;
-  map?: string;
+export interface LocationObjectsCollection {
+  places?: Array<IPlace>;
+  buildings?: Array<IBuilding>;
+  transitionViews?: Array<ITransitionView>;
 }
 
 export type PlaceType = 'cabinet' | 'wc' | 'gym' | 'other';
 export interface IDictionary<T = any> {
   [key: string]: T
 }
-export interface IPlace {
-  id?: number;
-  name: string;
-  LocationId: number;
-  type: PlaceType;
-  container: string;
-  props?: IDictionary
-}
+
 
 export interface IUser {
   id: number;
@@ -74,12 +70,9 @@ export interface IUser {
 
 export type BuildingType = 'study' | 'other';
 
-export interface IBuilding {
-  id?: number;
-  name: string;
-  type: BuildingType;
-  container: string
-}
+
+
+export type MapObject = IPlace | IBuilding | ITransition | ITransitionView;
 
 export class BaseEndpoint {
   protected route: string;
