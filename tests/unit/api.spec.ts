@@ -1,9 +1,11 @@
 import ApiClient from "../../src/core/ApiClient";
 import {expect} from 'chai';
-import {IBuilding, ILocation, IPlace} from "../../src";
-import {ITransition} from "../../src/api/endpoints/TransitionsEndpoint";
 import cheerio = require('cheerio');
 import request = require('request');
+import {ILocation} from "../../src/api/endpoints/LocationsEndpoint";
+import {IBuilding} from "../../src/api/endpoints/BuildingsEndpoint";
+import {IPlace} from "../../src/api/endpoints/PlacesEndpoint";
+import Scene from "../../src/core/Scene";
 
 const api = ApiClient.getInstance();
 const MAPS_ADDRESS = process.env.MAPS_ADDRESS;
@@ -20,7 +22,7 @@ function loadMap(location: ILocation): Promise<any> {
   })
 }
 
-describe('ApiClient', () => {
+describe.skip('ApiClient', () => {
     describe('Authentication', () => {
       it('should authenticate a user', () => {
         return api
@@ -104,37 +106,14 @@ describe('ApiClient', () => {
             })
         })
       });
-      describe('Transitions', () => {
-        const transition: ITransition = {
-          LocationId: 1,
-          container: '8bc8526b-3f4d-4d60-ac68-55e9579d77ce'
-        };
-        it('should create a transition', () => {
-          return api.transitions.create(transition)
-            .then(created => {
-              expect(created).to.have.property('id');
-              transition.id = created.id;
-              expect(created.LocationId).to.be.equal(created.LocationId);
-              expect(created.container).to.be.equal(created.container);
-              api.locations.get(transition.LocationId)
-                .then(location => {
-                  loadMap(location)
-                    .then($ => {
-                      const element = $(`g[data-type="transition"][data-id="${transition.id}"]`);
-                      expect(element).to.not.be.null;
-                    })
-                });
-            })
-        })
-      });
       describe('Buildings', () => {
         const building: IBuilding = {
           name: 'test building',
           type: 'study',
-          container: '7795b1ce-159a-43a2-88e2-e00f7852d5d5'
+          container: 'ad27b3ca-d1d9-47e5-bdc8-5c5471c5527a'
         };
-        it('should create a building', () => {
-          return api.buildings
+        it('should create a building', (done) => {
+          api.buildings
             .create(building)
             .then(created => {
               expect(created).to.have.property('id');
@@ -142,44 +121,48 @@ describe('ApiClient', () => {
               expect(created.container).to.be.equal(building.container);
               expect(created.type).to.be.equal(building.type);
               building.id = created.id;
-              return api.locations.getRoot()
+              console.log(created.id);
+              api.locations.getRoot()
                 .then(root => loadMap(root))
                 .then($ => {
-                  const element = $(`g[data-type="transition"][data-id="${building.id}"]`);
+                  const element = $(`g[data-type="building"][data-id="${building.id}"]`);
                   expect(element).to.not.be.null;
+                  done();
                 })
             })
         });
-        it('should fetch a building', () => {
-          return api.buildings
+        it('should fetch a building', (done) => {
+          api.buildings
             .get(building.id)
             .then(fetched => {
               expect(fetched.id).to.be.equal(building.id);
               expect(fetched.name).to.be.equal(building.name);
               expect(fetched.type).to.be.equal(building.type);
+              done();
             });
         });
-        it('should update a building', () => {
+        it('should update a building', (done) => {
           const newName = 'new test name';
           const newType = 'other';
-          return api.buildings
+          api.buildings
             .update(building.id, {name: newName, type: newType})
             .then(updated => {
               expect(updated.name).to.be.equal(newName);
               expect(updated.type).to.be.equal(newType);
+              done()
             })
         });
-        it('should delete a building', () => {
-          return api.buildings
+        it('should delete a building', (done) => {
+          api.buildings
             .delete(building.id)
             .then(deleted => expect(deleted).to.be.true)
-
+            .then(() => done());
         });
       });
       describe('Places', () => {
         const place: IPlace = {
           name: 'test place',
-          LocationId: 1,
+          LocationId: 2,
           container: '6b8143d9-934c-4418-9e04-755a53101f50',
           type: "cabinet",
           props: {
@@ -242,3 +225,9 @@ describe('ApiClient', () => {
 
     })
 });
+describe('Scene', () => {
+  
+  describe('Map', () => {
+    it('should load a map with given location')
+  })
+})

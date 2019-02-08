@@ -1,19 +1,13 @@
 import {BaseEndpoint, IEndpoint} from "../common";
 import {AxiosInstance} from "axios";
-import TransitionViewsEndpoint from "./TransitionViewsEndpoint";
+import TransitionViewsEndpoint, {ITransitionView} from "./TransitionViewsEndpoint";
 
 export interface ITransition {
   id?: number;
   name: string;
   type: string;
   BuildingId: number;
-}
-
-export interface ITransitionView {
-  id?: number;
-  container: string;
-  TransitionId: number;
-  LocationId: number;
+  Views?: Array<ITransitionView>
 }
 
 export interface ITransitionsEndpoint extends IEndpoint<ITransition> {
