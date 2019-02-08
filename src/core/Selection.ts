@@ -1,4 +1,4 @@
-import {IPrimitive} from '../interfaces/IPrimitive';
+import {IPrimitive} from '..';
 
 export default class Selection {
   public elements: IPrimitive[] = [];

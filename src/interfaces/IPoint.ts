@@ -1,4 +1,4 @@
-import {ICoords} from '../utils/Vector';
+import {ICoords} from '..';
 import {ILine} from './ILine';
 import {IPrimitive} from './IPrimitive';
 

@@ -1,5 +1,5 @@
 import {IPrimitive} from './IPrimitive';
-import {ICoords} from '../utils/Vector';
+import {ICoords} from '..';
 import {IPoint} from './IPoint';
 
 export interface ILine extends IPrimitive {
