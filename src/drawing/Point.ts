@@ -1,4 +1,4 @@
-import Vector, {ICoords} from '../utils/Vector';
+import {ICoords} from '../utils/Vector';
 import Primitive, {PrimitiveOptions} from './Primitive';
 import {IPoint} from '../interfaces/IPoint';
 import {ILine} from '../interfaces/ILine';
@@ -7,23 +7,21 @@ import Scene from "../core/Scene";
 export type PointOptions = PrimitiveOptions & {
   radius?: number
 }
+/**
+ * This class represents a point on a 2D map. It can be used in paths and graphs, but also as a self-contained primitive.
+ */
 export default class Point extends Primitive implements IPoint {
   private readonly radius: number;
   public points: Set<IPoint> = new Set<IPoint>();
   public from: ILine[] = [];
   public to: ILine[] = [];
 
-  static distance(p1: ICoords, p2: ICoords): number {
-    return Vector.magnitude(Vector.fromTo(p1, p2));
-  }
-
   constructor(
-    container: SVGGElement,
     public path: SVGGElement,
     public center: ICoords = {x: 0, y: 0},
     options: PointOptions
   ) {
-    super(container);
+    super();
     this.radius = options.radius ? options.radius : 2;
     this.center = center;
     this.path = path;
@@ -31,7 +29,6 @@ export default class Point extends Primitive implements IPoint {
     this.from = [];
     this.to = [];
     this.init();
-    this.container.appendChild(this.element);
   }
 
   init() {
@@ -84,7 +81,7 @@ export default class Point extends Primitive implements IPoint {
     });
   }
 
-  onPointMouseDown(e) {
+  onPointMouseDown() {
     /*DragAndDrop.IS_DRAGGING = true;
     DragAndDrop.draggable = this;
     const position = this.getPosition();
@@ -98,21 +95,32 @@ export default class Point extends Primitive implements IPoint {
     this.element.setAttribute('cy', String(newPosition.y));
   }
 
+  /**
+   * Returns a position on the map
+   */
   getPosition(): ICoords {
     return {x: +this.element.getAttribute('cx'), y: +this.element.getAttribute('cy')};
   }
 
+  /**
+   * Removes connections between points
+   */
   destroy() {
     super.destroy();
     this.from.forEach((line: ILine) => line.destroy());
     this.to.forEach((line: ILine) => line.destroy());
   }
 
+  /**
+   * Appends a point to the scene. Draws a point itself and lines that are connected to it.
+   * TODO: this behaviour is strange. Should think about necessity of redrawing lines
+   * @param scene
+   */
   appendTo(scene: Scene) {
-    scene.pointsContainer.appendChild(this.element);
-    const linesContainer = scene.linesContainer;
+    scene.drawingContainer.appendChild(this.element);
+    /*const linesContainer = scene.linesContainer;
     this.from.concat(this.to).forEach(line => {
       linesContainer.appendChild(line.element)
-    });
+    });*/
   }
 }

@@ -9,8 +9,8 @@ export type PrimitiveOptions = {
 export default class Primitive extends EventEmitter implements IPrimitive {
   static SVGNamespace = 'http://www.w3.org/2000/svg';
   private _isSelected = false;
-  // private renderer: Renderer2;
   public element: SVGElement;
+  // Stores a selection object, only available when primitive is rendered on the map.
   protected selection?: Selection;
 
   set isSelected(value) {
@@ -34,20 +34,6 @@ export default class Primitive extends EventEmitter implements IPrimitive {
     return element;
   }
 
-  static resolveContainer(container, selector) {
-    return container.querySelector(selector);
-  }
-
-  constructor(
-    protected container: SVGElement,
-    options?: PrimitiveOptions
-  ) {
-    super();
-    if (options && options.selection) {
-      this.selection = options.selection;
-    }
-  }
-
   public destroy() {
     this.element.remove();
     this.onDestroy();
@@ -55,14 +41,17 @@ export default class Primitive extends EventEmitter implements IPrimitive {
 
   public onClick(e) {
     if (e.shiftKey) {
+      // Shift-click - select/deselect primitive
       if (this.isSelected) {
         this.selection.remove(this);
       } else {
         this.selection.add(this);
       }
     } else {
+      // Click - set primitive as the only selected primitive
       this.selection.set([this]);
     }
+    // Emit a click event
     this.emit('click', {
       originalEvent: e,
       target: this
@@ -70,6 +59,7 @@ export default class Primitive extends EventEmitter implements IPrimitive {
   }
 
   onDestroy(): any {
+    // Remove selection instance from the primitive
     this.selection = null;
   }
 
