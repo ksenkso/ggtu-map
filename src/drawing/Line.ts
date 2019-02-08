@@ -1,7 +1,8 @@
 import Primitive, {PrimitiveOptions} from './Primitive';
-import {ICoords} from '../utils/Vector';
-import {IPoint} from '../interfaces/IPoint';
-import {ILine} from '../interfaces/ILine';
+import {ICoords} from '..';
+import {IPoint} from '..';
+import {ILine} from '..';
+import Graphics from "./Graphics";
 
 export type LineFactory = (container: SVGGElement, from: IPoint, to: IPoint) => Line;
 export default class Line extends Primitive implements ILine {
@@ -16,7 +17,7 @@ export default class Line extends Primitive implements ILine {
         this.container.appendChild(this.element);
     }
     init() {
-        this.element = Primitive.createElement('line');
+        this.element = Graphics.createElement('line');
         this.element.classList.add('primitive_line');
         this.setCoords(this.from.getPosition(), this.to.getPosition());
         this.element.addEventListener('click', this.onClick.bind(this));

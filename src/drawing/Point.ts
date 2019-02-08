@@ -1,14 +1,18 @@
 import Vector, {ICoords} from '../utils/Vector';
 import Primitive, {PrimitiveOptions} from './Primitive';
-import {IPoint} from '../interfaces/IPoint';
-import {ILine} from '../interfaces/ILine';
+import {IPoint} from '..';
+import {ILine} from '..';
 import Scene from "../core/Scene";
+import Graphics from "./Graphics";
+import {IDraggable} from "../utils/DragManager";
+import Selection from '../core/Selection';
 
 export type PointOptions = PrimitiveOptions & {
   radius?: number
 }
-export default class Point extends Primitive implements IPoint {
+export default class Point extends Primitive implements IPoint, IDraggable {
   private readonly radius: number;
+  protected _selection: Selection;
   public points: Set<IPoint> = new Set<IPoint>();
   public from: ILine[] = [];
   public to: ILine[] = [];
@@ -35,7 +39,7 @@ export default class Point extends Primitive implements IPoint {
   }
 
   init() {
-    this.element = Primitive.createElement('circle');
+    this.element = Graphics.createElement('circle');
     this.element.classList.add('primitive_point');
     this.element.setAttribute('r', String(this.radius));
     this.setPosition(this.center);
@@ -48,7 +52,7 @@ export default class Point extends Primitive implements IPoint {
 
   onClick(e: MouseEvent) {
     e.stopPropagation();
-    /*const previousObject = this.selection.current;
+    /*const previousObject = this._selection.current;
     if (previousObject && previousObject instanceof Point) {
       if (e.ctrlKey) {
         if (this.path !== previousObject.path) {
@@ -114,5 +118,12 @@ export default class Point extends Primitive implements IPoint {
     this.from.concat(this.to).forEach(line => {
       linesContainer.appendChild(line.element)
     });
+  }
+
+
+  onMouseDown(e: MouseEvent): void {
+  }
+
+  onMouseUp(e: MouseEvent): void {
   }
 }

@@ -1,17 +1,25 @@
 import Selection from '../core/Selection';
-import {IPrimitive} from '../interfaces/IPrimitive';
+import {IPrimitive} from '..';
 import Scene from "../core/Scene";
-import EventEmitter from "../utils/EventEmitter";
-
+import Graphics from "./Graphics";
+import {ICoords} from "..";
+export interface IDragData {
+  delta: number;
+  position: ICoords;
+}
 export type PrimitiveOptions = {
-  selection?: Selection
+  draggable?: boolean
 };
-export default class Primitive extends EventEmitter implements IPrimitive {
-  static SVGNamespace = 'http://www.w3.org/2000/svg';
+export default class Primitive extends Graphics implements IPrimitive {
+  public static defaultOptions: PrimitiveOptions = {
+    draggable: false
+  };
+
   private _isSelected = false;
-  // private renderer: Renderer2;
+  private _draggable = false;
+  public dragData: IDragData;
   public element: SVGElement;
-  protected selection?: Selection;
+  protected _selection?: Selection;
 
   set isSelected(value) {
     this._isSelected = value;
@@ -26,42 +34,29 @@ export default class Primitive extends EventEmitter implements IPrimitive {
     return this._isSelected;
   }
 
-  static createElement(type: string, isPrimitive = true): SVGElement {
-    const element = <SVGElement>document.createElementNS(Primitive.SVGNamespace, type);
-    if (isPrimitive) {
-      element.classList.add('primitive');
-    }
-    return element;
-  }
-
-  static resolveContainer(container, selector) {
-    return container.querySelector(selector);
-  }
-
   constructor(
     protected container: SVGElement,
     options?: PrimitiveOptions
   ) {
     super();
-    if (options && options.selection) {
-      this.selection = options.selection;
-    }
+    const _options: PrimitiveOptions = Object.assign({}, Primitive.defaultOptions, options);
+    this._draggable = _options.draggable;
   }
 
   public destroy() {
     this.element.remove();
-    this.onDestroy();
+    this._selection = null;
   }
 
   public onClick(e) {
     if (e.shiftKey) {
       if (this.isSelected) {
-        this.selection.remove(this);
+        this._selection.remove(this);
       } else {
-        this.selection.add(this);
+        this._selection.add(this);
       }
     } else {
-      this.selection.set([this]);
+      this._selection.set([this]);
     }
     this.emit('click', {
       originalEvent: e,
@@ -69,15 +64,25 @@ export default class Primitive extends EventEmitter implements IPrimitive {
     });
   }
 
-  onDestroy(): any {
-    this.selection = null;
+  public appendTo(scene: Scene): void {
+    scene.pointsContainer.appendChild(this.element);
   }
 
-  /**
-   * Performs necessary actions to wire a primitive and a scene.
-   * Call `super.appendTo(scene)` when implementing custom primitives.
-   */
-  appendTo(scene: Scene): void {
-    this.selection = scene.selection;
+  public onDestroy(): any {
+
+  }
+
+  protected makeDraggable() {
+
+
+  }
+
+  onPointMouseDown(e) {
+    /*DragAndDrop.IS_DRAGGING = true;
+    DragAndDrop.draggable = this;
+    const position = this.getPosition();
+    this.commandManager.bufferCommand = MoveCommand;
+    DragAndDrop.delta = Vector.sub(position, Scene.getMouseCoords(e));
+    this.commandManager.bufferArgs = [this, position];*/
   }
 }

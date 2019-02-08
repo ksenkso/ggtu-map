@@ -1,15 +1,14 @@
-import {ICoords} from "../utils/Vector";
+import {ICoords} from "..";
 import Selection from './Selection';
-import {IPoint} from "../interfaces/IPoint";
-import Primitive from "../drawing/Primitive";
-import {AdjacencyNode} from "../utils/index";
-import {IPrimitive} from "../interfaces/IPrimitive";
+import {IPoint} from "..";
+import {AdjacencyNode} from "../utils";
+import {IPrimitive} from "..";
 import EventEmitter from "../utils/EventEmitter";
 import ApiClient from "./ApiClient";
+import Graphics from "../drawing/Graphics";
 
 export default class Scene extends EventEmitter {
   private apiClient: ApiClient;
-  private points: IPoint[] = [];
   public readonly selection: Selection;
   public location: any;
   public activePath: SVGGElement;
@@ -36,12 +35,12 @@ export default class Scene extends EventEmitter {
     this.selection = new Selection();
     Scene.container = container;
     // Create containers for map and paths
-    const mapContainer = <SVGGElement>Primitive.createElement('g', false);
+    const mapContainer = <SVGGElement>Graphics.createElement('g', false);
     mapContainer.classList.add('scene__map');
     Scene.container.appendChild(mapContainer);
     Scene.mapContainer = mapContainer;
     // TODO: create it only if needed.
-    const pathsContainer = <SVGGElement>Primitive.createElement('g', false);
+    const pathsContainer = <SVGGElement>Graphics.createElement('g', false);
     pathsContainer.classList.add('scene__paths');
     Scene.container.appendChild(pathsContainer);
     Scene.pathsContainer = pathsContainer;
@@ -119,12 +118,12 @@ export default class Scene extends EventEmitter {
   }
 
   private static createPath(): SVGGElement {
-    const path = <SVGGElement>Primitive.createElement('g');
+    const path = <SVGGElement>Graphics.createElement('g');
     path.classList.add('primitive_path');
-    const lines = Primitive.createElement('g');
+    const lines = Graphics.createElement('g');
     lines.classList.add('path__lines');
     path.appendChild(lines);
-    const points = Primitive.createElement('g');
+    const points = Graphics.createElement('g');
     points.classList.add('path__points');
     path.appendChild(points);
     return path;
