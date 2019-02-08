@@ -27,5 +27,5 @@
     "reflect-metadata": "^0.1.12",
     "request": "^2.88.0"
   },
-  "types": "dist/index.d.ts"
+  "types": "dist/src/index.d.ts"
 }
