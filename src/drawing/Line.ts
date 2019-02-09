@@ -1,13 +1,11 @@
-import {ICoords} from '..';
-import {IPoint} from '..';
-import {ILine} from '..';
+import {ICoords, ILine} from '..';
 import Graphics from './Graphics';
 import Primitive, {IPrimitiveOptions} from './Primitive';
 
 export default class Line extends Primitive implements ILine {
     constructor(
-      public from: IPoint,
-      public to: IPoint,
+      public from: ICoords,
+      public to: ICoords,
       options?: IPrimitiveOptions,
     ) {
         super(options);
@@ -16,7 +14,7 @@ export default class Line extends Primitive implements ILine {
     public init() {
         this.element = Graphics.createElement('line');
         this.element.classList.add('primitive_line');
-        this.setCoords(this.from.getPosition(), this.to.getPosition());
+        this.setCoords(this.from, this.to);
         this.element.addEventListener('click', this.onClick.bind(this));
     }
 
@@ -42,9 +40,7 @@ export default class Line extends Primitive implements ILine {
             this.element.setAttribute('y2', String(to.y));
         }
     }
-    public destroy() {
-        super.destroy();
-    }
+
     public onClick(e: MouseEvent) {
         e.stopPropagation();
         super.onClick(e);
