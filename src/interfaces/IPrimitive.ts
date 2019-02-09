@@ -6,5 +6,4 @@ export interface IPrimitive {
   destroy(): void;
   appendTo(scene: Scene): void;
   onClick(e: MouseEvent): void;
-  onDestroy(): any;
 }

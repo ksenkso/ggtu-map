@@ -1,36 +1,29 @@
-import Vector, {ICoords} from '../utils/Vector';
+import {ICoords} from '..';
 import Primitive, {PrimitiveOptions} from './Primitive';
-import {IPoint} from '..';
-import {ILine} from '..';
+import {ILine, IPoint} from '..';
 import Scene from "../core/Scene";
 import Graphics from "./Graphics";
 import {IDraggable} from "../utils/DragManager";
-import Selection from '../core/Selection';
 
 export type PointOptions = PrimitiveOptions & {
-  radius?: number
+  radius?: number,
+  center?: ICoords
 }
-export default class Point extends Primitive implements IPoint, IDraggable {
+export default class Point extends Primitive implements IDraggable {
   private readonly radius: number;
-  protected _selection: Selection;
   public points: Set<IPoint> = new Set<IPoint>();
   public from: ILine[] = [];
   public to: ILine[] = [];
 
-  static distance(p1: ICoords, p2: ICoords): number {
-    return Vector.magnitude(Vector.fromTo(p1, p2));
-  }
-
   constructor(
     container: SVGGElement,
-    public path: SVGGElement,
-    public center: ICoords = {x: 0, y: 0},
-    options: PointOptions
+    options?: PointOptions
   ) {
-    super(container);
+    super(container, options);
     this.radius = options.radius ? options.radius : 2;
-    this.center = center;
-    this.path = path;
+    if (options.center) {
+      this.setPosition(options.center);
+    }
     this.points = new Set();
     this.from = [];
     this.to = [];
@@ -42,8 +35,6 @@ export default class Point extends Primitive implements IPoint, IDraggable {
     this.element = Graphics.createElement('circle');
     this.element.classList.add('primitive_point');
     this.element.setAttribute('r', String(this.radius));
-    this.setPosition(this.center);
-    this.element.addEventListener('mousedown', this.onPointMouseDown.bind(this));
     this.element.addEventListener('click', this.onClick.bind(this));
     // super.init();
     // Register global event listeners
@@ -75,7 +66,7 @@ export default class Point extends Primitive implements IPoint, IDraggable {
     super.onClick(e);
   }
 
-  moveToPath(sourceObject: IPoint): void {
+  /*moveToPath(sourceObject: IPoint): void {
     // `this.path` is the destination path, `sourceObject.path` is the source path
     sourceObject.points.forEach(point => point.path = this.path);
     const destinationPoints = <SVGGElement>this.path.querySelector('.path__points');
@@ -86,20 +77,20 @@ export default class Point extends Primitive implements IPoint, IDraggable {
     Array.from(sourceObject.path.querySelector('.path__lines').children).forEach((point: SVGCircleElement) => {
       destinationLines.appendChild(point);
     });
-  }
+  }*/
 
-  onPointMouseDown(e) {
-    /*DragAndDrop.IS_DRAGGING = true;
+  /*onPointMouseDown(e) {
+    DragAndDrop.IS_DRAGGING = true;
     DragAndDrop.draggable = this;
     const position = this.getPosition();
     this.commandManager.bufferCommand = MoveCommand;
     DragAndDrop.delta = Vector.sub(position, Scene.getMouseCoords(e));
-    this.commandManager.bufferArgs = [this, position];*/
-  }
+    this.commandManager.bufferArgs = [this, position];
+  }*/
 
-  setPosition(newPosition: ICoords) {
-    this.element.setAttribute('cx', String(newPosition.x));
-    this.element.setAttribute('cy', String(newPosition.y));
+  setPosition(coords: ICoords) {
+    this.element.setAttribute('cx', String(coords.x));
+    this.element.setAttribute('cy', String(coords.y));
   }
 
   getPosition(): ICoords {
@@ -113,17 +104,19 @@ export default class Point extends Primitive implements IPoint, IDraggable {
   }
 
   appendTo(scene: Scene) {
-    scene.pointsContainer.appendChild(this.element);
-    const linesContainer = scene.linesContainer;
+    // scene.pointsContainer.appendChild(this.element);
+    super.appendTo(scene);
+    if (this.isDraggable) {
+      scene.dragManager.enableDragging(this);
+    }
+    /*const linesContainer = scene.linesContainer;
     this.from.concat(this.to).forEach(line => {
       linesContainer.appendChild(line.element)
-    });
+    });*/
   }
 
+  public onDestroy() {
 
-  onMouseDown(e: MouseEvent): void {
   }
 
-  onMouseUp(e: MouseEvent): void {
-  }
 }

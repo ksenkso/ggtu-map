@@ -4,7 +4,6 @@ import {IPoint} from '..';
 import {ILine} from '..';
 import Graphics from "./Graphics";
 
-export type LineFactory = (container: SVGGElement, from: IPoint, to: IPoint) => Line;
 export default class Line extends Primitive implements ILine {
     constructor(
       container: SVGSVGElement,
@@ -23,7 +22,7 @@ export default class Line extends Primitive implements ILine {
         this.element.addEventListener('click', this.onClick.bind(this));
     }
 
-    bindPoints(from: IPoint, to: IPoint): void {
+    /*bindPoints(from: IPoint, to: IPoint): void {
         from.from.push(this);
         to.to.push(this);
         from.points.add(to);
@@ -34,7 +33,7 @@ export default class Line extends Primitive implements ILine {
         to.to.splice(to.to.indexOf(this), 1);
         from.points.delete(to);
         to.points.delete(from);
-    }
+    }*/
     setCoords(from?: ICoords, to?: ICoords): void {
         if (from) {
             this.element.setAttribute('x1', String(from.x));
@@ -51,5 +50,8 @@ export default class Line extends Primitive implements ILine {
     onClick(e: MouseEvent) {
         e.stopPropagation();
         super.onClick(e);
+    }
+
+    onDestroy(): any {
     }
 }

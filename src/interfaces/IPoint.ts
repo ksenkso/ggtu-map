@@ -1,12 +1,5 @@
-import {ICoords} from '..';
-import {ILine} from './ILine';
 import {IPrimitive} from './IPrimitive';
+import {IDraggable} from "../utils/DragManager";
 
-export interface IPoint extends IPrimitive {
-  from: ILine[];
-  to: ILine[];
-  points: Set<IPoint>;
-  path: SVGGElement;
-  getPosition(): ICoords;
-  moveToPath(sourceObject: IPoint): void;
+export interface IPoint extends IPrimitive, IDraggable {
 }

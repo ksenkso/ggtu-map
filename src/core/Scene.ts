@@ -1,4 +1,4 @@
-import {ICoords} from "../utils/Vector";
+import {ICoords} from "..";
 import Selection from './Selection';
 import Primitive from "../drawing/Primitive";
 import EventEmitter from "../utils/EventEmitter";
@@ -6,14 +6,16 @@ import ApiClient from "./ApiClient";
 import ObjectManager from "./ObjectManager";
 import {ILocation} from "../api/endpoints/LocationsEndpoint";
 import Graphics from "../drawing/Graphics";
+import DragManager from "../utils/DragManager";
+import IScene from "../interfaces/IScene";
 
-export default class Scene extends EventEmitter {
+export default class Scene extends EventEmitter implements IScene {
   private _location: ILocation;
   public get location(): ILocation {
     return this._location;
   }
   public set location(value: ILocation) {
-    if (this._location && this._location.id !== value.id) {
+    if (!this._location || this._location.id !== value.id) {
       this.apiClient.getTransport().get(ApiClient.mapsBase + '/' + value.map)
         .then(response => {
           if (response.status === 200) {
@@ -46,9 +48,10 @@ export default class Scene extends EventEmitter {
     return this.activePath.querySelector('.path__lines');
   }*/
 
-  private readonly apiClient: ApiClient;
+  public readonly apiClient: ApiClient;
   public readonly selection: Selection;
   public readonly objectManager: ObjectManager;
+  public readonly dragManager: DragManager;
   // public activePath: SVGGElement;
 
   private svg: SVGSVGElement;
@@ -63,16 +66,14 @@ export default class Scene extends EventEmitter {
     container: HTMLElement
   ) {
     super();
-    this.apiClient = ApiClient.getInstance();
-    this.selection = new Selection();
-    this.objectManager = new ObjectManager(this.apiClient);
+
     this.container = container;
     this.root = <SVGSVGElement>Primitive.createElement('svg', false);
     this.container.appendChild(this.root);
     // Create containers for map and paths
     const mapContainer = <SVGGElement>Graphics.createElement('g', false);
     mapContainer.classList.add('scene__map');
-    this.container.appendChild(mapContainer);
+    this.root.appendChild(mapContainer);
     this.mapContainer = mapContainer;
     // TODO: create it only if needed.
     /*const pathsContainer = <SVGGElement>Primitive.createElement('g', false);
@@ -82,6 +83,10 @@ export default class Scene extends EventEmitter {
     this.pathsContainer = pathsContainer;
     this.activePath = Scene.createPath();
     this.pathsContainer.appendChild(this.activePath);*/
+    this.apiClient = ApiClient.getInstance();
+    this.selection = new Selection();
+    this.objectManager = new ObjectManager(this.apiClient);
+    this.dragManager = new DragManager(this);
     this.container.addEventListener('click', this.onMapClick.bind(this));
     this.container.addEventListener('keyup', this.onKeyUp.bind(this))
   }
