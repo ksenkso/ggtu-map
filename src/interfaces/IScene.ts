@@ -1,12 +1,11 @@
-import {ILocation} from "../api/endpoints/LocationsEndpoint";
-import Selection from "../core/Selection";
-import ObjectManager from "../core/ObjectManager";
-import DragManager from "../utils/DragManager";
-import ApiClient from "../core/ApiClient";
-import {ICoords} from "..";
+import {ICoords} from '..';
+import {ILocation} from '../api/endpoints/LocationsEndpoint';
+import ApiClient from '../core/ApiClient';
+import ObjectManager from '../core/ObjectManager';
+import Selection from '../core/Selection';
+import DragManager from '../utils/DragManager';
 
 export default interface IScene {
-  location: ILocation;
   drawingContainer: SVGGElement;
   mapContainer: SVGGElement;
   root: SVGSVGElement;
@@ -19,5 +18,6 @@ export default interface IScene {
   setMapFromString(map: string): void;
   getMouseCoords(e: MouseEvent): ICoords;
   getZoomLevel(bounds: ClientRect): number;
-
+  getLocation(): ILocation;
+  setLocation(location: ILocation): void;
 }

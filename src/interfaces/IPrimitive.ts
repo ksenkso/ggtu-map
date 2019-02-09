@@ -1,8 +1,8 @@
-import Scene from "../core/Scene";
+import Scene from '../core/Scene';
 
 export interface IPrimitive {
   element: SVGElement;
-  isSelected: boolean;
+  selected: boolean;
   destroy(): void;
   appendTo(scene: Scene): void;
   onClick(e: MouseEvent): void;

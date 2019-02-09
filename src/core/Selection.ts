@@ -11,23 +11,20 @@ export default class Selection {
     return this.elements[this.elements.length - 2];
   }
 
-  constructor() {}
-
-
-  add(element: IPrimitive) {
-    element.isSelected = true;
+  public add(element: IPrimitive) {
+    element.selected = true;
     this.elements.push(element);
   }
 
-  remove(element: IPrimitive) {
-    element.isSelected = false;
+  public remove(element: IPrimitive) {
+    element.selected = false;
     this.elements.splice(this.elements.indexOf(element), 1);
   }
 
-  set(items: IPrimitive[]) {
-    this.elements.forEach(element => element.isSelected = false);
-    this.elements = items.map(item => {
-      item.isSelected = true;
+  public set(items: IPrimitive[]) {
+    this.elements.forEach((element) => element.selected = false);
+    this.elements = items.map((item) => {
+      item.selected = true;
       return item;
     });
   }

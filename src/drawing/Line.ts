@@ -1,21 +1,21 @@
-import Primitive, {PrimitiveOptions} from './Primitive';
 import {ICoords} from '..';
 import {IPoint} from '..';
 import {ILine} from '..';
-import Graphics from "./Graphics";
+import Graphics from './Graphics';
+import Primitive, {IPrimitiveOptions} from './Primitive';
 
 export default class Line extends Primitive implements ILine {
     constructor(
       container: SVGSVGElement,
       public from: IPoint,
       public to: IPoint,
-      options?: PrimitiveOptions
+      options?: IPrimitiveOptions,
     ) {
         super(container, options);
         this.init();
         this.container.appendChild(this.element);
     }
-    init() {
+    public init() {
         this.element = Graphics.createElement('line');
         this.element.classList.add('primitive_line');
         this.setCoords(this.from.getPosition(), this.to.getPosition());
@@ -34,7 +34,7 @@ export default class Line extends Primitive implements ILine {
         from.points.delete(to);
         to.points.delete(from);
     }*/
-    setCoords(from?: ICoords, to?: ICoords): void {
+    public setCoords(from?: ICoords, to?: ICoords): void {
         if (from) {
             this.element.setAttribute('x1', String(from.x));
             this.element.setAttribute('y1', String(from.y));
@@ -44,14 +44,11 @@ export default class Line extends Primitive implements ILine {
             this.element.setAttribute('y2', String(to.y));
         }
     }
-    destroy() {
+    public destroy() {
         super.destroy();
     }
-    onClick(e: MouseEvent) {
+    public onClick(e: MouseEvent) {
         e.stopPropagation();
         super.onClick(e);
-    }
-
-    onDestroy(): any {
     }
 }

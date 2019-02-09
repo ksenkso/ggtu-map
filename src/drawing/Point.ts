@@ -1,23 +1,23 @@
 import {ICoords} from '..';
-import Primitive, {PrimitiveOptions} from './Primitive';
 import {ILine, IPoint} from '..';
-import Scene from "../core/Scene";
-import Graphics from "./Graphics";
-import {IDraggable} from "../utils/DragManager";
+import Scene from '../core/Scene';
+import {IDraggable} from '../utils/DragManager';
+import Graphics from './Graphics';
+import Primitive, {IPrimitiveOptions} from './Primitive';
 
-export type PointOptions = PrimitiveOptions & {
+export type PointOptions = IPrimitiveOptions & {
   radius?: number,
-  center?: ICoords
-}
+  center?: ICoords,
+};
 export default class Point extends Primitive implements IDraggable {
-  private readonly radius: number;
   public points: Set<IPoint> = new Set<IPoint>();
   public from: ILine[] = [];
   public to: ILine[] = [];
+  private readonly radius: number;
 
   constructor(
     container: SVGGElement,
-    options?: PointOptions
+    options?: PointOptions,
   ) {
     super(container, options);
     this.radius = options.radius ? options.radius : 2;
@@ -31,7 +31,7 @@ export default class Point extends Primitive implements IDraggable {
     this.container.appendChild(this.element);
   }
 
-  init() {
+  public init() {
     this.element = Graphics.createElement('circle');
     this.element.classList.add('primitive_point');
     this.element.setAttribute('r', String(this.radius));
@@ -41,9 +41,9 @@ export default class Point extends Primitive implements IDraggable {
     // Listen to keyboard event
   }
 
-  onClick(e: MouseEvent) {
+  public onClick(e: MouseEvent) {
     e.stopPropagation();
-    /*const previousObject = this._selection.current;
+    /*const previousObject = this.selection.current;
     if (previousObject && previousObject instanceof Point) {
       if (e.ctrlKey) {
         if (this.path !== previousObject.path) {
@@ -57,9 +57,9 @@ export default class Point extends Primitive implements IDraggable {
             path: this.path
           }) as ConnectPointsCommand;
           this.commandManager.do(connectCommand);
-          /!*const connectCommandFactory = <ConnectPointsCommandFactory><unknown>this.injector.get(ConnectPointsCommand);
+          const connectCommandFactory = <ConnectPointsCommandFactory><unknown>this.injector.get(ConnectPointsCommand);
           const command = connectCommandFactory({from: previousObject, to: this, path: this.path});
-          this.commandManager.do(command);*!/
+          this.commandManager.do(command);
         }
       }
     }*/
@@ -88,22 +88,16 @@ export default class Point extends Primitive implements IDraggable {
     this.commandManager.bufferArgs = [this, position];
   }*/
 
-  setPosition(coords: ICoords) {
+  public setPosition(coords: ICoords) {
     this.element.setAttribute('cx', String(coords.x));
     this.element.setAttribute('cy', String(coords.y));
   }
 
-  getPosition(): ICoords {
+  public getPosition(): ICoords {
     return {x: +this.element.getAttribute('cx'), y: +this.element.getAttribute('cy')};
   }
 
-  destroy() {
-    super.destroy();
-    this.from.forEach((line: ILine) => line.destroy());
-    this.to.forEach((line: ILine) => line.destroy());
-  }
-
-  appendTo(scene: Scene) {
+  public appendTo(scene: Scene) {
     // scene.pointsContainer.appendChild(this.element);
     super.appendTo(scene);
     if (this.isDraggable) {
@@ -114,9 +108,4 @@ export default class Point extends Primitive implements IDraggable {
       linesContainer.appendChild(line.element)
     });*/
   }
-
-  public onDestroy() {
-
-  }
-
 }

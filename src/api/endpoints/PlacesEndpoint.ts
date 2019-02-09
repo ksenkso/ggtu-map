@@ -1,5 +1,5 @@
-import {BaseEndpoint, IDictionary, IEndpoint, PlaceType,} from '../common';
-import {AxiosInstance} from "axios";
+import {AxiosInstance} from 'axios';
+import {BaseEndpoint, IDictionary, IEndpoint, PlaceType} from '../common';
 
 export interface IPlacesEndpoint extends IEndpoint<IPlace> {
 }
@@ -10,7 +10,7 @@ export interface IPlace {
   LocationId: number;
   type: PlaceType;
   container: string;
-  props?: IDictionary
+  props?: IDictionary;
 }
 export default class PlacesEndpoint extends BaseEndpoint implements IPlacesEndpoint {
   protected route: string = 'places/';

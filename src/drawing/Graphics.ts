@@ -1,11 +1,11 @@
-import EventEmitter from "../utils/EventEmitter";
-import Scene from "../core/Scene";
+import Scene from '../core/Scene';
+import EventEmitter from '../utils/EventEmitter';
 
 export default abstract class Graphics extends EventEmitter {
-  public static SVGNamespace = 'http://www.w3.org/2000/svg';
+  public static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
-  static createElement(type: string, isPrimitive = true): SVGElement {
-    const element = <SVGElement>document.createElementNS(Graphics.SVGNamespace, type);
+  public static createElement(type: string, isPrimitive = true): SVGElement {
+    const element = document.createElementNS(Graphics.SVG_NAMESPACE, type) as SVGElement;
     if (isPrimitive) {
       element.classList.add('primitive');
     }
@@ -13,6 +13,5 @@ export default abstract class Graphics extends EventEmitter {
   }
 
   public abstract destroy(): void;
-  public abstract onDestroy(): any;
   public abstract appendTo(scene: Scene): void;
 }

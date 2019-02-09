@@ -1,10 +1,11 @@
+import axios, {AxiosInstance, AxiosResponse} from 'axios';
 import qs = require('qs');
-import {AuthState, IEndpoint, IUser} from "../api/common";
-import BuildingsEndpoint, {IBuildingsEndpoint} from "../api/endpoints/BuildingsEndpoint";
-import axios, {AxiosInstance, AxiosResponse} from "axios";
-import PlacesEndpoint, {IPlacesEndpoint} from "../api/endpoints/PlacesEndpoint";
-import LocationsEndpoint, {ILocationsEndpoint} from "../api/endpoints/LocationsEndpoint";
-import TransitionsEndpoint, {ITransitionsEndpoint} from "../api/endpoints/TransitionsEndpoint";
+import {IAuthState, IEndpoint, IUser} from '..';
+import BuildingsEndpoint, {IBuildingsEndpoint} from '../api/endpoints/BuildingsEndpoint';
+import LocationsEndpoint, {ILocationsEndpoint} from '../api/endpoints/LocationsEndpoint';
+import PlacesEndpoint, {IPlacesEndpoint} from '../api/endpoints/PlacesEndpoint';
+import TransitionsEndpoint, {ITransitionsEndpoint} from '../api/endpoints/TransitionsEndpoint';
+import {UserInfo} from './UserInfo';
 
 export interface ITokenInfo {
   text: string;
@@ -13,38 +14,16 @@ export interface ITokenInfo {
   user_id: number;
 }
 
-export class UserInfo {
-  set user(value: IUser) {
-    if (value) {
-      this._user = value;
-      this.api.getTransport().defaults['Authorization'] = 'Bearer ' + this._user.token;
-    }
-  }
-
-  get user(): IUser {
-    return this._user;
-  }
-
-  private _user: IUser;
-
-  constructor(private api: ApiClient) {
-  }
-
-  public async getTokenInfo(): Promise<ITokenInfo> {
-
-    const api = this.api.getTransport();
-    const response = await api.get<ITokenInfo>('/users/tokenInfo');
-    if (response.status === 200) {
-      return response.data;
-    } else {
-      return null;
-    }
-  }
-}
-
 export default class ApiClient {
 
-  private static instance: ApiClient;
+  private set token(token: string) {
+    this.api.defaults.headers.Authorization = token ? `Bearer ${token}` : '';
+  }
+
+  private get token(): string {
+    return this.userInfo.user.token;
+    // return this.api.defaults.headers['Authorization'].substring(7);
+  }
   public static base = 'http://localhost:3000';
   public static apiBase = ApiClient.base + '/v1';
   public static  mapsBase = ApiClient.base + '/maps';
@@ -56,14 +35,7 @@ export default class ApiClient {
     return ApiClient.instance;
   }
 
-  private set token(token: string) {
-    this.api.defaults.headers['Authorization'] = token ? `Bearer ${token}` : '';
-  }
-
-  private get token(): string {
-    return this.userInfo.user.token;
-    //return this.api.defaults.headers['Authorization'].substring(7);
-  }
+  private static instance: ApiClient;
   public locations: ILocationsEndpoint;
   public buildings: IBuildingsEndpoint;
   public places: IPlacesEndpoint;
@@ -73,9 +45,9 @@ export default class ApiClient {
 
   private constructor(user?: IUser) {
     this.api = axios.create({
-      baseURL: ApiClient.apiBase
+      baseURL: ApiClient.apiBase,
     });
-    this.api.defaults.paramsSerializer = params => qs.stringify(params, {encodeValuesOnly: true});
+    this.api.defaults.paramsSerializer = (params) => qs.stringify(params, {encodeValuesOnly: true});
     this.userInfo = new UserInfo(this);
     if (user) {
       this.userInfo.user = user;
@@ -94,10 +66,10 @@ export default class ApiClient {
    *
    * @throws Error
    */
-  async authenticate(login: string, password: string): Promise<IUser | null> {
+  public async authenticate(login: string, password: string): Promise<IUser | null> {
     const response: AxiosResponse<IUser> = await this.api.post<IUser>('login', {login, password});
     if (response) {
-      this.api.defaults.headers['Authorization'] = `Bearer ${response.data.token}`;
+      this.api.defaults.headers.Authorization = `Bearer ${response.data.token}`;
       this.token = response.data.token;
       this.userInfo.user = response.data;
       return response.data;
@@ -110,9 +82,9 @@ export default class ApiClient {
    *
    * @throws Error
    */
-  async checkToken(token: string): Promise<boolean> {
+  public async checkToken(token: string): Promise<boolean> {
     try {
-      const response: AxiosResponse<AuthState> = await this.api.get<AuthState>('auth', {params: {token}});
+      const response: AxiosResponse<IAuthState> = await this.api.get<IAuthState>('auth', {params: {token}});
       if (response.data.ok) {
         this.token = token;
         const user = this.userInfo.user;

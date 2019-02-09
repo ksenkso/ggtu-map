@@ -1,12 +1,12 @@
 import Vector, {ICoords} from './Vector';
 
-export interface AdjacencyNode {
+export interface IAdjacencyNode {
   marked?: boolean;
   location: ICoords;
   points: number[];
 }
 
-export interface DoorCoords extends ICoords {
+export interface IDoorCoords extends ICoords {
   p: ICoords[];
   id: string;
 }
@@ -31,29 +31,29 @@ export function getIntersectionPoint(a: ICoords, b: ICoords, c: ICoords, d: ICoo
   return point;
 }
 
-export function getDoorCoords(polyline: SVGPolylineElement): DoorCoords {
+export function getDoorCoords(polyline: SVGPolylineElement): IDoorCoords {
   const points = polyline.getAttribute('points').split(' ');
   const p = [
     {x: +points[0], y: +points[1]},
     {
-      x: +points[points.length - 2], y: +points[points.length - 1]
+      x: +points[points.length - 2], y: +points[points.length - 1],
     }];
   const x = p[0].x + (p[1].x - p[0].x) / 2;
   const y = +p[0].y + (p[1].y - p[0].y) / 2;
   return {x, y, p, id: polyline.parentElement.getAttribute('id')};
 }
 
-export interface NormalData extends ICoords {
+export interface INormalData extends ICoords {
   linePoints: ICoords[];
   id?: string;
 }
 
-export function calculateNormals(centers: DoorCoords[]): NormalData[] {
+export function calculateNormals(centers: IDoorCoords[]): INormalData[] {
   return centers.map(({x, y, p, id}) => {
     // Rotate segment by 90 degrees
     const linePoints = [
       new Vector(-p[0].y, p[0].x),
-      new Vector(-p[1].y, p[1].x)
+      new Vector(-p[1].y, p[1].x),
     ];
     // Get coordinates of the center of created segment
     const cx = linePoints[0].x + (linePoints[1].x - linePoints[0].x) / 2;

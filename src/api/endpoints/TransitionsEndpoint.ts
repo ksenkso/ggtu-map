@@ -1,13 +1,13 @@
-import {BaseEndpoint, IEndpoint} from "../common";
-import {AxiosInstance} from "axios";
-import TransitionViewsEndpoint, {ITransitionView} from "./TransitionViewsEndpoint";
+import {AxiosInstance} from 'axios';
+import {BaseEndpoint, IEndpoint} from '../common';
+import TransitionViewsEndpoint, {ITransitionView} from './TransitionViewsEndpoint';
 
 export interface ITransition {
   id?: number;
   name: string;
   type: string;
   BuildingId: number;
-  Views?: Array<ITransitionView>
+  Views?: ITransitionView[];
 }
 
 export interface ITransitionsEndpoint extends IEndpoint<ITransition> {
@@ -15,8 +15,8 @@ export interface ITransitionsEndpoint extends IEndpoint<ITransition> {
 }
 
 export default class TransitionsEndpoint extends BaseEndpoint implements ITransitionsEndpoint {
-  protected route: string = 'transitions/';
   public readonly views: TransitionViewsEndpoint;
+  protected route: string = 'transitions/';
   constructor(api: AxiosInstance) {
     super(api);
     this.views = new TransitionViewsEndpoint(api);

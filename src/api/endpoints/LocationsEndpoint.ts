@@ -1,11 +1,11 @@
-import {BaseEndpoint, IEndpoint, IGetParams, LocationObjectsCollection, MapObject,} from "../common";
-import {AxiosInstance} from "axios";
-import {IPlace} from "./PlacesEndpoint";
+import {AxiosInstance} from 'axios';
+import {BaseEndpoint, IEndpoint, IGetParams, ILocationObjectsCollection} from '../common';
+import {IPlace} from './PlacesEndpoint';
 
 export interface ILocationsEndpoint extends IEndpoint<ILocation> {
-  getPlaces(locationId: number, params?: IGetParams): Promise<IPlace[]>
+  getPlaces(locationId: number, params?: IGetParams): Promise<IPlace[]>;
   getRoot(): Promise<ILocation>;
-  getObjects(locationId: number): Promise<LocationObjectsCollection>
+  getObjects(locationId: number): Promise<ILocationObjectsCollection>;
 }
 
 export interface ILocation {
@@ -22,7 +22,7 @@ export default class LocationsEndpoint extends BaseEndpoint implements ILocation
     super(api);
   }
 
-  async getPlaces(locationId: number, params?: IGetParams): Promise<IPlace[] | null> {
+  public async getPlaces(locationId: number, params?: IGetParams): Promise<IPlace[] | null> {
     const response = await this.api.get<IPlace[]>(this.route + locationId + '/places', {params});
     if (response.status === 200) {
       return response.data;
@@ -31,7 +31,7 @@ export default class LocationsEndpoint extends BaseEndpoint implements ILocation
     }
   }
 
-  async getRoot(): Promise<ILocation> {
+  public async getRoot(): Promise<ILocation> {
     const response = await this.api.get<ILocation>(this.route + 'root');
     if (response.status === 200) {
       return response.data;
@@ -40,10 +40,10 @@ export default class LocationsEndpoint extends BaseEndpoint implements ILocation
     }
   }
 
-  async getObjects(locationId: number): Promise<LocationObjectsCollection> {
-    const response = await this.api.get<LocationObjectsCollection>(this.route + locationId + '/objects');
+  public async getObjects(locationId: number): Promise<ILocationObjectsCollection> {
+    const response = await this.api.get<ILocationObjectsCollection>(this.route + locationId + '/objects');
     if (response.status === 200) {
-      return response.data
+      return response.data;
     } else {
       return null;
     }

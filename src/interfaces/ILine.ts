@@ -1,6 +1,6 @@
-import {IPrimitive} from './IPrimitive';
 import {ICoords} from '..';
 import {IPoint} from './IPoint';
+import {IPrimitive} from './IPrimitive';
 
 export interface ILine extends IPrimitive {
   from: IPoint;

@@ -1,5 +1,5 @@
-import {BaseEndpoint, IEndpoint} from "../common";
-import {AxiosInstance} from "axios";
+import {AxiosInstance} from 'axios';
+import {BaseEndpoint, IEndpoint} from '../common';
 
 export interface ITransitionView {
   id?: number;
@@ -7,7 +7,6 @@ export interface ITransitionView {
   TransitionId: number;
   LocationId: number;
 }
-
 
 export default class TransitionViewsEndpoint extends BaseEndpoint implements IEndpoint<ITransitionView> {
   protected route: string = 'transition-views/';

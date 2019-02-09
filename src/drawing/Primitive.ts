@@ -1,25 +1,16 @@
-import Selection from '../core/Selection';
 import {IPrimitive} from '..';
-import Scene from "../core/Scene";
-import Graphics from "./Graphics";
-import {IDragData} from "../utils/DragManager";
+import Scene from '../core/Scene';
+import Selection from '../core/Selection';
+import {IDragData} from '../utils/DragManager';
+import Graphics from './Graphics';
 
-export type PrimitiveOptions = {
-  draggable?: boolean
-};
+export interface IPrimitiveOptions {
+  draggable?: boolean;
+}
 export default abstract class Primitive extends Graphics implements IPrimitive {
-  public static defaultOptions: PrimitiveOptions = {
-    draggable: false
-  };
 
-  private _isSelected = false;
-  public isDraggable = false;
-  public dragData: IDragData;
-  public element: SVGElement;
-  protected _selection?: Selection;
-
-  set isSelected(value) {
-    this._isSelected = value;
+  set selected(value) {
+    this.isSelected = value;
     if (value) {
       this.element.classList.add('primitive_active');
     } else {
@@ -27,37 +18,46 @@ export default abstract class Primitive extends Graphics implements IPrimitive {
     }
   }
 
-  get isSelected() {
-    return this._isSelected;
+  get selected() {
+    return this.isSelected;
   }
+  public static defaultOptions: IPrimitiveOptions = {
+    draggable: false,
+  };
+  public isDraggable = false;
+  public dragData: IDragData;
+  public element: SVGElement;
+  protected selection?: Selection;
+
+  private isSelected = false;
 
   protected constructor(
     protected container: SVGElement,
-    options?: PrimitiveOptions
+    options?: IPrimitiveOptions,
   ) {
     super();
-    const _options: PrimitiveOptions = Object.assign({}, Primitive.defaultOptions, options);
-    this.isDraggable = _options.draggable;
+    const mergedOptions: IPrimitiveOptions = Object.assign({}, Primitive.defaultOptions, options);
+    this.isDraggable = mergedOptions.draggable;
   }
 
   public destroy() {
     this.element.remove();
-    this._selection = null;
+    this.selection = null;
   }
 
   public onClick(e) {
     if (e.shiftKey) {
-      if (this.isSelected) {
-        this._selection.remove(this);
+      if (this.selected) {
+        this.selection.remove(this);
       } else {
-        this._selection.add(this);
+        this.selection.add(this);
       }
     } else {
-      this._selection.set([this]);
+      this.selection.set([this]);
     }
     this.emit('click', {
       originalEvent: e,
-      target: this
+      target: this,
     });
   }
 

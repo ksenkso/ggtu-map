@@ -1,44 +1,64 @@
-import {ICoords} from "..";
+import {ICoords} from '..';
+import {ILocation} from '../api/endpoints/LocationsEndpoint';
+import Graphics from '../drawing/Graphics';
+import Primitive from '../drawing/Primitive';
+import IScene from '../interfaces/IScene';
+import DragManager from '../utils/DragManager';
+import EventEmitter from '../utils/EventEmitter';
+import ApiClient from './ApiClient';
+import ObjectManager from './ObjectManager';
 import Selection from './Selection';
-import Primitive from "../drawing/Primitive";
-import EventEmitter from "../utils/EventEmitter";
-import ApiClient from "./ApiClient";
-import ObjectManager from "./ObjectManager";
-import {ILocation} from "../api/endpoints/LocationsEndpoint";
-import Graphics from "../drawing/Graphics";
-import DragManager from "../utils/DragManager";
-import IScene from "../interfaces/IScene";
 
 export default class Scene extends EventEmitter implements IScene {
-  private _location: ILocation;
-  public get location(): ILocation {
-    return this._location;
-  }
-  public set location(value: ILocation) {
-    if (!this._location || this._location.id !== value.id) {
-      this.apiClient.getTransport().get(ApiClient.mapsBase + '/' + value.map)
-        .then(response => {
-          if (response.status === 200) {
-            this.setMapFromString(response.data as string);
-            this.objectManager.updateLocation(value.id)
-              .then(() => {
-                const places = this.objectManager.places;
-                for (let i = 0; i < places.length; i++) {
-                  const place = places[i];
-                  const el = <SVGElement>this.mapContainer.querySelector('#' + place.container);
-                  if (el) {
-                    Scene.setLabel(el, place.name);
-                  }
-                }
-              });
-          }
-        })
-        .catch(error => {
-        //  TODO: create an error handling system
-          console.error(error);
-        })
+
+  /*private static createPath(): SVGGElement {
+    const path = <SVGGElement>Primitive.createElement('g');
+    path.classList.add('primitive_path');
+    const lines = Primitive.createElement('g');
+    lines.classList.add('path__lines');
+    path.appendChild(lines);
+    const points = Primitive.createElement('g');
+    points.classList.add('path__points');
+    path.appendChild(points);
+    return path;
+  }*/
+
+  /*public getAdjacencyList(list): IAdjacencyNode[] {
+    return list.map((point: IPoint) => {
+      const points: number[] = [];
+      point.points.forEach((v: IPoint) => {
+        points.push(list.indexOf(v));
+      });
+      return {
+        location: point.getPosition(),
+        points
+      };
+    });
+  }*/
+
+  /**
+   * Sets a label for an object on the map
+   * @param el
+   * @param name
+   */
+  public static setLabel(el: SVGGraphicsElement | ICoords, name: string) {
+    const text = Primitive.createElement('text') as SVGTextElement;
+    text.textContent = name;
+    let x, y;
+    if (el instanceof SVGGraphicsElement) {
+      // get the box before text element is appended, otherwise it will extend the box to the top-left corner of the SVG
+      const rect = el.getBBox();
+      el.appendChild(text);
+      const textRect = text.getBBox();
+      x = rect.x + (rect.width - textRect.width) / 2;
+      y = rect.y + (rect.height + textRect.height) / 2;
+    } else {
+      x = el.x;
+      y = el.y;
     }
-    this._location = value;
+    text.setAttribute('x', String(x));
+    text.setAttribute('y', String(y));
+
   }
 
   /*public get pointsContainer() {
@@ -52,26 +72,27 @@ export default class Scene extends EventEmitter implements IScene {
   public readonly selection: Selection;
   public readonly objectManager: ObjectManager;
   public readonly dragManager: DragManager;
-  // public activePath: SVGGElement;
-
-  private svg: SVGSVGElement;
   // private pathsContainer: SVGGElement;
 
   public drawingContainer: SVGGElement;
   public mapContainer: SVGGElement;
   public root: SVGSVGElement;
   public container: HTMLElement;
+  private _location: ILocation;
+  // public activePath: SVGGElement;
+
+  private svg: SVGSVGElement;
 
   constructor(
-    container: HTMLElement
+    container: HTMLElement,
   ) {
     super();
 
     this.container = container;
-    this.root = <SVGSVGElement>Primitive.createElement('svg', false);
+    this.root = Primitive.createElement('svg', false) as SVGSVGElement;
     this.container.appendChild(this.root);
     // Create containers for map and paths
-    const mapContainer = <SVGGElement>Graphics.createElement('g', false);
+    const mapContainer = Graphics.createElement('g', false) as SVGGElement;
     mapContainer.classList.add('scene__map');
     this.root.appendChild(mapContainer);
     this.mapContainer = mapContainer;
@@ -88,54 +109,43 @@ export default class Scene extends EventEmitter implements IScene {
     this.objectManager = new ObjectManager(this.apiClient);
     this.dragManager = new DragManager(this);
     this.container.addEventListener('click', this.onMapClick.bind(this));
-    this.container.addEventListener('keyup', this.onKeyUp.bind(this))
+    this.container.addEventListener('keyup', this.onKeyUp.bind(this));
   }
 
-  private onMapClick(event: MouseEvent): void {
-    const payload: any = {
-      originalEvent: event,
-      mapCoords: this.getMouseCoords(event),
-    };
-    // Find an object in the event path:
-    const path = event.composedPath();
-    const mapElement = <SVGElement>path.find((target: Element) => target.matches('g[data-type]'));
-    const type = mapElement.dataset.type;
-    if (mapElement) {
-      payload.mapElement = mapElement;
-      const id = +mapElement.dataset.id;
-      if (id) {
-        // Check if we have this object.
-        const mapObject = this.objectManager.getCollectionByType(type).find(item => item.id === id);
-        if (mapObject) {
-          payload.mapObject = mapObject;
-        } else {
-          payload.mapObjectId = id;
-        }
-      }
-    }
-    this.emit('click', payload);
+  public getLocation(): ILocation {
+    return this._location;
   }
-
-  private updateMap(map: SVGSVGElement): void {
-    if (this.svg) {
-      this.svg.remove();
+  public setLocation(value: ILocation) {
+    if (!this._location || this._location.id !== value.id) {
+      this.apiClient.getTransport().get(ApiClient.mapsBase + '/' + value.map)
+        .then((response) => {
+          if (response.status === 200) {
+            this.setMapFromString(response.data as string);
+            this.objectManager.updateLocation(value.id)
+              .then(() => {
+                const objects: any[] = (this.objectManager.places as any[]).concat(this.objectManager.buildings);
+                for (const object of objects) {
+                  const selector = '#' + CSS.escape(object.container);
+                  const el = this.mapContainer.querySelector(selector) as SVGGraphicsElement;
+                  if (el) {
+                    console.log(selector);
+                    Scene.setLabel(el, object.name);
+                  }
+                }
+              });
+          }
+        })
+        .catch((error) => {
+          //  TODO: create an error handling system
+          console.error(error);
+        });
     }
-    const viewBox = map.getAttribute('viewBox');
-    if (viewBox) {
-      this.container.setAttribute('viewBox', viewBox);
-    }
-    this.svg = map;
-    this.mapContainer.innerHTML = map.innerHTML;
-    // TODO: change map structure to render UI and primitives
-    /*this.pathsContainer.innerHTML = '';
-    this.activePath = Scene.createPath();
-    this.pathsContainer.appendChild(this.activePath);*/
-    this.emit('mapChanged');
+    this._location = value;
   }
 
   public setMapFromString(map: string) {
     const parser = new DOMParser();
-    const dom = parser.parseFromString(map, "image/svg+xml");
+    const dom = parser.parseFromString(map, 'image/svg+xml');
     const root = dom.firstElementChild;
     this.updateMap(root as SVGSVGElement);
   }
@@ -169,49 +179,45 @@ export default class Scene extends EventEmitter implements IScene {
     return bounds.width / +viewBox[2];
   }
 
-  private onKeyUp(e) {
-    this.emit('keyup', e);
+  private onMapClick(event: MouseEvent): void {
+    const payload: any = {
+      mapCoords: this.getMouseCoords(event),
+      originalEvent: event,
+    };
+    // Find an object in the event path:
+    const path = event.composedPath();
+    const mapElement = path.find((target: Element) => target.matches('g[data-type]')) as SVGElement;
+    const type = mapElement.dataset.type;
+    payload.objectType = type;
+    if (mapElement) {
+      payload.mapElement = mapElement;
+      const id = +mapElement.dataset.id;
+      if (id) {
+        // Check if we have this object.
+        payload.mapObject = this.objectManager.getCollectionByType(type).find((item) => item.id === id);
+      }
+    }
+    this.emit('click', payload);
   }
 
-  /*private static createPath(): SVGGElement {
-    const path = <SVGGElement>Primitive.createElement('g');
-    path.classList.add('primitive_path');
-    const lines = Primitive.createElement('g');
-    lines.classList.add('path__lines');
-    path.appendChild(lines);
-    const points = Primitive.createElement('g');
-    points.classList.add('path__points');
-    path.appendChild(points);
-    return path;
-  }*/
+  private updateMap(map: SVGSVGElement): void {
+    if (this.svg) {
+      this.svg.remove();
+    }
+    const viewBox = map.getAttribute('viewBox');
+    if (viewBox) {
+      this.container.setAttribute('viewBox', viewBox);
+    }
+    this.svg = map;
+    this.mapContainer.innerHTML = map.innerHTML;
+    // TODO: change map structure to render UI and primitives
+    /*this.pathsContainer.innerHTML = '';
+    this.activePath = Scene.createPath();
+    this.pathsContainer.appendChild(this.activePath);*/
+    this.emit('mapChanged');
+  }
 
-  /*public getAdjacencyList(list): AdjacencyNode[] {
-    return list.map((point: IPoint) => {
-      const points: number[] = [];
-      point.points.forEach((v: IPoint) => {
-        points.push(list.indexOf(v));
-      });
-      return {
-        location: point.getPosition(),
-        points
-      };
-    });
-  }*/
-
-  /**
-   * Sets a label for an object on the map
-   * @param el
-   * @param name
-   */
-  private static setLabel(el: SVGElement, name: string) {
-    const text = <SVGTextElement>Primitive.createElement('text');
-    text.textContent = name;
-    el.appendChild(text);
-    const rect = el.getBoundingClientRect();
-    const textRect = text.getBoundingClientRect();
-    const x = rect.left + (rect.width - textRect.width)/2;
-    const y = rect.top + (rect.height - textRect.height)/2;
-    text.setAttribute('x', String(x));
-    text.setAttribute('y', String(y));
+  private onKeyUp(e) {
+    this.emit('keyup', e);
   }
 }

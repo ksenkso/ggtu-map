@@ -1,11 +1,11 @@
-import ApiClient from "../../src/core/ApiClient";
 import {expect} from 'chai';
 import cheerio = require('cheerio');
 import request = require('request');
-import {ILocation} from "../../src/api/endpoints/LocationsEndpoint";
-import {IBuilding} from "../../src/api/endpoints/BuildingsEndpoint";
-import {IPlace} from "../../src/api/endpoints/PlacesEndpoint";
-import Scene from "../../src/core/Scene";
+import {IBuilding} from '../../src/api/endpoints/BuildingsEndpoint';
+import {ILocation} from '../../src/api/endpoints/LocationsEndpoint';
+import {IPlace} from '../../src/api/endpoints/PlacesEndpoint';
+import ApiClient from '../../src/core/ApiClient';
+import Scene from '../../src/core/Scene';
 
 const api = ApiClient.getInstance();
 const MAPS_ADDRESS = process.env.MAPS_ADDRESS;
@@ -18,8 +18,8 @@ function loadMap(location: ILocation): Promise<any> {
       } else {
         reject(err);
       }
-    })
-  })
+    });
+  });
 }
 
 describe.skip('ApiClient', () => {
@@ -27,25 +27,25 @@ describe.skip('ApiClient', () => {
       it('should authenticate a user', () => {
         return api
           .authenticate('root', 'root')
-          .then(user => {
+          .then((user) => {
             expect(user).to.have.property('token');
-            expect(user.token).to.be.a('string')
-          })
+            expect(user.token).to.be.a('string');
+          });
       });
       it('should check allow valid token', () => {
         return api
           .checkToken(api.userInfo.user.token)
-          .then(isValid => {
+          .then((isValid) => {
             expect(isValid).to.be.true;
-          })
+          });
       });
       it('should reject invalid token', () => {
         return api
           .checkToken('invalid token')
-          .then(isValid => {
+          .then((isValid) => {
             expect(isValid).to.be.false;
           });
-      })
+      });
     });
 
     describe('Endpoints', () => {
@@ -54,68 +54,68 @@ describe.skip('ApiClient', () => {
       });
       describe('Locations', () => {
         const location: ILocation = {
+          BuildingId: 5,
           name: 'test place',
-          BuildingId: 5
         };
         it('should create a location', () => {
           return api.locations.create(location)
-            .then(newLocation => {
+            .then((newLocation) => {
               expect(newLocation).to.have.property('id');
               expect(newLocation.id).to.be.a('number');
               expect(newLocation.name).to.be.equal(location.name);
               expect(newLocation.BuildingId).to.be.equal(location.BuildingId);
               location.id = newLocation.id;
             })
-            .catch(err => {
+            .catch((err) => {
               console.error(err);
-            })
+            });
         });
         it('should fetch created location', () => {
           return api.locations.get(location.id)
-            .then(data => {
+            .then((data) => {
               expect(data).to.have.property('id');
               expect(data.id).to.be.equal(location.id);
               expect(data).to.have.property('createdAt');
               expect(data).to.have.property('updatedAt');
             })
-            .catch(err => {
+            .catch((err) => {
               console.error(err);
-            })
+            });
         });
         it('should update created location', () => {
           const newName = 'new location name';
           const newBuildingId = 6;
           return api.locations.update(location.id, {name: newName, BuildingId: newBuildingId})
-            .then(updated => {
+            .then((updated) => {
               expect(updated).to.have.property('id');
               expect(updated.id).to.be.equal(location.id);
               expect(updated.name).to.be.equal(newName);
               expect(updated.BuildingId).to.be.equal(newBuildingId);
             })
-            .catch(err => {
+            .catch((err) => {
               console.error(err);
-            })
+            });
         });
         it('should delete created location', () => {
           return api.locations.delete(location.id)
-            .then(deleted => {
+            .then((deleted) => {
               expect(deleted).to.be.true;
             })
-            .catch(err => {
+            .catch((err) => {
               console.error(err);
-            })
-        })
+            });
+        });
       });
       describe('Buildings', () => {
         const building: IBuilding = {
+          container: 'ad27b3ca-d1d9-47e5-bdc8-5c5471c5527a',
           name: 'test building',
           type: 'study',
-          container: 'ad27b3ca-d1d9-47e5-bdc8-5c5471c5527a'
         };
         it('should create a building', (done) => {
           api.buildings
             .create(building)
-            .then(created => {
+            .then((created) => {
               expect(created).to.have.property('id');
               expect(created.name).to.be.equal(building.name);
               expect(created.container).to.be.equal(building.container);
@@ -123,18 +123,18 @@ describe.skip('ApiClient', () => {
               building.id = created.id;
               console.log(created.id);
               api.locations.getRoot()
-                .then(root => loadMap(root))
-                .then($ => {
+                .then((root) => loadMap(root))
+                .then(($) => {
                   const element = $(`g[data-type="building"][data-id="${building.id}"]`);
                   expect(element).to.not.be.null;
                   done();
-                })
-            })
+                });
+            });
         });
         it('should fetch a building', (done) => {
           api.buildings
             .get(building.id)
-            .then(fetched => {
+            .then((fetched) => {
               expect(fetched.id).to.be.equal(building.id);
               expect(fetched.name).to.be.equal(building.name);
               expect(fetched.type).to.be.equal(building.type);
@@ -146,33 +146,33 @@ describe.skip('ApiClient', () => {
           const newType = 'other';
           api.buildings
             .update(building.id, {name: newName, type: newType})
-            .then(updated => {
+            .then((updated) => {
               expect(updated.name).to.be.equal(newName);
               expect(updated.type).to.be.equal(newType);
-              done()
-            })
+              done();
+            });
         });
         it('should delete a building', (done) => {
           api.buildings
             .delete(building.id)
-            .then(deleted => expect(deleted).to.be.true)
+            .then((deleted) => expect(deleted).to.be.true)
             .then(() => done());
         });
       });
       describe('Places', () => {
         const place: IPlace = {
-          name: 'test place',
-          LocationId: 2,
           container: '6b8143d9-934c-4418-9e04-755a53101f50',
-          type: "cabinet",
+          name: 'test place',
           props: {
-            hasProjector: true
-          }
+            hasProjector: true,
+          },
+          LocationId: 2,
+          type: 'cabinet',
         };
         it('should create a place', () => {
           return api.places
             .create(place)
-            .then(created => {
+            .then((created) => {
               expect(created).to.have.property('id');
               expect(created).to.have.property('props');
               expect(created.props).to.be.an('object');
@@ -182,16 +182,16 @@ describe.skip('ApiClient', () => {
               return api.locations
                 .get(place.LocationId)
                 .then(loadMap)
-                .then($ => {
+                .then(($) => {
                   const element = $(`g[data-type="place"][data-id="${created.id}"]`);
                   expect(element).to.be.not.null;
                 });
-            })
+            });
         });
         it('should fetch a place', () => {
           return api.places
             .get(place.id)
-            .then(fetched => {
+            .then((fetched) => {
               expect(fetched).to.have.property('createdAt');
               expect(fetched).to.have.property('updatedAt');
               expect(fetched.id).to.be.equal(place.id);
@@ -205,29 +205,29 @@ describe.skip('ApiClient', () => {
           const newProps = {hasTrainers: false};
           return api.places
             .update(place.id, {name: newName, type: newType, props: newProps})
-            .then(updated => {
+            .then((updated) => {
               expect(updated).to.have.property('props');
               expect(updated.props).to.be.an('object');
               expect(updated.props).to.have.property('hasTrainers');
               expect(updated.props.hasTrainers).to.be.false;
               expect(updated.name).to.be.equal(newName);
               expect(updated.type).to.be.equal(newType);
-            })
+            });
 
         });
 
         it('should delete a place', () => {
           return api.places
             .delete(place.id)
-            .then(deleted => expect(deleted).to.be.true);
+            .then((deleted) => expect(deleted).to.be.true);
         });
       });
 
-    })
+    });
 });
 describe('Scene', () => {
-  
+
   describe('Map', () => {
-    it('should load a map with given location')
-  })
-})
+    it('should load a map with given location');
+  });
+});
