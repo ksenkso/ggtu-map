@@ -56,7 +56,7 @@ export interface IUser {
 }
 
 export type BuildingType = 'study' | 'other';
-
+export type ObjectType = 'place' | 'building' | 'transition' | 'transition-view';
 export type MapObject = IPlace | IBuilding | ITransition | ITransitionView;
 
 export class BaseEndpoint {
