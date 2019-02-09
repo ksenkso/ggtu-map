@@ -195,16 +195,19 @@ export default class Scene extends EventEmitter implements IScene {
       originalEvent: event,
     };
     // Find an object in the event path:
-    const path = event.composedPath();
+    const path = event.composedPath().filter((el) => el !== window && el !== document);
+    console.log(path);
     const mapElement = path.find((target: Element) => target.matches('g[data-type]')) as SVGGElement;
-    const type = mapElement.dataset.type as ObjectType;
-    payload.objectType = type;
     if (mapElement) {
-      payload.mapElement = mapElement;
-      const id = +mapElement.dataset.id;
-      if (id) {
-        // Check if we have this object.
-        payload.mapObject = this.objectManager.getCollectionByType(type).find((item) => item.id === id);
+      const type = mapElement.dataset.type as ObjectType;
+      payload.objectType = type;
+      if (mapElement) {
+        payload.mapElement = mapElement;
+        const id = +mapElement.dataset.id;
+        if (id) {
+          // Check if we have this object.
+          payload.mapObject = this.objectManager.getCollectionByType(type).find((item) => item.id === id);
+        }
       }
     }
     this.emit('click', payload);
