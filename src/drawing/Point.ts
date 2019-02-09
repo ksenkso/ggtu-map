@@ -1,5 +1,4 @@
 import {ICoords} from '..';
-import {ILine, IPoint} from '..';
 import Scene from '../core/Scene';
 import {IDraggable} from '../utils/DragManager';
 import Graphics from './Graphics';
@@ -10,35 +9,49 @@ export type PointOptions = IPrimitiveOptions & {
   center?: ICoords,
 };
 export default class Point extends Primitive implements IDraggable {
-  public points: Set<IPoint> = new Set<IPoint>();
+
+  /*public points: Set<IPoint> = new Set<IPoint>();
   public from: ILine[] = [];
-  public to: ILine[] = [];
-  private readonly radius: number;
+  public to: ILine[] = [];*/
+  private _radius: number;
+  private _position: ICoords;
 
   constructor(
-    container: SVGGElement,
     options?: PointOptions,
   ) {
-    super(container, options);
-    this.radius = options.radius ? options.radius : 2;
+    super(options);
+    this.init();
     if (options.center) {
       this.setPosition(options.center);
     }
-    this.points = new Set();
+    this.setRadius(options.radius ? options.radius : 2);
+    /*this.points = new Set();
     this.from = [];
-    this.to = [];
-    this.init();
-    this.container.appendChild(this.element);
+    this.to = [];*/
+  }
+  public getRadius(): number {
+    return this._radius;
+  }
+
+  public setRadius(value: number) {
+    this._radius = value;
+    this.element.setAttribute('r', String(value));
+  }
+
+  public setPosition(coords: ICoords) {
+    this._position = coords;
+    this.element.setAttribute('cx', String(coords.x));
+    this.element.setAttribute('cy', String(coords.y));
+  }
+
+  public getPosition(): ICoords {
+    return this._position;
   }
 
   public init() {
     this.element = Graphics.createElement('circle');
     this.element.classList.add('primitive_point');
-    this.element.setAttribute('r', String(this.radius));
     this.element.addEventListener('click', this.onClick.bind(this));
-    // super.init();
-    // Register global event listeners
-    // Listen to keyboard event
   }
 
   public onClick(e: MouseEvent) {
@@ -87,15 +100,6 @@ export default class Point extends Primitive implements IDraggable {
     DragAndDrop.delta = Vector.sub(position, Scene.getMouseCoords(e));
     this.commandManager.bufferArgs = [this, position];
   }*/
-
-  public setPosition(coords: ICoords) {
-    this.element.setAttribute('cx', String(coords.x));
-    this.element.setAttribute('cy', String(coords.y));
-  }
-
-  public getPosition(): ICoords {
-    return {x: +this.element.getAttribute('cx'), y: +this.element.getAttribute('cy')};
-  }
 
   public appendTo(scene: Scene) {
     // scene.pointsContainer.appendChild(this.element);
