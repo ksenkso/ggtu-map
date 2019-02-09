@@ -34,7 +34,7 @@ export interface IDraggableEntry {
 export default class DragManager extends EventEmitter {
   public isDragging = false;
   public draggable: IDraggable;
-  private draggables: IDraggableEntry[];
+  private draggables: IDraggableEntry[] = [];
   constructor(private scene: IScene) {
     super();
     this.scene.mapContainer.addEventListener('mousemove', this.onMouseMove.bind(this));
