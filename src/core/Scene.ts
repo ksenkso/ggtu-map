@@ -1,4 +1,4 @@
-import {ICoords} from '..';
+import {ICoords, MapObject, ObjectType} from '..';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import Graphics from '../drawing/Graphics';
 import Primitive from '../drawing/Primitive';
@@ -8,6 +8,14 @@ import EventEmitter from '../utils/EventEmitter';
 import ApiClient from './ApiClient';
 import ObjectManager from './ObjectManager';
 import Selection from './Selection';
+
+export interface IMapMouseEvent {
+  originalEvent: MouseEvent;
+  mapCoords: ICoords;
+  objectType?: ObjectType;
+  mapObject?: MapObject;
+  mapElement?: SVGGElement;
+}
 
 export default class Scene extends EventEmitter implements IScene {
 
@@ -92,10 +100,12 @@ export default class Scene extends EventEmitter implements IScene {
     this.root = Primitive.createElement('svg', false) as SVGSVGElement;
     this.container.appendChild(this.root);
     // Create containers for map and paths
-    const mapContainer = Graphics.createElement('g', false) as SVGGElement;
-    mapContainer.classList.add('scene__map');
-    this.root.appendChild(mapContainer);
-    this.mapContainer = mapContainer;
+    this.mapContainer = Graphics.createElement('g', false) as SVGGElement;
+    this.mapContainer.classList.add('scene__map');
+    this.root.appendChild(this.mapContainer);
+    this.drawingContainer = Graphics.createElement('g', false) as SVGGElement;
+    this.drawingContainer.classList.add('scene__drawing');
+    this.root.appendChild(this.drawingContainer);
     // TODO: create it only if needed.
     /*const pathsContainer = <SVGGElement>Primitive.createElement('g', false);
     const pathsContainer = <SVGGElement>Graphics.createElement('g', false);
@@ -180,14 +190,14 @@ export default class Scene extends EventEmitter implements IScene {
   }
 
   private onMapClick(event: MouseEvent): void {
-    const payload: any = {
+    const payload: IMapMouseEvent = {
       mapCoords: this.getMouseCoords(event),
       originalEvent: event,
     };
     // Find an object in the event path:
     const path = event.composedPath();
-    const mapElement = path.find((target: Element) => target.matches('g[data-type]')) as SVGElement;
-    const type = mapElement.dataset.type;
+    const mapElement = path.find((target: Element) => target.matches('g[data-type]')) as SVGGElement;
+    const type = mapElement.dataset.type as ObjectType;
     payload.objectType = type;
     if (mapElement) {
       payload.mapElement = mapElement;

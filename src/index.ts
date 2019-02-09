@@ -2,7 +2,7 @@ import 'css.escape';
 export * from './api/common';
 export * from './api/endpoints';
 export {default as ApiClient} from './core/ApiClient';
-export {default as Scene} from './core/Scene';
+export {default as Scene, IMapMouseEvent} from './core/Scene';
 export {default as Selection} from './core/Selection';
 export {default as Primitive} from './drawing/Primitive';
 export {default as Point} from './drawing/Point';
