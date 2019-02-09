@@ -6,14 +6,12 @@ import Primitive, {IPrimitiveOptions} from './Primitive';
 
 export default class Line extends Primitive implements ILine {
     constructor(
-      container: SVGSVGElement,
       public from: IPoint,
       public to: IPoint,
       options?: IPrimitiveOptions,
     ) {
-        super(container, options);
+        super(options);
         this.init();
-        this.container.appendChild(this.element);
     }
     public init() {
         this.element = Graphics.createElement('line');
