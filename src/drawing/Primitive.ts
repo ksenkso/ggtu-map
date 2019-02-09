@@ -1,6 +1,7 @@
 import {IPrimitive} from '..';
 import Scene from '../core/Scene';
 import Selection from '../core/Selection';
+import {DragData} from '../utils/DragData';
 import {IDragData} from '../utils/DragManager';
 import Graphics from './Graphics';
 
@@ -25,14 +26,13 @@ export default abstract class Primitive extends Graphics implements IPrimitive {
     draggable: false,
   };
   public isDraggable = false;
-  public dragData: IDragData;
+  public dragData: IDragData = new DragData();
   public element: SVGElement;
   protected selection?: Selection;
 
   private isSelected = false;
 
   protected constructor(
-    protected container: SVGElement,
     options?: IPrimitiveOptions,
   ) {
     super();
@@ -62,7 +62,8 @@ export default abstract class Primitive extends Graphics implements IPrimitive {
   }
 
   public appendTo(scene: Scene): void {
-    scene.mapContainer.appendChild(this.element);
+    scene.drawingContainer.appendChild(this.element);
+    this.selection = scene.selection;
   }
 
 }
