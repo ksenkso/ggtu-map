@@ -37,7 +37,7 @@ export default class DragManager extends EventEmitter {
   private draggables: IDraggableEntry[] = [];
   constructor(private scene: IScene) {
     super();
-    this.scene.mapContainer.addEventListener('mousemove', this.onMouseMove.bind(this));
+    this.scene.container.addEventListener('mousemove', this.onMouseMove.bind(this));
   }
   public enableDragging(primitive: IDraggable, options?: IDraggableConfig) {
     const entry: IDraggableEntry = {
@@ -76,7 +76,10 @@ export default class DragManager extends EventEmitter {
   }
 
   private onMouseMove(e: MouseEvent) {
+    console.log('drag');
+
     if (this.isDragging && this.draggable) {
+      e.stopPropagation();
       const coords = this.scene.getMouseCoords(e);
       this.draggable.setPosition(coords);
       if (this.draggable.onDragMove) {
