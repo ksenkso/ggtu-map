@@ -19,31 +19,6 @@ export interface IMapMouseEvent {
 
 export default class Scene extends EventEmitter implements IScene {
 
-  /*private static createPath(): SVGGElement {
-    const path = <SVGGElement>Primitive.createElement('g');
-    path.classList.add('primitive_path');
-    const lines = Primitive.createElement('g');
-    lines.classList.add('path__lines');
-    path.appendChild(lines);
-    const points = Primitive.createElement('g');
-    points.classList.add('path__points');
-    path.appendChild(points);
-    return path;
-  }*/
-
-  /*public getAdjacencyList(list): IAdjacencyNode[] {
-    return list.map((point: IPoint) => {
-      const points: number[] = [];
-      point.points.forEach((v: IPoint) => {
-        points.push(list.indexOf(v));
-      });
-      return {
-        location: point.getPosition(),
-        points
-      };
-    });
-  }*/
-
   /**
    * Sets a label for an object on the map
    * @param el
@@ -187,6 +162,10 @@ export default class Scene extends EventEmitter implements IScene {
   public getZoomLevel(bounds: ClientRect): number {
     const viewBox = this.container.getAttribute('viewBox').split(' ');
     return bounds.width / +viewBox[2];
+  }
+
+  public async refresh(): Promise<void> {
+    return this.objectManager.updateLocation(this._location.id);
   }
 
   private onMapClick(event: MouseEvent): void {
