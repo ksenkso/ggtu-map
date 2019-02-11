@@ -24,7 +24,7 @@ export default class Point extends Primitive implements IDraggable {
     if (options.center) {
       this.setPosition(options.center);
     }
-    this.setRadius(options.radius ? options.radius : 2);
+    this.setRadius(options.radius ? options.radius : 5);
     /*this.points = new Set();
     this.from = [];
     this.to = [];*/

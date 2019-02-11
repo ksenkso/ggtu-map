@@ -1,14 +1,18 @@
 import IGraphPoint from '../interfaces/IGraphPoint';
-import {IGraph} from './Graph';
+import {IGraph, IGraphPointOptions} from './Graph';
 import {IGraphEdge} from './IGraphEdge';
-import Point, {PointOptions} from './Point';
+import Point from './Point';
 
 export default class GraphPoint extends Point implements IGraphPoint {
   public edges: IGraphEdge[] = [];
   public siblings: IGraphPoint[] = [];
+  public mapObjectId: number;
 
-  constructor(options: PointOptions) {
+  constructor(options: IGraphPointOptions) {
     super(options);
+    if (options.mapObjectId) {
+      this.mapObjectId = options.mapObjectId;
+    }
   }
 
   public onDragMove(e: MouseEvent): void {
