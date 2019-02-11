@@ -76,8 +76,6 @@ export default class DragManager extends EventEmitter {
   }
 
   private onMouseMove(e: MouseEvent) {
-    console.log('drag');
-
     if (this.isDragging && this.draggable) {
       e.stopPropagation();
       const coords = this.scene.getMouseCoords(e);
