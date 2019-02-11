@@ -2,8 +2,9 @@ import Vector, {ICoords} from './Vector';
 
 export interface IAdjacencyNode {
   marked?: boolean;
-  location: ICoords;
-  points: number[];
+  ObjectId?: number;
+  position: ICoords;
+  siblings: number[];
 }
 
 export interface IDoorCoords extends ICoords {
