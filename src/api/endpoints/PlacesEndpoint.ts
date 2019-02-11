@@ -1,4 +1,5 @@
 import {AxiosInstance} from 'axios';
+import {IMapObject} from '../../interfaces/IMapObject';
 import {BaseEndpoint, IDictionary, IEndpoint, PlaceType} from '../common';
 
 export interface IPlacesEndpoint extends IEndpoint<IPlace> {
@@ -10,7 +11,8 @@ export interface IPlace {
   LocationId: number;
   type: PlaceType;
   container: string;
-  props?: IDictionary;
+  Props?: IDictionary;
+  MapObject?: IMapObject;
 }
 export default class PlacesEndpoint extends BaseEndpoint implements IPlacesEndpoint {
   protected route: string = 'places/';
