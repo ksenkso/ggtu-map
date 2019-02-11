@@ -7,6 +7,8 @@ export default class GraphEdge extends Line implements IGraphEdge {
     super(start.getPosition(), end.getPosition());
     start.edges.push(this);
     end.edges.push(this);
+    start.siblings.push(end);
+    end.siblings.push(start);
   }
 
   public update() {
