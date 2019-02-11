@@ -1,6 +1,7 @@
 import Scene from '../core/Scene';
 import Selection from '../core/Selection';
 import IGraphPoint from '../interfaces/IGraphPoint';
+import ISerializable from '../interfaces/ISerializable';
 import {IAdjacencyNode} from '../utils';
 import DragManager from '../utils/DragManager';
 import GraphEdge from './GraphEdge';
@@ -14,29 +15,40 @@ export interface IGraph {
   readonly container: SVGGElement;
   readonly vertices: IGraphPoint[];
   readonly edges: IGraphEdge[];
-  getAdjacencyList(): IAdjacencyNode[];
+
   addPoint(options?: IGraphPointOptions): IGraphPoint;
 }
 
 export interface IGraphPointOptions extends PointOptions {
-  connectCurrent: boolean;
+  connectCurrent?: boolean;
+  mapObjectId?: number;
 }
 
-export default class Graph extends Graphics implements IGraph {
-
-  public static fromAdjacencyList(list: IAdjacencyNode[]): IGraph {
-    // TODO: implement list parsing
-    return null;
-  }
+export default class Graph extends Graphics implements IGraph, ISerializable {
   public vertices: IGraphPoint[] = [];
   public edges: IGraphEdge[] = [];
   public readonly container: SVGGElement;
   public selection: Selection;
   private dragManager: DragManager;
+
   constructor() {
     super();
     this.container = Graphics.createElement('g', false) as SVGGElement;
   }
+
+  public restore(list: IAdjacencyNode[], index = 0): this {
+    const point = list[index];
+    if (!point.marked) {
+      point.marked = true;
+      const current = this.addPoint({center: point.position});
+      point.siblings.forEach((i) => {
+        this.restore(list, i);
+        this.selection.set([current]);
+      });
+    }
+    return this;
+  }
+
   public appendTo(scene: Scene): void {
     scene.drawingContainer.appendChild(this.container);
     this.selection = scene.selection;
@@ -63,8 +75,17 @@ export default class Graph extends Graphics implements IGraph {
     return point;
   }
 
-  public getAdjacencyList(): IAdjacencyNode[] {
-    return [];
+  public serialize(): IAdjacencyNode[] {
+    return this.vertices.map((vertex) => {
+      const siblings: number[] = [];
+      vertex.siblings.forEach((v) => {
+        siblings.push(this.vertices.indexOf(v));
+      });
+      return {
+        position: vertex.getPosition(),
+        siblings,
+        ObjectId: vertex.mapObjectId,
+      };
+    });
   }
-
 }
