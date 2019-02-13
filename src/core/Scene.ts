@@ -100,30 +100,36 @@ export default class Scene extends EventEmitter implements IScene {
   public getLocation(): ILocation {
     return this._location;
   }
-  public setLocation(value: ILocation) {
-    if (!this._location || this._location.id !== value.id) {
-      this.apiClient.getTransport().get(ApiClient.mapsBase + '/' + value.map)
-        .then((response) => {
-          if (response.status === 200) {
-            this.setMapFromString(response.data as string);
-            this.objectManager.updateLocation(value.id)
-              .then(() => {
-                const objects: any[] = (this.objectManager.places as any[]).concat(this.objectManager.buildings);
-                for (const object of objects) {
-                  const selector = '#' + CSS.escape(object.container);
-                  const el = this.mapContainer.querySelector(selector) as SVGGraphicsElement;
-                  if (el) {
-                    console.log(selector);
-                    Scene.setLabel(el, object.name);
+
+  public setLocation(value: ILocation, force = false) {
+    if (force || (!this._location || this._location.id !== value.id)) {
+      this._location = value;
+      if (value.map) {
+        this.apiClient.getTransport().get(ApiClient.mapsBase + '/' + value.map)
+          .then((response) => {
+            if (response.status === 200) {
+              this.setMapFromString(response.data as string);
+              this.objectManager.updateLocation(value.id)
+                .then(() => {
+                  const objects: any[] = (this.objectManager.places as any[]).concat(this.objectManager.buildings);
+                  for (const object of objects) {
+                    const selector = '#' + CSS.escape(object.container);
+                    const el = this.mapContainer.querySelector(selector) as SVGGraphicsElement;
+                    if (el) {
+                      console.log(selector);
+                      Scene.setLabel(el, object.name);
+                    }
                   }
-                }
-              });
-          }
-        })
-        .catch((error) => {
-          //  TODO: create an error handling system
-          console.error(error);
-        });
+                });
+            }
+          })
+          .catch((error) => {
+            //  TODO: create an error handling system
+            console.error(error);
+          });
+      } else {
+        throw new Error('Map is not available');
+      }
     }
     this._location = value;
   }
@@ -165,7 +171,8 @@ export default class Scene extends EventEmitter implements IScene {
   }
 
   public async refresh(): Promise<void> {
-    return this.objectManager.updateLocation(this._location.id);
+    const updated = await this.apiClient.locations.get(this._location.id);
+    this.setLocation(updated, true);
   }
 
   private onMapClick(event: MouseEvent): void {
