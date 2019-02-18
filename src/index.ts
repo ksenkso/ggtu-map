@@ -15,3 +15,4 @@ export {IPrimitive} from './interfaces/IPrimitive';
 export {ILine} from './interfaces/ILine';
 export {IPoint} from './interfaces/IPoint';
 export {IGraphEdge} from './drawing/IGraphEdge';
+import './styles/main.sass';
