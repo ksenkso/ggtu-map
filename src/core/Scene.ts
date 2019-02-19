@@ -171,16 +171,16 @@ export default class Scene extends EventEmitter implements IScene {
   }
 
   public getViewBox(): number[] {
-    return this.container.getAttribute('viewBox').split(' ').map((v) => +v);
+    return this.root.getAttribute('viewBox').split(' ').map((v) => +v);
   }
 
   public setViewBox(viewBox: number[]): void {
-    this.container.setAttribute('viewBox', viewBox.join(' '));
+    this.root.setAttribute('viewBox', viewBox.join(' '));
   }
 
   public getZoomLevel(bounds: ClientRect): number {
-    const viewBox = this.container.getAttribute('viewBox').split(' ');
-    return bounds.width / +viewBox[2];
+    const viewBox = this.getViewBox();
+    return bounds.width / viewBox[2];
   }
 
   public async refresh(): Promise<void> {
@@ -218,7 +218,7 @@ export default class Scene extends EventEmitter implements IScene {
     }
     const viewBox = map.getAttribute('viewBox');
     if (viewBox) {
-      this.container.setAttribute('viewBox', viewBox);
+      this.root.setAttribute('viewBox', viewBox);
     }
     this.svg = map;
     this.mapContainer.innerHTML = map.innerHTML;
