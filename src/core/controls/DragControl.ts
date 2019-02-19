@@ -1,6 +1,6 @@
 import Vector, {ICoords} from '../../utils/Vector';
-import BaseControl from './BaseControl';
 import Scene from '../Scene';
+import BaseControl from './BaseControl';
 
 export default class DragControl extends BaseControl {
     public isDragging = false;
@@ -19,17 +19,13 @@ export default class DragControl extends BaseControl {
 
     public onDragMove(e) {
         if (this.isDragging  && (e.movementX || e.movementY)) {
-            // debugger;
             const coords = this.scene.getMouseCoords(e);
             const delta = Vector.sub(coords, this.prevCoords);
-            if (delta.x || delta.y) {
-                this.prevCoords = coords;
-                this.setPosition(Vector.sub(this.position, delta));
-            }
+            this.setPosition(Vector.sub(this.position, delta));
         }
     }
 
-    public onDragEnd(e) {
+    public onDragEnd() {
         console.log('dragend');
         this.isDragging = false;
     }
