@@ -1,6 +1,10 @@
 $inner-wall: 0.3
 $outer-wall: $inner-wall * 2
-
+.map
+  &__root
+    --scale: 1
+    *
+      transform: scale(var(--scale))
 svg *
   stroke: #899494
   stroke-width: $inner-wall

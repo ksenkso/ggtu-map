@@ -79,6 +79,7 @@ export default class Scene extends EventEmitter implements IScene {
 
     this.container = container;
     this.root = Primitive.createElement('svg', false) as SVGSVGElement;
+    this.root.classList.add('map__root');
     this.container.appendChild(this.root);
     // Create containers for map and paths
     this.mapContainer = Graphics.createElement('g', false) as SVGGElement;
