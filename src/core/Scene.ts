@@ -8,9 +8,9 @@ import IScene from '../interfaces/IScene';
 import DragManager from '../utils/DragManager';
 import EventEmitter from '../utils/EventEmitter';
 import ApiClient from './ApiClient';
+import DragControl from './controls/DragControl';
 import ObjectManager from './ObjectManager';
 import Selection from './Selection';
-import DragControl from "./controls/DragControl";
 export interface IMapMouseEvent {
   originalEvent: MouseEvent;
   mapCoords: ICoords;
@@ -165,6 +165,14 @@ export default class Scene extends EventEmitter implements IScene {
     const x = (e.clientX - bounds.left) / zoomLevel;
     const y = (e.clientY - bounds.top) / zoomLevel;
     return {x, y};
+  }
+
+  public getViewBox(): number[] {
+    return this.container.getAttribute('viewBox').split(' ').map((v) => +v);
+  }
+
+  public setViewBox(viewBox: number[]): void {
+    this.container.setAttribute('viewBox', viewBox.join(' '));
   }
 
   public getZoomLevel(bounds: ClientRect): number {

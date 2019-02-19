@@ -1,5 +1,5 @@
+import IScene from '../../interfaces/IScene';
 import Vector, {ICoords} from '../../utils/Vector';
-import Scene from '../Scene';
 import BaseControl from './BaseControl';
 
 export default class DragControl extends BaseControl {
@@ -31,7 +31,7 @@ export default class DragControl extends BaseControl {
     }
 
     public getPosition() {
-        const viewBox = this.getViewBox();
+        const viewBox = this.scene.getViewBox();
         if (viewBox) {
             return {x: viewBox[0], y: viewBox[1]};
         } else {
@@ -40,33 +40,16 @@ export default class DragControl extends BaseControl {
     }
 
     public setPosition(coords: ICoords) {
-        const viewBox = this.getViewBox();
+        const viewBox = this.scene.getViewBox();
         viewBox[0] = coords.x;
         viewBox[1] = coords.y;
-        this.setViewBox(viewBox);
+        this.scene.setViewBox(viewBox);
         this.position = coords;
     }
 
-    public appendTo(scene: Scene): void {
+    public appendTo(scene: IScene): void {
         super.appendTo(scene);
         this.init();
-    }
-
-    private getViewBox(): number[] {
-        if (this.scene) {
-            return this.scene.container
-                .getAttribute('viewBox')
-                .split(' ')
-                .map((v) => +v);
-        } else {
-            return null;
-        }
-    }
-
-    private setViewBox(viewBox: number[]) {
-        if (this.scene) {
-            this.scene.container.setAttribute('viewBox', viewBox.join(' '));
-        }
     }
 
     private init() {
