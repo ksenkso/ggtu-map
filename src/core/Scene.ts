@@ -9,6 +9,7 @@ import DragManager from '../utils/DragManager';
 import EventEmitter from '../utils/EventEmitter';
 import ApiClient from './ApiClient';
 import DragControl from './controls/DragControl';
+import ZoomControl from './controls/ZoomControl';
 import ObjectManager from './ObjectManager';
 import Selection from './Selection';
 export interface IMapMouseEvent {
@@ -91,6 +92,8 @@ export default class Scene extends EventEmitter implements IScene {
     this.interactable = interact(this.container);
     const drag = new DragControl();
     drag.appendTo(this);
+    const zoom = new ZoomControl();
+    zoom.appendTo(this);
     this.apiClient = ApiClient.getInstance();
     this.selection = new Selection();
     this.objectManager = new ObjectManager(this.apiClient);

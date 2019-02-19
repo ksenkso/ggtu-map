@@ -5,8 +5,9 @@ import ApiClient from '../core/ApiClient';
 import ObjectManager from '../core/ObjectManager';
 import Selection from '../core/Selection';
 import DragManager from '../utils/DragManager';
+import {IEventEmitter} from '../utils/EventEmitter';
 
-export default interface IScene {
+export default interface IScene extends IEventEmitter {
   drawingContainer: SVGGElement;
   mapContainer: SVGGElement;
   root: SVGSVGElement;

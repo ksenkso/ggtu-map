@@ -1,5 +1,10 @@
 export interface ICallbacksCollection {[key: string]: Array<(...args: any[]) => any>; }
-export default class EventEmitter {
+export interface IEventEmitter {
+  on(event: string, callback: (...args: any[]) => any): void;
+  off(event: string, callback: () => any): void;
+  emit(event: string, payload?: any): void;
+}
+export default class EventEmitter implements IEventEmitter {
   private events: ICallbacksCollection = {};
 
   public on(event: string, callback: (...args: any[]) => any): void {
