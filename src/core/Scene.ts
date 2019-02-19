@@ -10,7 +10,7 @@ import EventEmitter from '../utils/EventEmitter';
 import ApiClient from './ApiClient';
 import ObjectManager from './ObjectManager';
 import Selection from './Selection';
-import DragControl from "./DragControl";
+import DragControl from "./controls/DragControl";
 export interface IMapMouseEvent {
   originalEvent: MouseEvent;
   mapCoords: ICoords;

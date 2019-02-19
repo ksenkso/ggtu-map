@@ -1,6 +1,6 @@
-import Vector, {ICoords} from '../utils/Vector';
-import BaseControl from './controls/BaseControl';
-import Scene from './Scene';
+import Vector, {ICoords} from '../../utils/Vector';
+import BaseControl from './BaseControl';
+import Scene from '../Scene';
 
 export default class DragControl extends BaseControl {
     public isDragging = false;
