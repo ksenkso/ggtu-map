@@ -33,6 +33,7 @@
     "cheerio": "^1.0.0-rc.2",
     "css.escape": "^1.5.1",
     "dotenv": "^6.2.0",
+    "interactjs": "^1.3.4",
     "qs": "^6.6.0",
     "reflect-metadata": "^0.1.12",
     "request": "^2.88.0"

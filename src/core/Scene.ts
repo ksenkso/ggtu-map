@@ -1,3 +1,5 @@
+import interact = require('interactjs');
+import {Interactable} from 'interactjs';
 import {ICoords, MapObject, ObjectType} from '..';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import Graphics from '../drawing/Graphics';
@@ -8,7 +10,7 @@ import EventEmitter from '../utils/EventEmitter';
 import ApiClient from './ApiClient';
 import ObjectManager from './ObjectManager';
 import Selection from './Selection';
-
+import DragControl from "./DragControl";
 export interface IMapMouseEvent {
   originalEvent: MouseEvent;
   mapCoords: ICoords;
@@ -55,12 +57,15 @@ export default class Scene extends EventEmitter implements IScene {
   public readonly selection: Selection;
   public readonly objectManager: ObjectManager;
   public readonly dragManager: DragManager;
+  public readonly interactable: Interactable;
   // private pathsContainer: SVGGElement;
 
   public drawingContainer: SVGGElement;
   public mapContainer: SVGGElement;
+  public controlsContainer: SVGElement;
   public root: SVGSVGElement;
   public container: HTMLElement;
+
   private _location: ILocation;
   // public activePath: SVGGElement;
 
@@ -81,14 +86,11 @@ export default class Scene extends EventEmitter implements IScene {
     this.drawingContainer = Graphics.createElement('g', false) as SVGGElement;
     this.drawingContainer.classList.add('scene__drawing');
     this.root.appendChild(this.drawingContainer);
-    // TODO: create it only if needed.
-    /*const pathsContainer = <SVGGElement>Primitive.createElement('g', false);
-    const pathsContainer = <SVGGElement>Graphics.createElement('g', false);
-    pathsContainer.classList.add('scene__paths');
-    this.container.appendChild(pathsContainer);
-    this.pathsContainer = pathsContainer;
-    this.activePath = Scene.createPath();
-    this.pathsContainer.appendChild(this.activePath);*/
+    this.controlsContainer = Graphics.createElement('g', false) as SVGGElement;
+    this.root.appendChild(this.controlsContainer);
+    this.interactable = interact(this.container);
+    const drag = new DragControl();
+    drag.appendTo(this);
     this.apiClient = ApiClient.getInstance();
     this.selection = new Selection();
     this.objectManager = new ObjectManager(this.apiClient);

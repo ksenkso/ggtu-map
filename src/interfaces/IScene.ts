@@ -1,3 +1,4 @@
+import {Interactable} from 'interactjs';
 import {ICoords} from '..';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import ApiClient from '../core/ApiClient';
@@ -10,11 +11,12 @@ export default interface IScene {
   mapContainer: SVGGElement;
   root: SVGSVGElement;
   container: HTMLElement;
+  controlsContainer: SVGElement;
   readonly apiClient: ApiClient;
   readonly selection: Selection;
   readonly objectManager: ObjectManager;
   readonly dragManager: DragManager;
-
+  readonly interactable: Interactable;
   setMapFromString(map: string): void;
   getMouseCoords(e: MouseEvent): ICoords;
   getZoomLevel(bounds: ClientRect): number;
