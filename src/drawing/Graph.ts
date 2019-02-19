@@ -1,6 +1,6 @@
-import Scene from '../core/Scene';
 import Selection from '../core/Selection';
 import IGraphPoint from '../interfaces/IGraphPoint';
+import IScene from '../interfaces/IScene';
 import ISerializable from '../interfaces/ISerializable';
 import {IAdjacencyNode} from '../utils';
 import DragManager from '../utils/DragManager';
@@ -49,7 +49,7 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
     return this;
   }
 
-  public appendTo(scene: Scene): void {
+  public appendTo(scene: IScene): void {
     scene.drawingContainer.appendChild(this.container);
     this.selection = scene.selection;
     this.dragManager = scene.dragManager;

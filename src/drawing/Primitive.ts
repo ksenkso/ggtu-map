@@ -1,6 +1,6 @@
 import {IPrimitive} from '..';
-import Scene from '../core/Scene';
 import Selection from '../core/Selection';
+import IScene from '../interfaces/IScene';
 import {DragData} from '../utils/DragData';
 import {IDragData} from '../utils/DragManager';
 import Graphics from './Graphics';
@@ -61,7 +61,7 @@ export default abstract class Primitive extends Graphics implements IPrimitive {
     });
   }
 
-  public appendTo(scene: Scene): void {
+  public appendTo(scene: IScene): void {
     scene.drawingContainer.appendChild(this.element);
     this.selection = scene.selection;
   }

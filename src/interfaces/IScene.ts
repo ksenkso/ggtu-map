@@ -19,6 +19,8 @@ export default interface IScene {
   readonly interactable: Interactable;
   setMapFromString(map: string): void;
   getMouseCoords(e: MouseEvent): ICoords;
+  getViewBox(): number[];
+  setViewBox(viewBox: number[]): void;
   getZoomLevel(bounds: ClientRect): number;
   getLocation(): ILocation;
   setLocation(location: ILocation): void;

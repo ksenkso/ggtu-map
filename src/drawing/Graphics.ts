@@ -1,4 +1,4 @@
-import Scene from '../core/Scene';
+import IScene from '../interfaces/IScene';
 import EventEmitter from '../utils/EventEmitter';
 
 export default abstract class Graphics extends EventEmitter {
@@ -13,5 +13,5 @@ export default abstract class Graphics extends EventEmitter {
   }
 
   public abstract destroy(): void;
-  public abstract appendTo(scene: Scene): void;
+  public abstract appendTo(scene: IScene): void;
 }

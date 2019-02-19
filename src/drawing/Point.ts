@@ -1,5 +1,5 @@
 import {ICoords} from '..';
-import Scene from '../core/Scene';
+import IScene from '../interfaces/IScene';
 import {IDraggable} from '../utils/DragManager';
 import Graphics from './Graphics';
 import Primitive, {IPrimitiveOptions} from './Primitive';
@@ -101,7 +101,7 @@ export default class Point extends Primitive implements IDraggable {
     this.commandManager.bufferArgs = [this, position];
   }*/
 
-  public appendTo(scene: Scene) {
+  public appendTo(scene: IScene): void {
     // scene.pointsContainer.appendChild(this.element);
     super.appendTo(scene);
     if (this.isDraggable) {
