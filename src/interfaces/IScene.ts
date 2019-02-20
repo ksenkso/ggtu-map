@@ -13,6 +13,7 @@ export default interface IScene extends IEventEmitter {
   root: SVGSVGElement;
   container: HTMLElement;
   controlsContainer: SVGElement;
+  labelsContainer: SVGGElement;
   readonly apiClient: ApiClient;
   readonly selection: Selection;
   readonly objectManager: ObjectManager;

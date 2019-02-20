@@ -1,10 +1,13 @@
+@import "primitives"
 $inner-wall: 0.3
 $outer-wall: $inner-wall * 2
-.map
-  &__root
-    --scale: 1
-    *
-      transform: scale(var(--scale))
+.map__root
+  --scale: 1
+  --origin: 50% 50%
+.scene__map
+  transform: scale(var(--scale))
+  transform-origin: var(--origin)
+
 svg *
   stroke: #899494
   stroke-width: $inner-wall

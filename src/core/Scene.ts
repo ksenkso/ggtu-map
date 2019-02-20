@@ -22,31 +22,6 @@ export interface IMapMouseEvent {
 
 export default class Scene extends EventEmitter implements IScene {
 
-  /**
-   * Sets a label for an object on the map
-   * @param el
-   * @param name
-   */
-  public static setLabel(el: SVGGraphicsElement | ICoords, name: string) {
-    const text = Primitive.createElement('text') as SVGTextElement;
-    text.textContent = name;
-    let x, y;
-    if (el instanceof SVGGraphicsElement) {
-      // get the box before text element is appended, otherwise it will extend the box to the top-left corner of the SVG
-      const rect = el.getBBox();
-      el.appendChild(text);
-      const textRect = text.getBBox();
-      x = rect.x + (rect.width - textRect.width) / 2;
-      y = rect.y + (rect.height + textRect.height) / 2;
-    } else {
-      x = el.x;
-      y = el.y;
-    }
-    text.setAttribute('x', String(x));
-    text.setAttribute('y', String(y));
-
-  }
-
   /*public get pointsContainer() {
     return this.activePath.querySelector('.path__points');
   }
@@ -64,6 +39,7 @@ export default class Scene extends EventEmitter implements IScene {
   public drawingContainer: SVGGElement;
   public mapContainer: SVGGElement;
   public controlsContainer: SVGElement;
+  public labelsContainer: SVGGElement;
   public root: SVGSVGElement;
   public container: HTMLElement;
 
@@ -90,6 +66,9 @@ export default class Scene extends EventEmitter implements IScene {
     this.root.appendChild(this.drawingContainer);
     this.controlsContainer = Graphics.createElement('g', false) as SVGGElement;
     this.root.appendChild(this.controlsContainer);
+    this.labelsContainer = Graphics.createElement('g', false) as SVGGElement;
+    this.labelsContainer.classList.add('map__labels');
+    this.root.appendChild(this.labelsContainer);
     this.interactable = interact(this.container);
     const drag = new DragControl();
     drag.appendTo(this);
@@ -101,6 +80,38 @@ export default class Scene extends EventEmitter implements IScene {
     this.dragManager = new DragManager(this);
     this.container.addEventListener('click', this.onMapClick.bind(this));
     this.container.addEventListener('keyup', this.onKeyUp.bind(this));
+  }
+
+  /**
+   * Sets a label for an object on the map
+   * @param el
+   * @param name
+   */
+  public setLabel(el: SVGGraphicsElement | ICoords, name: string) {
+    const text = Primitive.createElement('text') as SVGTextElement;
+    text.classList.add('primitive_label');
+
+    text.textContent = name;
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'middle');
+
+    let x, y;
+    if (el instanceof SVGGraphicsElement) {
+      // get the box before text element is appended, otherwise it will extend the box to the top-left corner of the SVG
+      const rect = el.getBBox();
+      this.labelsContainer.appendChild(text);
+      // const textRect = text.getBBox();
+      /*x = rect.x + (rect.width - textRect.width) / 2;
+      y = rect.y + (rect.height + textRect.height) / 2;*/
+      x = rect.x + rect.width / 2;
+      y = rect.y + rect.height / 2;
+    } else {
+      x = el.x;
+      y = el.y;
+    }
+    text.setAttribute('x', String(x));
+    text.setAttribute('y', String(y));
+
   }
 
   public getLocation(): ILocation {
@@ -123,7 +134,7 @@ export default class Scene extends EventEmitter implements IScene {
                     const el = this.mapContainer.querySelector(selector) as SVGGraphicsElement;
                     if (el) {
                       console.log(selector);
-                      Scene.setLabel(el, object.name);
+                      this.setLabel(el, object.name);
                     }
                   }
                 });
