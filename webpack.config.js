@@ -2,6 +2,7 @@ const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
+    mode: 'development',
     entry: './src/index.ts',
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -14,7 +15,9 @@ module.exports = {
             {
                 test: /\.ts$/,
                 use: 'ts-loader',
-                exclude: /node_modules/
+                exclude: [
+                    /node_modules/,
+                ]
             },
             {
                 test: /\.sass/,
@@ -37,5 +40,11 @@ module.exports = {
             filename: "[name].css",
             chunkFilename: "[id].css"
         })
-    ]
+    ],
+    watchOptions: {
+        ignored: [
+            /node_modules/,
+            /dist/
+        ]
+    },
 };
