@@ -4,9 +4,13 @@ $outer-wall: $inner-wall * 2
 .map__root
   --scale: 1
   --origin: 50% 50%
+  --label-font-size: 2.5px
 .scene__map
-  transform: scale(var(--scale))
-  transform-origin: var(--origin)
+  &_no-labels
+    .primitive_label
+      display: none
+  //transform: scale(var(--scale))
+  //transform-origin: var(--origin)
 
 svg *
   stroke: #899494
