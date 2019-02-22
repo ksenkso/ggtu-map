@@ -176,7 +176,7 @@ export default class Scene extends EventEmitter implements IScene {
     }*/
 
     public getMouseCoords(e: MouseEvent): ICoords {
-        const bounds = this.mapContainer.getBoundingClientRect();
+        const bounds = this.root.getBoundingClientRect();
         const zoomLevel = this.getZoomLevel(bounds);
         const x = (e.clientX - bounds.left) / zoomLevel;
         const y = (e.clientY - bounds.top) / zoomLevel;
