@@ -5,6 +5,7 @@ import Graphics from '../drawing/Graphics';
 import GraphPoint from '../drawing/GraphPoint';
 import Primitive from '../drawing/Primitive';
 import IScene from '../interfaces/IScene';
+import {getMapElementAtCoords} from '../utils/dom';
 import DragManager from '../utils/DragManager';
 import EventEmitter from '../utils/EventEmitter';
 import ApiClient from './ApiClient';
@@ -172,6 +173,28 @@ export default class Scene extends EventEmitter implements IScene {
         this.updateMap(root as SVGSVGElement);
     }
 
+    public getMouseEventInfo(event: MouseEvent): IMapMouseEvent {
+        const payload: IMapMouseEvent = {
+            mapCoords: this.getMouseCoords(event),
+            originalEvent: event,
+        };
+        // Find an object in the event path:
+        const mapElement = getMapElementAtCoords(event.clientX, event.clientY);
+        if (mapElement) {
+            const type = mapElement.dataset.type as ObjectType;
+            payload.objectType = type;
+            if (mapElement) {
+                payload.mapElement = mapElement;
+                const id = +mapElement.dataset.id;
+                if (id) {
+                    // Check if we have this object.
+                    payload.mapObject = this.objectManager.getCollectionByType(type).find((item) => item.id === id);
+                }
+            }
+        }
+        return payload;
+    }
+
     public getMouseCoords(e: MouseEvent): ICoords {
         let p = this.root.createSVGPoint();
         console.log(e);
@@ -187,11 +210,6 @@ export default class Scene extends EventEmitter implements IScene {
 
     public setViewBox(viewBox: number[]): void {
         this.root.setAttribute('viewBox', viewBox.join(' '));
-    }
-
-    public getZoomLevel(bounds: ClientRect): number {
-        const viewBox = this.getViewBox();
-        return bounds.width / (viewBox[2] - viewBox[0]);
     }
 
     public async refresh(): Promise<void> {
@@ -211,26 +229,7 @@ export default class Scene extends EventEmitter implements IScene {
          * To prevent map clicks after the map is panned, check for this flag
          */
         if (this._shouldHandleMapClick) {
-            const payload: IMapMouseEvent = {
-                mapCoords: this.getMouseCoords(event),
-                originalEvent: event,
-            };
-            // Find an object in the event path:
-            const path = event.composedPath().filter((el) => el !== window && el !== document);
-            console.log(path);
-            const mapElement = path.find((target: Element) => target.matches('g[data-type]')) as SVGGElement;
-            if (mapElement) {
-                const type = mapElement.dataset.type as ObjectType;
-                payload.objectType = type;
-                if (mapElement) {
-                    payload.mapElement = mapElement;
-                    const id = +mapElement.dataset.id;
-                    if (id) {
-                        // Check if we have this object.
-                        payload.mapObject = this.objectManager.getCollectionByType(type).find((item) => item.id === id);
-                    }
-                }
-            }
+            const payload = this.getMouseEventInfo(event);
             this.emit('click', payload);
         }
     }

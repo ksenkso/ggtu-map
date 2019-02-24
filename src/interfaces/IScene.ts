@@ -1,4 +1,4 @@
-import {ICoords} from '..';
+import {ICoords, IMapMouseEvent} from '..';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import ApiClient from '../core/ApiClient';
 import ObjectManager from '../core/ObjectManager';
@@ -20,7 +20,7 @@ export default interface IScene extends IEventEmitter {
   getMouseCoords(e: MouseEvent): ICoords;
   getViewBox(): number[];
   setViewBox(viewBox: number[]): void;
-  getZoomLevel(bounds: ClientRect): number;
+  getMouseEventInfo(event: MouseEvent): IMapMouseEvent;
   getLocation(): ILocation;
   setLocation(location: ILocation): void;
 }
