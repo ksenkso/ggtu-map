@@ -7,6 +7,7 @@ export default class GraphPoint extends Point implements IGraphPoint {
   public edges: IGraphEdge[] = [];
   public siblings: IGraphPoint[] = [];
   public mapObjectId: number;
+  public graph: IGraph;
 
   constructor(options: IGraphPointOptions) {
     super(options);
@@ -19,13 +20,19 @@ export default class GraphPoint extends Point implements IGraphPoint {
     this.edges.forEach((edge) => edge.update());
   }
 
-  public onDestroy() {
+  public destroy() {
+    super.destroy();
     for (const edge of this.edges) {
       (edge as any).destroy();
+    }
+    const index = this.graph.vertices.indexOf(this);
+    if (index !== -1) {
+      this.graph.vertices.splice(index, 1);
     }
   }
 
   public setGraph(graph: IGraph) {
+    this.graph = graph;
     graph.container.appendChild(this.element);
     graph.vertices.push(this);
     this.selection = graph.selection;
