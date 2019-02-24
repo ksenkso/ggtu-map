@@ -1,5 +1,4 @@
-import interact = require('interactjs');
-import {Interactable} from 'interactjs';
+import svgPanZoom = require('svg-pan-zoom');
 import {ICoords, MapObject, ObjectType} from '..';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import Graphics from '../drawing/Graphics';
@@ -8,8 +7,6 @@ import IScene from '../interfaces/IScene';
 import DragManager from '../utils/DragManager';
 import EventEmitter from '../utils/EventEmitter';
 import ApiClient from './ApiClient';
-import DragControl from './controls/DragControl';
-import ZoomControl from './controls/ZoomControl';
 import ObjectManager from './ObjectManager';
 import Selection from './Selection';
 
@@ -51,31 +48,20 @@ export default class Scene extends EventEmitter implements IScene {
         text.setAttribute('x', String(x));
         text.setAttribute('y', String(y));
     }
-
-    /*public get pointsContainer() {
-      return this.activePath.querySelector('.path__points');
-    }
-    public get linesContainer() {
-      return this.activePath.querySelector('.path__lines');
-    }*/
-
     public readonly apiClient: ApiClient;
     public readonly selection: Selection;
     public readonly objectManager: ObjectManager;
     public readonly dragManager: DragManager;
-    public readonly interactable: Interactable;
-    // private pathsContainer: SVGGElement;
 
     public drawingContainer: SVGGElement;
     public mapContainer: SVGGElement;
-    public controlsContainer: SVGElement;
     public labelsContainer: SVGGElement;
     public root: SVGSVGElement;
     public container: HTMLElement;
+    public panZoom: SvgPanZoom.Instance;
 
     private _location: ILocation;
-    // public activePath: SVGGElement;
-
+    private _shouldHandleMapClick: boolean;
     private svg: SVGSVGElement;
 
     constructor(
@@ -87,29 +73,25 @@ export default class Scene extends EventEmitter implements IScene {
         this.root = Primitive.createElement('svg', false) as SVGSVGElement;
         this.root.classList.add('map__root');
         this.container.appendChild(this.root);
-        // Create containers for map and paths
+        // Create containers
         this.mapContainer = Graphics.createElement('g', false) as SVGGElement;
         this.mapContainer.classList.add('scene__map');
         this.root.appendChild(this.mapContainer);
         this.drawingContainer = Graphics.createElement('g', false) as SVGGElement;
         this.drawingContainer.classList.add('scene__drawing');
         this.root.appendChild(this.drawingContainer);
-        this.controlsContainer = Graphics.createElement('g', false) as SVGGElement;
-        this.root.appendChild(this.controlsContainer);
         this.labelsContainer = Graphics.createElement('g', false) as SVGGElement;
         this.labelsContainer.classList.add('map__labels');
         this.root.appendChild(this.labelsContainer);
-        this.interactable = interact(this.container);
-        const drag = new DragControl();
-        drag.appendTo(this);
-        const zoom = new ZoomControl();
-        zoom.appendTo(this);
+        // Set up singletons
         this.apiClient = ApiClient.getInstance();
         this.selection = new Selection();
         this.objectManager = new ObjectManager(this.apiClient);
         this.dragManager = new DragManager(this);
+        // Set up event listeners
         this.container.addEventListener('click', this.onMapClick.bind(this));
         this.container.addEventListener('keyup', this.onKeyUp.bind(this));
+        this.container.addEventListener('mousedown', this.onMouseDown.bind(this));
     }
 
     public getLocation(): ILocation {
@@ -140,6 +122,14 @@ export default class Scene extends EventEmitter implements IScene {
                                 Scene.setLabel(el, object.name);
                             }
                         }
+                        if (this.panZoom) {
+                            this.panZoom.reset();
+                            this.panZoom.destroy();
+                        }
+                        this.panZoom = svgPanZoom(this.root, {
+                            onPan: () => this._shouldHandleMapClick = false,
+                        });
+                        this.emit('mapChanged');
                     })
                     .catch((error) => {
                         //  TODO: create an error handling system
@@ -159,28 +149,13 @@ export default class Scene extends EventEmitter implements IScene {
         this.updateMap(root as SVGSVGElement);
     }
 
-    /*public setMapFromFile(file: File): Promise<void> {
-      return new Promise<void>((resolve, reject) => {
-        if (file.type !== 'image/svg+xml') {
-          reject(new Error('Map file should be an SVG with MIME-type "image/svg+xml, got ' + file.type));
-        }
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (reader.readyState === FileReader.DONE) {
-            this.setMapFromString(reader.result as string);
-            resolve();
-          }
-        };
-        reader.readAsText(file);
-      })
-    }*/
-
     public getMouseCoords(e: MouseEvent): ICoords {
-        const bounds = this.root.getBoundingClientRect();
-        const zoomLevel = this.getZoomLevel(bounds);
-        const x = (e.clientX - bounds.left) / zoomLevel;
-        const y = (e.clientY - bounds.top) / zoomLevel;
-        return {x, y};
+        let p = this.root.createSVGPoint();
+        console.log(e);
+        p.x = e.clientX;
+        p.y = e.clientY;
+        p = p.matrixTransform((this.mapContainer.parentNode as SVGGElement).getScreenCTM().inverse());
+        return {x: p.x, y: p.y};
     }
 
     public getViewBox(): number[] {
@@ -193,7 +168,7 @@ export default class Scene extends EventEmitter implements IScene {
 
     public getZoomLevel(bounds: ClientRect): number {
         const viewBox = this.getViewBox();
-        return bounds.width / viewBox[2];
+        return bounds.width / (viewBox[2] - viewBox[0]);
     }
 
     public async refresh(): Promise<void> {
@@ -201,28 +176,40 @@ export default class Scene extends EventEmitter implements IScene {
         this.setLocation(updated, true);
     }
 
+    /**
+     * This flag will be set to false when map is panned to prevent firing click event
+     */
+    private onMouseDown() {
+        this._shouldHandleMapClick = true;
+    }
+
     private onMapClick(event: MouseEvent): void {
-        const payload: IMapMouseEvent = {
-            mapCoords: this.getMouseCoords(event),
-            originalEvent: event,
-        };
-        // Find an object in the event path:
-        const path = event.composedPath().filter((el) => el !== window && el !== document);
-        console.log(path);
-        const mapElement = path.find((target: Element) => target.matches('g[data-type]')) as SVGGElement;
-        if (mapElement) {
-            const type = mapElement.dataset.type as ObjectType;
-            payload.objectType = type;
+        /**
+         * To prevent map clicks after the map is panned, check for this flag
+         */
+        if (this._shouldHandleMapClick) {
+            const payload: IMapMouseEvent = {
+                mapCoords: this.getMouseCoords(event),
+                originalEvent: event,
+            };
+            // Find an object in the event path:
+            const path = event.composedPath().filter((el) => el !== window && el !== document);
+            console.log(path);
+            const mapElement = path.find((target: Element) => target.matches('g[data-type]')) as SVGGElement;
             if (mapElement) {
-                payload.mapElement = mapElement;
-                const id = +mapElement.dataset.id;
-                if (id) {
-                    // Check if we have this object.
-                    payload.mapObject = this.objectManager.getCollectionByType(type).find((item) => item.id === id);
+                const type = mapElement.dataset.type as ObjectType;
+                payload.objectType = type;
+                if (mapElement) {
+                    payload.mapElement = mapElement;
+                    const id = +mapElement.dataset.id;
+                    if (id) {
+                        // Check if we have this object.
+                        payload.mapObject = this.objectManager.getCollectionByType(type).find((item) => item.id === id);
+                    }
                 }
             }
+            this.emit('click', payload);
         }
-        this.emit('click', payload);
     }
 
     private updateMap(map: SVGSVGElement): void {
@@ -230,12 +217,12 @@ export default class Scene extends EventEmitter implements IScene {
             this.svg.remove();
         }
         const viewBox = map.getAttribute('viewBox');
+        console.log(viewBox);
         if (viewBox) {
             this.root.setAttribute('viewBox', viewBox);
         }
         this.svg = map;
         this.mapContainer.innerHTML = map.innerHTML;
-        this.emit('mapChanged');
     }
 
     private onKeyUp(e) {

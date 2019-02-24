@@ -57,6 +57,7 @@ export default class DragManager extends EventEmitter {
   }
 
   public startDragging(primitive: IDraggable, options: IDraggableConfig, e: MouseEvent) {
+    e.stopPropagation();
     this.isDragging = true;
     this.draggable = primitive;
     this.draggable.dragData.startPosition = this.draggable.getPosition();
