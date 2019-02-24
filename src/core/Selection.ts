@@ -3,7 +3,7 @@ import {IPrimitive} from '..';
 export default class Selection {
   public elements: IPrimitive[] = [];
 
-  get current(): IPrimitive | undefined {
+  get last(): IPrimitive | undefined {
     return this.elements[this.elements.length - 1];
   }
 
