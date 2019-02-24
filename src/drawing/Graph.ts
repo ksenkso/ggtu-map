@@ -44,7 +44,7 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
     if (index !== -1) {
       p1.siblings.splice(index, 1);
       p2.siblings.splice(p2.siblings.indexOf(p1), 1);
-      const edge = p1.edges.find((e) => e.end === p2 || e.end === p1 || e.start === p2 || e.start === p1);
+      const edge = p1.edges.find((e) => (e.end === p1 && e.start === p2) || (e.end === p2 && e.start === p1));
       // Remove the edge from both points to let GC free the memory
       p1.edges.splice(p1.edges.indexOf(edge), 1);
       p2.edges.splice(p2.edges.indexOf(edge), 1);
