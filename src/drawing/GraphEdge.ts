@@ -19,6 +19,7 @@ export default class GraphEdge extends Line implements IGraphEdge {
 
   public destroy() {
     super.destroy();
+    // Remove the edge from both points to let GC free the memory
     this.start.edges.splice(this.start.edges.indexOf(this), 1);
     this.end.edges.splice(this.end.edges.indexOf(this), 1);
   }
