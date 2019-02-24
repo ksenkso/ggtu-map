@@ -138,7 +138,6 @@ export default class Scene extends EventEmitter implements IScene {
                             const selector = '#' + CSS.escape(object.container);
                             const el = this.mapContainer.querySelector(selector) as SVGGraphicsElement;
                             if (el) {
-                                console.log(selector);
                                 Scene.setLabel(el, object.name);
                             }
                         }
@@ -197,7 +196,6 @@ export default class Scene extends EventEmitter implements IScene {
 
     public getMouseCoords(e: MouseEvent): ICoords {
         let p = this.root.createSVGPoint();
-        console.log(e);
         p.x = e.clientX;
         p.y = e.clientY;
         p = p.matrixTransform((this.mapContainer.parentNode as SVGGElement).getScreenCTM().inverse());
@@ -239,7 +237,6 @@ export default class Scene extends EventEmitter implements IScene {
             this.svg.remove();
         }
         const viewBox = map.getAttribute('viewBox');
-        console.log(viewBox);
         if (viewBox) {
             this.root.setAttribute('viewBox', viewBox);
         }
@@ -248,7 +245,6 @@ export default class Scene extends EventEmitter implements IScene {
     }
 
     private onKeyUp(e) {
-        console.log(e);
         switch (e.code) {
             case 'Delete': {
                 this._deleteCurrentSelection();
