@@ -7,13 +7,8 @@ $outer-wall: $inner-wall * 2
   --label-base-font-size: 2.5px
   --base-primitive-stroke: 0.5
   --label-font-size: calc(var(--scale) * var(--label-base-font-size))
-
-.scene__map
-  &_no-labels
-    .primitive_label
-      display: none
-  //transform: scale(var(--scale))
-  //transform-origin: var(--origin)
+  &:focus
+    outline: none
 
 svg *
   stroke: #899494

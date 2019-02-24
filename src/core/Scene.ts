@@ -2,6 +2,7 @@ import svgPanZoom = require('svg-pan-zoom');
 import {ICoords, MapObject, ObjectType} from '..';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import Graphics from '../drawing/Graphics';
+import GraphPoint from '../drawing/GraphPoint';
 import Primitive from '../drawing/Primitive';
 import IScene from '../interfaces/IScene';
 import DragManager from '../utils/DragManager';
@@ -48,6 +49,7 @@ export default class Scene extends EventEmitter implements IScene {
         text.setAttribute('x', String(x));
         text.setAttribute('y', String(y));
     }
+
     public readonly apiClient: ApiClient;
     public readonly selection: Selection;
     public readonly objectManager: ObjectManager;
@@ -73,6 +75,16 @@ export default class Scene extends EventEmitter implements IScene {
         this.root = Primitive.createElement('svg', false) as SVGSVGElement;
         this.root.classList.add('map__root');
         this.container.appendChild(this.root);
+        // Add tabindex to make container focusable
+        let tabIndex = 0;
+        document.querySelectorAll('[tabindex]')
+            .forEach((el) => {
+                const newTabIndex = +el.getAttribute('tabindex');
+                if (tabIndex < newTabIndex) {
+                    tabIndex = newTabIndex;
+                }
+            });
+        this.root.setAttribute('tabindex', String(tabIndex));
         // Create containers
         this.mapContainer = Graphics.createElement('g', false) as SVGGElement;
         this.mapContainer.classList.add('scene__map');
@@ -89,6 +101,13 @@ export default class Scene extends EventEmitter implements IScene {
         this.objectManager = new ObjectManager(this.apiClient);
         this.dragManager = new DragManager(this);
         // Set up event listeners
+        // focus on mouseenter and blur on mouseleave to handle keyboard events
+        this.container.addEventListener('mouseenter', () => {
+            this.root.focus();
+        });
+        this.container.addEventListener('mouseleave', () => {
+            this.root.blur();
+        });
         this.container.addEventListener('click', this.onMapClick.bind(this));
         this.container.addEventListener('keyup', this.onKeyUp.bind(this));
         this.container.addEventListener('mousedown', this.onMouseDown.bind(this));
@@ -230,6 +249,17 @@ export default class Scene extends EventEmitter implements IScene {
     }
 
     private onKeyUp(e) {
+        console.log(e);
+        switch (e.code) {
+            case 'Delete': {
+                this._deleteCurrentSelection();
+                break;
+            }
+            case 'KeyI': {
+                this._tryInsertPoint();
+                break;
+            }
+        }
         this.emit('keyup', e);
     }
 
@@ -246,5 +276,23 @@ export default class Scene extends EventEmitter implements IScene {
             const r = +primitive.getAttribute('r');
             primitive.setAttribute('r', String(r / ratio));
         });
+    }
+
+    private _deleteCurrentSelection() {
+        if (this.selection.elements.length) {
+            this.selection.elements.forEach((el) => el.destroy());
+        }
+    }
+
+    private _tryInsertPoint() {
+        if (this.selection.elements.length === 2) {
+            if (this.selection.last instanceof GraphPoint) {
+                const graph = this.selection.last.graph;
+                graph.insertBetween(
+                    this.selection.elements[0] as GraphPoint,
+                    this.selection.elements[1] as GraphPoint,
+                );
+            }
+        }
     }
 }
