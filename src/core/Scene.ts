@@ -128,6 +128,10 @@ export default class Scene extends EventEmitter implements IScene {
                         }
                         this.panZoom = svgPanZoom(this.root, {
                             onPan: () => this._shouldHandleMapClick = false,
+                            beforeZoom: (oldZoom: number, newZoom: number) => {
+                                this._resizeDrawings(oldZoom, newZoom);
+                                return true;
+                            },
                         });
                         this.emit('mapChanged');
                     })
@@ -227,5 +231,20 @@ export default class Scene extends EventEmitter implements IScene {
 
     private onKeyUp(e) {
         this.emit('keyup', e);
+    }
+
+    private _resizeDrawings(oldZoom: number, newZoom: number) {
+        const ratio = newZoom / oldZoom;
+        if (newZoom > 2) {
+            this.root.style.setProperty('--label-base-font-size', '3px');
+        } else {
+            this.root.style.setProperty('--label-base-font-size', '2.5px');
+        }
+        this.root.style.setProperty('--scale', String(1 / newZoom));
+        const primitives = this.drawingContainer.querySelectorAll('.primitive_point');
+        primitives.forEach((primitive: SVGElement) => {
+            const r = +primitive.getAttribute('r');
+            primitive.setAttribute('r', String(r / ratio));
+        });
     }
 }

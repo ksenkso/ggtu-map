@@ -4,7 +4,10 @@ $outer-wall: $inner-wall * 2
 .map__root
   --scale: 1
   --origin: 50% 50%
-  --label-font-size: 2.5px
+  --label-base-font-size: 2.5px
+  --base-primitive-stroke: 0.5
+  --label-font-size: calc(var(--scale) * var(--label-base-font-size))
+
 .scene__map
   &_no-labels
     .primitive_label
