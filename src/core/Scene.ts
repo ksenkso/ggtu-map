@@ -282,7 +282,10 @@ export default class Scene extends EventEmitter implements IScene {
 
     private _deleteCurrentSelection() {
         if (this.selection.elements.length) {
-            this.selection.elements.forEach((el) => el.destroy());
+            this.selection.elements.forEach((el) => {
+                this.selection.remove(el);
+                el.destroy();
+            });
         }
     }
 
