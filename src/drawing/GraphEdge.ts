@@ -17,6 +17,12 @@ export default class GraphEdge extends Line implements IGraphEdge {
     this.setCoords(start, end);
   }
 
+  public destroy() {
+    super.destroy();
+    this.start.edges.splice(this.start.edges.indexOf(this), 1);
+    this.end.edges.splice(this.end.edges.indexOf(this), 1);
+  }
+
   public setGraph(graph: IGraph) {
     graph.container.insertBefore(this.element, graph.container.firstElementChild);
     graph.edges.push(this);

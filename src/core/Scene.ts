@@ -1,5 +1,5 @@
 import svgPanZoom = require('svg-pan-zoom');
-import {ICoords, MapObject, ObjectType} from '..';
+import {ICoords, IGraph, MapObject, ObjectType} from '..';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import Graphics from '../drawing/Graphics';
 import GraphPoint from '../drawing/GraphPoint';
@@ -259,6 +259,9 @@ export default class Scene extends EventEmitter implements IScene {
                 this._tryInsertPoint();
                 break;
             }
+            case 'KeyU': {
+                this._tryConnectPoints();
+            }
         }
         this.emit('keyup', e);
     }
@@ -284,15 +287,31 @@ export default class Scene extends EventEmitter implements IScene {
         }
     }
 
-    private _tryInsertPoint() {
+    private _getCurrentGraph(): IGraph | undefined {
         if (this.selection.elements.length === 2) {
             if (this.selection.last instanceof GraphPoint) {
-                const graph = this.selection.last.graph;
-                graph.insertBetween(
-                    this.selection.elements[0] as GraphPoint,
-                    this.selection.elements[1] as GraphPoint,
-                );
+                return this.selection.last.graph;
             }
+        }
+    }
+
+    private _tryInsertPoint() {
+        const graph = this._getCurrentGraph();
+        if (graph) {
+            graph.insertBetween(
+                this.selection.elements[0] as GraphPoint,
+                this.selection.elements[1] as GraphPoint,
+            );
+        }
+    }
+
+    private _tryConnectPoints() {
+        const graph = this._getCurrentGraph();
+        if (graph) {
+            graph.connectPoints(
+                this.selection.elements[0] as GraphPoint,
+                this.selection.elements[1] as GraphPoint,
+            );
         }
     }
 }

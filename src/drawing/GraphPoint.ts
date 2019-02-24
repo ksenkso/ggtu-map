@@ -22,9 +22,10 @@ export default class GraphPoint extends Point implements IGraphPoint {
 
   public destroy() {
     super.destroy();
-    for (const edge of this.edges) {
-      (edge as any).destroy();
+    while (this.edges.length) {
+      this.edges[0].destroy();
     }
+
     const index = this.graph.vertices.indexOf(this);
     if (index !== -1) {
       this.graph.vertices.splice(index, 1);
