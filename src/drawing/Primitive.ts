@@ -41,6 +41,7 @@ export default abstract class Primitive extends Graphics implements IPrimitive {
   }
 
   public destroy() {
+    this.emit('destroy');
     this.element.remove();
     this.selection = null;
   }
