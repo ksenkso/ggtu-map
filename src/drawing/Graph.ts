@@ -17,6 +17,7 @@ export interface IGraph extends IEventEmitter {
     readonly container: SVGGElement;
     readonly vertices: IGraphPoint[];
     readonly edges: IGraphEdge[];
+    clear(): void;
     breakPoints(p1: GraphPoint, p2: GraphPoint);
     addPoint(options?: IGraphPointOptions): IGraphPoint;
     connectPoints(p1: GraphPoint, p2: GraphPoint): void;
@@ -72,6 +73,7 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
     }
 
     public restore(list: IAdjacencyNode[], index = 0): this {
+        this.clear();
         const point = list[index];
         if (!point.marked) {
             point.marked = true;
@@ -126,5 +128,13 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
                 ObjectId: vertex.mapObjectId,
             };
         });
+    }
+
+    public clear(): void {
+        if (this.vertices.length) {
+            while (this.vertices.length) {
+                this.vertices[0].destroy();
+            }
+        }
     }
 }
