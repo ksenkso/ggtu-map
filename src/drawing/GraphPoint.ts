@@ -32,7 +32,6 @@ export default class GraphPoint extends Point implements IGraphPoint {
         while (this.edges.length) {
             this.edges[0].destroy();
         }
-
         const index = this.graph.vertices.indexOf(this);
         if (index !== -1) {
             this.graph.vertices.splice(index, 1);
@@ -40,6 +39,7 @@ export default class GraphPoint extends Point implements IGraphPoint {
     }
 
     public setGraph(graph: IGraph) {
+        this.setRadius(this.getRadius() / graph.scene.getZoom());
         this.graph = graph;
         graph.container.appendChild(this.element);
         graph.vertices.push(this);
