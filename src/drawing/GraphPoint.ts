@@ -23,7 +23,7 @@ export default class GraphPoint extends Point implements IGraphPoint {
     public onDragEnd(e: MouseEvent): void {
         const info = this.graph.scene.getMouseEventInfo(e);
         if (info.mapObject) {
-            this.mapObjectId = info.mapObject.id;
+            this.mapObjectId = info.mapObject.MapObject.id;
         }
     }
 
