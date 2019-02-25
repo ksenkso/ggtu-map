@@ -148,14 +148,21 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
      */
     private _restore(list: IAdjacencyNode[], index = 0): this {
         if (list.length) {
-            const point = list[index];
-            if (!point.marked) {
-                point.marked = true;
-                const current = this.addPoint({center: point.position});
-                point.siblings.forEach((i) => {
-                    this._restore(list, i);
+            for (let i = index; i < list.length; i++) {
+                if (list[i].marked) {
+                    continue;
+                }
+                list[i].marked = true;
+                if (list[i].siblings.length) {
+                    const current = this.addPoint({center: list[i].position});
+                    list[i].siblings.forEach((sibling) => {
+                        this._restore(list, sibling);
+                        this.selection.set([current]);
+                    });
+                } else {
+                    const current = this.addPoint({center: list[i].position, connectCurrent: false});
                     this.selection.set([current]);
-                });
+                }
             }
         }
         return this;
