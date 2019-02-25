@@ -43,7 +43,9 @@ export default abstract class Primitive extends Graphics implements IPrimitive {
   public destroy() {
     this.emit('destroy');
     this.element.remove();
-    this.selection = null;
+    if (this.selection) {
+      this.selection.remove(this);
+    }
   }
 
   public onClick(e) {
@@ -65,6 +67,15 @@ export default abstract class Primitive extends Graphics implements IPrimitive {
   public appendTo(scene: IScene): void {
     scene.drawingContainer.appendChild(this.element);
     this.selection = scene.selection;
+  }
+
+  public hide(): void {
+    this._cachedDisplay = this.element.style.display;
+    this.element.style.display = 'none';
+  }
+
+  public show(): void {
+    this.element.style.display = this._cachedDisplay || 'block';
   }
 
 }
