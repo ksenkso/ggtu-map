@@ -1,8 +1,10 @@
 import svgPanZoom = require('svg-pan-zoom');
 import {ICoords, IGraph, MapObject, ObjectType} from '..';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
+import Graph from '../drawing/Graph';
 import Graphics from '../drawing/Graphics';
 import GraphPoint from '../drawing/GraphPoint';
+import Point from '../drawing/Point';
 import Primitive from '../drawing/Primitive';
 import IScene from '../interfaces/IScene';
 import {getMapElementAtCoords} from '../utils/dom';
@@ -66,6 +68,7 @@ export default class Scene extends EventEmitter implements IScene {
     private _location: ILocation;
     private _shouldHandleMapClick: boolean;
     private svg: SVGSVGElement;
+    private _graphicsCollection: Graphics[] = [];
 
     constructor(
         container: HTMLElement,
@@ -118,11 +121,11 @@ export default class Scene extends EventEmitter implements IScene {
         return this._location;
     }
 
-    public setLocation(value: ILocation, force = false) {
+    public setLocation(value: ILocation, force = false): Promise<void> {
         if (force || (!this._location || this._location.id !== value.id)) {
             this._location = value;
             if (value.map) {
-                this.apiClient
+                return this.apiClient
                     .getTransport()
                     .get(ApiClient.mapsBase + '/' + value.map)
                     .then((response) => {
@@ -162,7 +165,6 @@ export default class Scene extends EventEmitter implements IScene {
                 throw new Error('Map is not available');
             }
         }
-        this._location = value;
     }
 
     public setMapFromString(map: string) {
@@ -213,6 +215,23 @@ export default class Scene extends EventEmitter implements IScene {
     public async refresh(): Promise<void> {
         const updated = await this.apiClient.locations.get(this._location.id);
         this.setLocation(updated, true);
+    }
+
+    public addGraphics(graphics: Graphics): void {
+        this._graphicsCollection.push(graphics);
+        const callback = () => {
+            this._graphicsCollection.splice(this._graphicsCollection.indexOf(graphics));
+            graphics.off('destroy', callback);
+        };
+        graphics.on('destroy', callback);
+    }
+
+    public getZoom(): number {
+        return this.panZoom.getZoom();
+    }
+
+    public setZoom(f: number): void {
+        this.panZoom.zoom(f);
     }
 
     /**
@@ -268,11 +287,16 @@ export default class Scene extends EventEmitter implements IScene {
         } else {
             this.root.style.setProperty('--label-base-font-size', '2.5px');
         }
-        this.root.style.setProperty('--scale', String(1 / newZoom));
-        const primitives = this.drawingContainer.querySelectorAll('.primitive_point');
-        primitives.forEach((primitive: SVGElement) => {
-            const r = +primitive.getAttribute('r');
-            primitive.setAttribute('r', String(r / ratio));
+        const invertedZoom = 1 / newZoom;
+        this.root.style.setProperty('--scale', String(invertedZoom));
+        this._graphicsCollection.forEach((graphics) => {
+            if (graphics instanceof Graph) {
+                graphics.vertices.forEach((vertex) => {
+                    vertex.setRadius(vertex.getRadius() / ratio);
+                });
+            } else if (graphics instanceof Point) {
+                graphics.setRadius(graphics.getRadius() / ratio);
+            }
         });
     }
 

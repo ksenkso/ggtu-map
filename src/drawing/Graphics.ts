@@ -11,7 +11,12 @@ export default abstract class Graphics extends EventEmitter {
     }
     return element;
   }
+  protected _cachedDisplay: string;
 
+  public abstract hide(): void;
+  public abstract show(): void;
   public abstract destroy(): void;
-  public abstract appendTo(scene: IScene): void;
+  public appendTo(scene: IScene): void {
+    scene.addGraphics(this);
+  }
 }
