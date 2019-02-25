@@ -78,6 +78,7 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
     }
 
     public appendTo(scene: IScene): void {
+        scene.addGraphics(this);
         this.scene = scene;
         scene.drawingContainer.appendChild(this.container);
         this.selection = scene.selection;
@@ -85,6 +86,7 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
     }
 
     public destroy(): void {
+        this.emit('destroy');
         this.container.remove();
     }
 
@@ -127,6 +129,15 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
                 this.vertices[0].destroy();
             }
         }
+    }
+
+    public hide(): void {
+        this._cachedDisplay = this.container.style.display;
+        this.container.style.display = 'none';
+    }
+
+    public show(): void {
+        this.container.style.display = this._cachedDisplay || 'block';
     }
 
     /**
