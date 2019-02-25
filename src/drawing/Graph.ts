@@ -72,20 +72,9 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
         return newPoint;
     }
 
-    public restore(list: IAdjacencyNode[], index = 0): this {
+    public restore(list: IAdjacencyNode[]): this {
         this.clear();
-        if (list.length) {
-            const point = list[index];
-            if (!point.marked) {
-                point.marked = true;
-                const current = this.addPoint({center: point.position});
-                point.siblings.forEach((i) => {
-                    this.restore(list, i);
-                    this.selection.set([current]);
-                });
-            }
-        }
-        return this;
+        return this._restore(list);
     }
 
     public appendTo(scene: IScene): void {
@@ -138,5 +127,26 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
                 this.vertices[0].destroy();
             }
         }
+    }
+
+    /**
+     * Recursively adds points from the list to graph
+     *
+     * @param list
+     * @param index
+     */
+    private _restore(list: IAdjacencyNode[], index = 0): this {
+        if (list.length) {
+            const point = list[index];
+            if (!point.marked) {
+                point.marked = true;
+                const current = this.addPoint({center: point.position});
+                point.siblings.forEach((i) => {
+                    this._restore(list, i);
+                    this.selection.set([current]);
+                });
+            }
+        }
+        return this;
     }
 }
