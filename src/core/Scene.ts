@@ -180,7 +180,7 @@ export default class Scene extends EventEmitter implements IScene {
             originalEvent: event,
         };
         // Find an object in the event path:
-        const mapElement = getMapElementAtCoords(event.clientX, event.clientY);
+        const mapElement = getMapElementAtCoords(this.mapContainer, payload.mapCoords.x, payload.mapCoords.y);
         if (mapElement) {
             const type = mapElement.dataset.type as ObjectType;
             payload.objectType = type;
