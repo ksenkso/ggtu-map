@@ -1,14 +1,12 @@
-import {ICoords} from '..';
+import {ICoords, IPoint} from '..';
 import IScene from '../interfaces/IScene';
-import {IDraggable} from '../utils/DragManager';
 import Graphics from './Graphics';
 import Primitive, {IPrimitiveOptions} from './Primitive';
 
 export type PointOptions = IPrimitiveOptions & {
-  radius?: number,
   center?: ICoords,
 };
-export default class Point extends Primitive implements IDraggable {
+export default class Point extends Primitive implements IPoint {
 
   private _radius: number;
   private _position: ICoords;
@@ -21,7 +19,7 @@ export default class Point extends Primitive implements IDraggable {
     if (options.center) {
       this.setPosition(options.center);
     }
-    this.setRadius(options.radius ? options.radius : 1);
+    this.setRadius(1);
   }
   public getRadius(): number {
     return this._radius;
@@ -55,6 +53,7 @@ export default class Point extends Primitive implements IDraggable {
 
   public appendTo(scene: IScene): void {
     super.appendTo(scene);
+    this.setRadius(this.getRadius() / scene.getZoom());
     if (this.isDraggable) {
       scene.dragManager.enableDragging(this);
     }
