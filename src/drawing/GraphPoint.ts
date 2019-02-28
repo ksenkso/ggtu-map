@@ -1,4 +1,5 @@
 import IGraphPoint from '../interfaces/IGraphPoint';
+import ISerializedPoint from '../interfaces/ISerializedPoint';
 import {IGraph, IGraphPointOptions} from './Graph';
 import {IGraphEdge} from './IGraphEdge';
 import Point from './Point';
@@ -48,5 +49,12 @@ export default class GraphPoint extends Point implements IGraphPoint {
             this.setRadius(this.getRadius() / graph.scene.getZoom());
             graph.container.appendChild(this.element);
         }
+    }
+
+    public serialize(): ISerializedPoint {
+        return {
+            position: this.getPosition(),
+            ObjectId: this.mapObjectId,
+        };
     }
 }
