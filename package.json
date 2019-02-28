@@ -30,6 +30,7 @@
     "webpack-cli": "^3.2.3"
   },
   "dependencies": {
+    "@types/uuid": "^3.4.4",
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "css.escape": "^1.5.1",
@@ -38,7 +39,8 @@
     "qs": "^6.6.0",
     "reflect-metadata": "^0.1.12",
     "request": "^2.88.0",
-    "svg-pan-zoom": "^3.6.0"
+    "svg-pan-zoom": "^3.6.0",
+    "uuid": "^3.3.2"
   },
   "types": "dist/src/index.d.ts"
 }
