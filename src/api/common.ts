@@ -61,7 +61,7 @@ export type BuildingType = 'study' | 'other';
 export type ObjectType = 'place' | 'building' | 'transition' | 'transition-view';
 export type MapObject =
     (IPlace | IBuilding | ITransition | ITransitionView)
-    & { MapObject: { id: number, PlaceId: number | null, TransitionViewId: number | null } };
+    & { MapObject?: { id: number, PlaceId: number | null, TransitionViewId: number | null } };
 
 export class BaseEndpoint {
     public static parseParams(getParams: IGetParams): AxiosRequestConfig {
