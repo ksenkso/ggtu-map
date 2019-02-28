@@ -48,6 +48,7 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
             p1.siblings.splice(index, 1);
             p2.siblings.splice(p2.siblings.indexOf(p1), 1);
             const edge = p1.edges.find((e) => (e.end === p1 && e.start === p2) || (e.end === p2 && e.start === p1));
+            this.edges.splice(this.edges.indexOf(edge), 1);
             edge.destroy();
         }
     }
