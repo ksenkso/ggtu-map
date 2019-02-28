@@ -1,5 +1,6 @@
 import {IGraph, IGraphEdge} from '..';
 import IGraphPoint from '../interfaces/IGraphPoint';
+import ISerializedEdge from '../interfaces/ISerializedEdge';
 import Line from './Line';
 
 export default class GraphEdge extends Line implements IGraphEdge {
@@ -27,5 +28,12 @@ export default class GraphEdge extends Line implements IGraphEdge {
   public setGraph(graph: IGraph) {
     graph.container.insertBefore(this.element, graph.container.firstElementChild);
     graph.edges.push(this);
+  }
+
+  public serialize(): ISerializedEdge {
+    return {
+      start: this.start.getPosition(),
+      end: this.end.getPosition(),
+    };
   }
 }
