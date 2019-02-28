@@ -39,11 +39,14 @@ export default class GraphPoint extends Point implements IGraphPoint {
     }
 
     public setGraph(graph: IGraph) {
-        this.setRadius(this.getRadius() / graph.scene.getZoom());
-        this.graph = graph;
-        graph.container.appendChild(this.element);
         graph.vertices.push(this);
-        this.selection = graph.selection;
+        this.graph = graph;
+        if (graph.selection) {
+            this.selection = graph.selection;
+        }
+        if (graph.scene) {
+            this.setRadius(this.getRadius() / graph.scene.getZoom());
+            graph.container.appendChild(this.element);
+        }
     }
-
 }
