@@ -26,8 +26,10 @@ export default class GraphEdge extends Line implements IGraphEdge {
   }
 
   public setGraph(graph: IGraph) {
-    graph.container.insertBefore(this.element, graph.container.firstElementChild);
     graph.edges.push(this);
+    if (graph.container) {
+      graph.container.insertBefore(this.element, graph.container.firstElementChild);
+    }
   }
 
   public serialize(): ISerializedEdge {
