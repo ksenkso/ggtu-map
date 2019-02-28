@@ -1,12 +1,8 @@
 import uuid = require('uuid/v4');
 import ISerializedWayEdge from '../interfaces/ISerializedWayEdge';
+import IWayEdge from '../interfaces/IWayEdge';
 import IWayPoint from '../interfaces/IWayPoint';
 import GraphEdge from './GraphEdge';
-import {IGraphEdge} from './IGraphEdge';
-
-interface IWayEdge extends IGraphEdge {
-    id: string;
-}
 
 export default class WayEdge extends GraphEdge implements IWayEdge {
     public id: string;
