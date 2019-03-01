@@ -1,4 +1,4 @@
-import {IGraphPointOptions} from '..';
+import IGraphPointOptions from './IGraphPointOptions';
 
 export default interface IWayPointOptions extends IGraphPointOptions {
     id?: string;
