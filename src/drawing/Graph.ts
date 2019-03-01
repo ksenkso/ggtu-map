@@ -1,33 +1,15 @@
 import Selection from '../core/Selection';
+import IGraph from '../interfaces/IGraph';
 import IGraphPoint from '../interfaces/IGraphPoint';
+import IGraphPointOptions from '../interfaces/IGraphPointOptions';
 import IScene from '../interfaces/IScene';
 import ISerializable from '../interfaces/ISerializable';
 import {IAdjacencyNode} from '../utils';
 import DragManager from '../utils/DragManager';
-import {IEventEmitter} from '../utils/EventEmitter';
 import GraphEdge from './GraphEdge';
 import Graphics from './Graphics';
 import GraphPoint from './GraphPoint';
 import {IGraphEdge} from './IGraphEdge';
-import {PointOptions} from './Point';
-
-export interface IGraph extends IEventEmitter {
-    selection: Selection;
-    scene: IScene;
-    readonly container: SVGGElement;
-    readonly vertices: IGraphPoint[];
-    readonly edges: IGraphEdge[];
-    clear(): void;
-    breakPoints(p1: GraphPoint, p2: GraphPoint);
-    addPoint(options?: IGraphPointOptions): IGraphPoint;
-    connectPoints(p1: GraphPoint, p2: GraphPoint): void;
-    insertBetween(p1: GraphPoint, p2: GraphPoint): GraphPoint;
-}
-
-export interface IGraphPointOptions extends PointOptions {
-    connectCurrent?: boolean;
-    mapObjectId?: number;
-}
 
 export default class Graph extends Graphics implements IGraph, ISerializable {
     public vertices: IGraphPoint[] = [];
@@ -40,6 +22,13 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
     constructor() {
         super();
         this.container = Graphics.createElement('g', false) as SVGGElement;
+    }
+    public createEdge(p1: IGraphPoint, p2: IGraphPoint): IGraphEdge {
+        return new GraphEdge(p1, p2);
+    }
+
+    public createPoint(options?: IGraphPointOptions): IGraphPoint {
+        return new GraphPoint(options);
     }
 
     public breakPoints(p1: GraphPoint, p2: GraphPoint) {
