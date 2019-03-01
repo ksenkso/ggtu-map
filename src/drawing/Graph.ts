@@ -1,3 +1,4 @@
+import {ICoords} from '..';
 import Selection from '../core/Selection';
 import IGraph from '../interfaces/IGraph';
 import IGraphPoint from '../interfaces/IGraphPoint';
@@ -23,11 +24,11 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
         super();
         this.container = Graphics.createElement('g', false) as SVGGElement;
     }
-    public createEdge(p1: IGraphPoint, p2: IGraphPoint): IGraphEdge {
+    public createEdge(p1: IGraphPoint, p2: IGraphPoint): GraphEdge {
         return new GraphEdge(p1, p2);
     }
 
-    public createPoint(options?: IGraphPointOptions): IGraphPoint {
+    public createPoint(options?: IGraphPointOptions): GraphPoint {
         return new GraphPoint(options);
     }
 
@@ -43,18 +44,18 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
     }
 
     public connectPoints(p1: GraphPoint, p2: GraphPoint) {
-        const edge = new GraphEdge(p1, p2);
+        const edge = this.createEdge(p1, p2);
         edge.setGraph(this);
     }
 
     public insertBetween(p1: GraphPoint, p2: GraphPoint): GraphPoint {
         const pos1 = p1.getPosition(),
             pos2 = p2.getPosition();
-        const center = {
+        const position: ICoords = {
             x: (pos1.x + pos2.x) / 2,
             y: (pos1.y + pos2.y) / 2,
         };
-        const newPoint = new GraphPoint({center});
+        const newPoint = this.createPoint({position});
         this.adoptPoint(newPoint);
         this.breakPoints(p1, p2);
         this.connectPoints(p1, newPoint);
@@ -87,7 +88,7 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
     }
 
     public addPoint(options?: IGraphPointOptions): IGraphPoint {
-        const point = new GraphPoint(options);
+        const point = this.createPoint(options);
         if (options.connectCurrent !== false) {
             if (this.selection) {
                 if (this.selection.last && this.selection.last instanceof GraphPoint) {
@@ -144,13 +145,13 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
                 }
                 list[i].marked = true;
                 if (list[i].siblings.length) {
-                    const current = this.addPoint({center: list[i].position});
+                    const current = this.addPoint({position: list[i].position});
                     list[i].siblings.forEach((sibling) => {
                         this._restore(list, sibling);
                         this.selection.set([current]);
                     });
                 } else {
-                    const current = this.addPoint({center: list[i].position, connectCurrent: false});
+                    const current = this.addPoint({position: list[i].position, connectCurrent: false});
                     this.selection.set([current]);
                 }
             }
