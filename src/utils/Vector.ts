@@ -4,6 +4,10 @@ export interface ICoords {
 }
 export default class Vector implements ICoords {
 
+  public static equals(c1: ICoords, c2: ICoords): boolean {
+    return c1.x === c2.x && c1.y === c2.y;
+  }
+
   public static scale(v: ICoords, scale: number): ICoords {
     return {x: v.x * scale, y: v.y * scale};
   }
