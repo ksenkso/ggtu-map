@@ -4,7 +4,7 @@ import Graphics from './Graphics';
 import Primitive, {IPrimitiveOptions} from './Primitive';
 
 export type PointOptions = IPrimitiveOptions & {
-  center?: ICoords,
+  position?: ICoords,
 };
 export default class Point extends Primitive implements IPoint {
 
@@ -16,8 +16,8 @@ export default class Point extends Primitive implements IPoint {
   ) {
     super(options);
     this.init();
-    if (options.center) {
-      this.setPosition(options.center);
+    if (options.position) {
+      this.setPosition(options.position);
     }
     this.setRadius(1);
   }
