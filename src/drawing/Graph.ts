@@ -106,9 +106,12 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
 
     public serialize(): IAdjacencyNode[] {
         return this.vertices.map((vertex) => {
-            const siblings: number[] = [];
+            const siblings = [];
             vertex.siblings.forEach((v) => {
-                siblings.push(this.vertices.indexOf(v));
+                siblings.push({
+                    index: this.vertices.indexOf(v),
+                    id: null,
+                });
             });
             return {
                 position: vertex.getPosition(),
@@ -151,7 +154,7 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
                 if (list[i].siblings.length) {
                     const current = this.addPoint({position: list[i].position});
                     list[i].siblings.forEach((sibling) => {
-                        this._restore(list, sibling);
+                        this._restore(list, sibling.index);
                         this.selection.set([current]);
                     });
                 } else {

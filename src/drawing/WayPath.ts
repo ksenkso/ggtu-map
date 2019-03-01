@@ -60,6 +60,25 @@ export default class WayPath extends Graph implements IWayPath {
     public vertices: IWayPoint[];
     public edges: IWayEdge[];
 
+    public serialize(): IAdjacencyNode[] {
+        return this.vertices.map((vertex) => {
+            const siblings = [];
+            vertex.siblings.forEach((v) => {
+                siblings.push({
+                    index: this.vertices.indexOf(v),
+                    id: this.edges.find((edge) => (edge.start.id === vertex.id && edge.end.id === v.id)
+                    || (edge.end.id === vertex.id && edge.start.id === v.id)).id,
+                });
+            });
+
+            return {
+                position: vertex.getPosition(),
+                siblings,
+                ObjectId: vertex.mapObjectId,
+            };
+        });
+    }
+
     public createPoint(options?: IWayPointOptions): WayPoint {
         return new WayPoint(options);
     }
