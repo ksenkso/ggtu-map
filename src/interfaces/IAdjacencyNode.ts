@@ -4,5 +4,5 @@ export default interface IAdjacencyNode {
     marked?: boolean;
     ObjectId?: number;
     position: ICoords;
-    siblings: number[];
+    siblings: Array<{id: string, index: number}>;
 }
