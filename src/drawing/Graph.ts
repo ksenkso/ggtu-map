@@ -20,10 +20,14 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
     public scene: IScene;
     private dragManager: DragManager;
 
-    constructor() {
+    constructor(selection?: Selection) {
         super();
+        if (selection) {
+            this.selection = selection;
+        }
         this.container = Graphics.createElement('g', false) as SVGGElement;
     }
+
     public createEdge(p1: IGraphPoint, p2: IGraphPoint): GraphEdge {
         return new GraphEdge(p1, p2);
     }
@@ -63,9 +67,11 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
         return newPoint;
     }
 
-    public restore(list: IAdjacencyNode[]): this {
+    public restore(list: IAdjacencyNode[]) {
         this.clear();
-        return this._restore(list);
+        for (let i = 0; i < list.length; i++) {
+            this._restore(list, i);
+        }
     }
 
     public appendTo(scene: IScene): void {
@@ -142,27 +148,24 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
      * Recursively adds points from the list to graph
      *
      * @param list
-     * @param index
+     * @param i
      */
-    private _restore(list: IAdjacencyNode[], index = 0): this {
-        if (list.length) {
-            for (let i = index; i < list.length; i++) {
-                if (list[i].marked) {
-                    continue;
-                }
-                list[i].marked = true;
-                if (list[i].siblings.length) {
-                    const current = this.addPoint({position: list[i].position});
-                    list[i].siblings.forEach((sibling) => {
-                        this._restore(list, sibling.index);
-                        this.selection.set([current]);
-                    });
-                } else {
-                    const current = this.addPoint({position: list[i].position, connectCurrent: false});
+    private _restore(list: IAdjacencyNode[], i = 0) {
+        if (list.length && !list[i].marked) {
+            list[i].marked = true;
+            const current = this.addPoint(Object.assign(
+                {},
+                {connectCurrent: (list[i].siblings && list[i].siblings.length) || !list[i].siblings},
+                list[i]),
+            );
+            if (list[i].siblings.length) {
+                list[i].siblings.forEach((sibling) => {
+                    this._restore(list, sibling.index);
                     this.selection.set([current]);
-                }
+                });
+            } else {
+                this.selection.set([current]);
             }
         }
-        return this;
     }
 }
