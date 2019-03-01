@@ -1,7 +1,7 @@
 import {IUser} from '..';
 import ApiClient, {ITokenInfo} from './ApiClient';
 
-export class UserInfo {
+export default class UserInfo {
   set user(value: IUser) {
     if (value) {
       this._user = value;

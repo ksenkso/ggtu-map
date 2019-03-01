@@ -1,7 +1,7 @@
 import {IDragData} from './DragManager';
 import {ICoords} from './Vector';
 
-export class DragData implements IDragData {
+export default class DragData implements IDragData {
   public delta: ICoords;
   public position: ICoords;
   public startPosition: ICoords;

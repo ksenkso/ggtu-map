@@ -1,7 +1,8 @@
-import {ICoords, IMapMouseEvent} from '..';
+import {ICoords} from '..';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import ApiClient from '../core/ApiClient';
 import ObjectManager from '../core/ObjectManager';
+import {IMapMouseEvent} from '../core/Scene';
 import Selection from '../core/Selection';
 import Graphics from '../drawing/Graphics';
 import DragManager from '../utils/DragManager';

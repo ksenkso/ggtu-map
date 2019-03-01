@@ -1,7 +1,7 @@
 import {ICoords} from '..';
-import {IPrimitive} from './IPrimitive';
+import IPrimitive from './IPrimitive';
 
-export interface ILine extends IPrimitive {
+export default interface ILine extends IPrimitive {
   from: ICoords;
   to: ICoords;
   /*bindPoints(from: IPoint, to: IPoint): void;

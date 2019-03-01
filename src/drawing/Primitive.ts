@@ -1,7 +1,7 @@
 import {IPrimitive} from '..';
 import Selection from '../core/Selection';
 import IScene from '../interfaces/IScene';
-import {DragData} from '../utils/DragData';
+import DragData from '../utils/DragData';
 import {IDragData} from '../utils/DragManager';
 import Graphics from './Graphics';
 

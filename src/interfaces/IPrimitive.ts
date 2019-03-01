@@ -1,6 +1,6 @@
 import Scene from '../core/Scene';
 
-export interface IPrimitive {
+export default interface IPrimitive {
   element: SVGElement;
   selected: boolean;
   destroy(): void;

@@ -1,16 +1,16 @@
 import {ICoords} from '..';
 import Selection from '../core/Selection';
+import IAdjacencyNode from '../interfaces/IAdjacencyNode';
 import IGraph from '../interfaces/IGraph';
+import IGraphEdge from '../interfaces/IGraphEdge';
 import IGraphPoint from '../interfaces/IGraphPoint';
 import IGraphPointOptions from '../interfaces/IGraphPointOptions';
 import IScene from '../interfaces/IScene';
 import ISerializable from '../interfaces/ISerializable';
-import {IAdjacencyNode} from '../utils';
 import DragManager from '../utils/DragManager';
 import GraphEdge from './GraphEdge';
 import Graphics from './Graphics';
 import GraphPoint from './GraphPoint';
-import {IGraphEdge} from './IGraphEdge';
 
 export default class Graph extends Graphics implements IGraph, ISerializable {
     public vertices: IGraphPoint[] = [];

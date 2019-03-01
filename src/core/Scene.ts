@@ -1,12 +1,14 @@
 import svgPanZoom = require('svg-pan-zoom');
-import {ICoords, IGraph, MapObject, ObjectType} from '..';
+import {MapObject, ObjectType} from '../api/common';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import Graph from '../drawing/Graph';
 import Graphics from '../drawing/Graphics';
 import GraphPoint from '../drawing/GraphPoint';
 import Point from '../drawing/Point';
 import Primitive from '../drawing/Primitive';
+import IGraph from '../interfaces/IGraph';
 import IScene from '../interfaces/IScene';
+import {ICoords} from '../utils';
 import {getMapElementAtCoords} from '../utils/dom';
 import DragManager from '../utils/DragManager';
 import EventEmitter from '../utils/EventEmitter';

@@ -1,7 +1,8 @@
+import IGraph from '../interfaces/IGraph';
+import IGraphEdge from '../interfaces/IGraphEdge';
 import IGraphPoint from '../interfaces/IGraphPoint';
+import IGraphPointOptions from '../interfaces/IGraphPointOptions';
 import ISerializedPoint from '../interfaces/ISerializedPoint';
-import {IGraph, IGraphPointOptions} from './Graph';
-import {IGraphEdge} from './IGraphEdge';
 import Point from './Point';
 
 export default class GraphPoint extends Point implements IGraphPoint {

@@ -1,5 +1,5 @@
 import {AxiosInstance} from 'axios';
-import {IAdjacencyNode} from '../../utils';
+import IAdjacencyNode from '../../interfaces/IAdjacencyNode';
 import {BaseEndpoint, IEndpoint, IGetParams, ILocationObjectsCollection} from '../common';
 import {IPlace} from './PlacesEndpoint';
 

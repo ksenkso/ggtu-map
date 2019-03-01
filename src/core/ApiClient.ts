@@ -5,7 +5,7 @@ import BuildingsEndpoint, {IBuildingsEndpoint} from '../api/endpoints/BuildingsE
 import LocationsEndpoint, {ILocationsEndpoint} from '../api/endpoints/LocationsEndpoint';
 import PlacesEndpoint, {IPlacesEndpoint} from '../api/endpoints/PlacesEndpoint';
 import TransitionsEndpoint, {ITransitionsEndpoint} from '../api/endpoints/TransitionsEndpoint';
-import {UserInfo} from './UserInfo';
+import UserInfo from './UserInfo';
 
 export interface ITokenInfo {
   text: string;

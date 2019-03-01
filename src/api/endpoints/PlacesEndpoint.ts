@@ -1,5 +1,5 @@
 import {AxiosInstance} from 'axios';
-import {IMapObject} from '../../interfaces/IMapObject';
+import IMapObject from '../../interfaces/IMapObject';
 import {BaseEndpoint, IDictionary, IEndpoint, PlaceType} from '../common';
 
 export interface IPlacesEndpoint extends IEndpoint<IPlace> {
