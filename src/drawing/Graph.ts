@@ -83,8 +83,12 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
 
     public adoptPoint(point: GraphPoint) {
         point.setGraph(this);
-        this.selection.set([point]);
-        this.dragManager.enableDragging(point);
+        if (this.selection) {
+            this.selection.set([point]);
+        }
+        if (this.dragManager) {
+            this.dragManager.enableDragging(point);
+        }
     }
 
     public addPoint(options?: IGraphPointOptions): IGraphPoint {
