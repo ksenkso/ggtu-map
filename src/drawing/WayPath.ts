@@ -1,15 +1,62 @@
+import IDiff from '../interfaces/IDiff';
 import IGraphPoint from '../interfaces/IGraphPoint';
 import IWayEdge from '../interfaces/IWayEdge';
 import IWayPath from '../interfaces/IWayPath';
 import IWayPoint from '../interfaces/IWayPoint';
 import IWayPointOptions from '../interfaces/IWayPointOptions';
 import {IAdjacencyNode} from '../utils';
+import Vector from '../utils/Vector';
 import Graph from './Graph';
 import WayEdge from './WayEdge';
 import WayPoint from './WayPoint';
 
 export default class WayPath extends Graph implements IWayPath {
-    // TODO: recreate diff algorithm
+    public static diff(g1: WayPath, g2: WayPath): IDiff {
+        const diff: IDiff = {
+            vertices: {
+                created: [],
+                updated: [],
+                deleted: [],
+            },
+            edges: {
+                created: [],
+                deleted: [],
+            },
+        };
+        const newVertices = g2.vertices.slice(0);
+        g1.vertices.forEach((v1) => {
+            const index = newVertices.findIndex((v) => v.id === v1.id);
+            if (index !== -1) {
+                const v2 = newVertices[index];
+                // Check if points have differences
+                if (
+                    !Vector.equals(v1.getPosition(), v2.getPosition())
+                    || v1.mapObjectId !== v2.mapObjectId
+                ) {
+                    diff.vertices.updated.push(v2.serialize());
+                }
+                newVertices.splice(index, 1);
+            } else {
+                diff.vertices.deleted.push(v1.id);
+            }
+        });
+        if (newVertices.length) {
+            diff.vertices.created = newVertices.map((v) => v.serialize());
+        }
+        const newEdges = g2.edges.slice(0);
+        g1.edges.forEach((edge) => {
+             const index = newEdges.findIndex((e) => e.id === edge.id);
+             if (index !== -1) {
+                 newEdges.splice(index, 1);
+             } else {
+                 diff.edges.deleted.push(edge.id);
+             }
+        });
+        if (newEdges.length) {
+            diff.edges.created = newEdges.map((edge) => edge.serialize());
+        }
+        return diff;
+    }
     public vertices: IWayPoint[];
     public edges: IWayEdge[];
 
