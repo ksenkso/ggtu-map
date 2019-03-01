@@ -31,7 +31,8 @@ export default class GraphPoint extends Point implements IGraphPoint {
     public destroy() {
         super.destroy();
         while (this.edges.length) {
-            this.edges[0].destroy();
+            const edge = this.edges.shift();
+            edge.destroy();
         }
         const index = this.graph.vertices.indexOf(this);
         if (index !== -1) {
