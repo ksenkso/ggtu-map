@@ -4,6 +4,7 @@ import {IAuthState, IEndpoint, IUser} from '..';
 import BuildingsEndpoint, {IBuildingsEndpoint} from '../api/endpoints/BuildingsEndpoint';
 import LocationsEndpoint, {ILocationsEndpoint} from '../api/endpoints/LocationsEndpoint';
 import PlacesEndpoint, {IPlacesEndpoint} from '../api/endpoints/PlacesEndpoint';
+import SearchEndpoint, {ISearchEndpoint} from '../api/endpoints/SearchEndpoint';
 import TransitionsEndpoint, {ITransitionsEndpoint} from '../api/endpoints/TransitionsEndpoint';
 import UserInfo from './UserInfo';
 
@@ -40,6 +41,7 @@ export default class ApiClient {
   public buildings: IBuildingsEndpoint;
   public places: IPlacesEndpoint;
   public transitions: ITransitionsEndpoint;
+  public search: ISearchEndpoint;
   public readonly userInfo: UserInfo;
   private readonly api: AxiosInstance;
 
@@ -56,6 +58,7 @@ export default class ApiClient {
     this.locations = new LocationsEndpoint(this.api);
     this.places = new PlacesEndpoint(this.api);
     this.transitions = new TransitionsEndpoint(this.api);
+    this.search = new SearchEndpoint(this.api);
   }
 
   public getTransport(): AxiosInstance {
