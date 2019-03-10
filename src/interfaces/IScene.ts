@@ -1,5 +1,7 @@
 import {ICoords} from '..';
+import {IBuilding} from '../api/endpoints/BuildingsEndpoint';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
+import {IPlace} from '../api/endpoints/PlacesEndpoint';
 import ApiClient from '../core/ApiClient';
 import ObjectManager from '../core/ObjectManager';
 import {IMapMouseEvent} from '../core/Scene';
@@ -28,4 +30,7 @@ export default interface IScene extends IEventEmitter {
   setLocation(location: ILocation): Promise<void>;
   getZoom(): number;
   setZoom(f: number): void;
+  centerOnObject(o: IPlace|IBuilding): boolean;
+  centerOnElement(el: SVGGElement): void;
+  setCenter(coords: ICoords): void;
 }
