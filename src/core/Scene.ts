@@ -216,7 +216,7 @@ export default class Scene extends EventEmitter implements IScene {
 
     public async refresh(): Promise<void> {
         const updated = await this.apiClient.locations.get(this._location.id);
-        this.setLocation(updated, true);
+        return this.setLocation(updated, true);
     }
 
     public addGraphics(graphics: Graphics): void {

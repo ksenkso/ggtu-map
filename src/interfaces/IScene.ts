@@ -25,7 +25,7 @@ export default interface IScene extends IEventEmitter {
   getMouseEventInfo(event: MouseEvent): IMapMouseEvent;
   addGraphics(graphics: Graphics): void;
   getLocation(): ILocation;
-  setLocation(location: ILocation): void;
+  setLocation(location: ILocation): Promise<void>;
   getZoom(): number;
   setZoom(f: number): void;
 }
