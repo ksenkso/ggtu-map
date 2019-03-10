@@ -1,6 +1,8 @@
 import svgPanZoom = require('svg-pan-zoom');
 import {MapObject, ObjectType} from '../api/common';
+import {IBuilding} from '../api/endpoints/BuildingsEndpoint';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
+import {IPlace} from '../api/endpoints/PlacesEndpoint';
 import Graph from '../drawing/Graph';
 import Graphics from '../drawing/Graphics';
 import GraphPoint from '../drawing/GraphPoint';
@@ -26,12 +28,55 @@ export interface IMapMouseEvent {
 
 export default class Scene extends EventEmitter implements IScene {
 
+    public static getElementCoords(el: SVGGElement): ICoords {
+        const area = el.querySelector('[data-type="area"]');
+        if (area) {
+            switch (area.nodeName) {
+                case 'rect': {
+                    return {
+                        x: +area.getAttribute('x') + +area.getAttribute('width') / 2,
+                        y: +area.getAttribute('y') + +area.getAttribute('height') / 2,
+                    };
+                }
+                case 'polygon': {
+                    const points = area
+                        .getAttribute('points')
+                        .split(' ');
+                    const center = points
+                        .map((point) => {
+                            const coords = point.split(',');
+                            return {
+                                x: +coords[0],
+                                y: +coords[1],
+                            };
+                        })
+                        .reduce((prev, next) => {
+                            prev.x += next.x;
+                            prev.y += next.y;
+                            return prev;
+                        }, {x: 0, y: 0});
+                    return {
+                        x: center.x / points.length,
+                        y: center.y / points.length,
+                    };
+                }
+                default: {
+                    const box = el.getBBox();
+                    return {
+                        x: box.x + box.width / 2,
+                        y: box.y + box.height / 2,
+                    };
+                }
+            }
+        }
+    }
+
     /**
      * Sets a label for an object on the map
      * @param el
      * @param name
      */
-    public static setLabel(el: SVGGraphicsElement | ICoords, name: string) {
+    public static setLabel(el: SVGGElement | ICoords, name: string) {
         const text = Primitive.createElement('text') as SVGTextElement;
         text.classList.add('primitive_label');
 
@@ -140,8 +185,7 @@ export default class Scene extends EventEmitter implements IScene {
                         const objects: any[] = (this.objectManager.places as any[])
                             .concat(this.objectManager.buildings);
                         for (const object of objects) {
-                            const selector = '#' + CSS.escape(object.container);
-                            const el = this.mapContainer.querySelector(selector) as SVGGraphicsElement;
+                            const el = this.findObjectOnMap(object);
                             if (el) {
                                 Scene.setLabel(el, object.name);
                             }
@@ -167,6 +211,11 @@ export default class Scene extends EventEmitter implements IScene {
                 throw new Error('Map is not available');
             }
         }
+    }
+
+    public findObjectOnMap(object) {
+        const selector = '#' + CSS.escape(object.container);
+        return this.mapContainer.querySelector(selector) as SVGGElement;
     }
 
     public setMapFromString(map: string) {
@@ -208,6 +257,24 @@ export default class Scene extends EventEmitter implements IScene {
 
     public getViewBox(): number[] {
         return this.root.getAttribute('viewBox').split(' ').map((v) => +v);
+    }
+
+    public centerOnObject(o: IPlace|IBuilding): boolean {
+        const el = this.findObjectOnMap(o);
+        if (el) {
+            this.centerOnElement(el);
+            return true;
+        }
+        return false;
+    }
+
+    public centerOnElement(el: SVGGElement) {
+        const coords = Scene.getElementCoords(el);
+        this.setCenter(coords);
+    }
+
+    public setCenter(coords: ICoords): void {
+        this.panZoom.pan(coords);
     }
 
     public setViewBox(viewBox: number[]): void {
