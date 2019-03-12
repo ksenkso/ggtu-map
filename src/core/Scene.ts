@@ -281,7 +281,6 @@ export default class Scene extends EventEmitter implements IScene {
         const diff = Vector.scale(Vector.sub(center, coords), realZoom);
         console.log(diff);
         this.panZoom.pan(diff);
-        // this.setCenter(coords);
     }
 
     public setCenter(coords: ICoords): void {
