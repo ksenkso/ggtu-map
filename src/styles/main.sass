@@ -1,18 +1,24 @@
 @import "primitives"
 $inner-wall: 0.3
 $outer-wall: $inner-wall * 2
-.map__root
-  width: 100%
-  height: 100%
-  --scale: 1
-  --origin: 50% 50%
-  --label-base-font-size: 2.5px
-  --base-primitive-stroke: 0.5
-  --label-font-size: calc(var(--scale) * var(--label-base-font-size))
-  &:focus
-    outline: none
+.map
+  &__root
+    width: 100%
+    height: 100%
+    --scale: 1
+    --origin: 50% 50%
+    --label-base-font-size: 2.5px
+    --base-primitive-stroke: 0.5
+    --label-font-size: calc(var(--scale) * var(--label-base-font-size))
+    &:focus
+      outline: none
+  &__loader
+    transition: opacity .1s ease-in-out
+    opacity: 0
+    &_visible
+      opacity: 1
 
-svg *
+.svg-pan-zoom_viewport
   stroke: #899494
   stroke-width: $inner-wall
   fill: none

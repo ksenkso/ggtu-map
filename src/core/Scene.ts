@@ -1,3 +1,4 @@
+import {TweenLite} from 'gsap';
 import svgPanZoom = require('svg-pan-zoom');
 import {MapObject, ObjectType} from '../api/common';
 import {IBuilding} from '../api/endpoints/BuildingsEndpoint';
@@ -106,13 +107,16 @@ export default class Scene extends EventEmitter implements IScene {
     public readonly objectManager: ObjectManager;
     public readonly dragManager: DragManager;
 
+    public viewport: SVGGElement;
     public drawingContainer: SVGGElement;
     public mapContainer: SVGGElement;
     public labelsContainer: SVGGElement;
     public root: SVGSVGElement;
+    public loader: SVGGElement;
     public container: HTMLElement;
     public panZoom: SvgPanZoom.Instance;
 
+    private _loaderVisible: boolean;
     private _location: ILocation;
     private _shouldHandleMapClick: boolean;
     private svg: SVGSVGElement;
@@ -138,15 +142,28 @@ export default class Scene extends EventEmitter implements IScene {
             });
         this.root.setAttribute('tabindex', String(tabIndex));
         // Create containers
+        this.viewport = GraphPoint.createElement('g', false) as SVGGElement;
+        this.viewport.classList.add('svg-pan-zoom_viewport');
+        this.root.appendChild(this.viewport);
         this.mapContainer = Graphics.createElement('g', false) as SVGGElement;
         this.mapContainer.classList.add('scene__map');
-        this.root.appendChild(this.mapContainer);
+        this.viewport.appendChild(this.mapContainer);
         this.drawingContainer = Graphics.createElement('g', false) as SVGGElement;
         this.drawingContainer.classList.add('scene__drawing');
-        this.root.appendChild(this.drawingContainer);
+        this.viewport.appendChild(this.drawingContainer);
         this.labelsContainer = Graphics.createElement('g', false) as SVGGElement;
         this.labelsContainer.classList.add('map__labels');
-        this.root.appendChild(this.labelsContainer);
+        this.viewport.appendChild(this.labelsContainer);
+        this.loader = Graphics.createElement('g', false) as SVGGElement;
+        this.loader.classList.add('map__loader');
+        this.loader.innerHTML = require('../assets/rings.svg');
+        this.loader.addEventListener('transitionend', () => {
+            // If the loader is already visually hidden
+            if (!this._loaderVisible) {
+                this.loader.style.display = 'none';
+            }
+        });
+        this.root.appendChild(this.loader);
         // Set up singletons
         this.apiClient = ApiClient.getInstance();
         this.selection = new Selection();
@@ -165,12 +182,29 @@ export default class Scene extends EventEmitter implements IScene {
         this.container.addEventListener('mousedown', this.onMouseDown.bind(this));
     }
 
+    public showLoader() {
+        if (!this._loaderVisible) {
+            this.loader.style.display = 'block';
+            this.loader.classList.add('map__loader_visible');
+            this._loaderVisible = true;
+        }
+    }
+
+    public hideLoader() {
+        if (this._loaderVisible) {
+            this.loader.classList.remove('map__loader_visible');
+            this._loaderVisible = false;
+        }
+    }
+
     public getLocation(): ILocation {
         return this._location;
     }
 
     public setLocation(value: ILocation, force = false): Promise<void> {
         if (force || (!this._location || this._location.id !== value.id)) {
+            // Start transition
+            this.showLoader();
             this._location = value;
             if (value.map) {
                 return this.apiClient
@@ -202,6 +236,9 @@ export default class Scene extends EventEmitter implements IScene {
                                 return true;
                             },
                         });
+                        console.log(this.panZoom);
+                        // End transition
+                        this.hideLoader();
                         this.emit('mapChanged');
                     })
                     .catch((error) => {
@@ -260,7 +297,7 @@ export default class Scene extends EventEmitter implements IScene {
         return this.root.getAttribute('viewBox').split(' ').map((v) => +v);
     }
 
-    public centerOnObject(o: IPlace|IBuilding): boolean {
+    public centerOnObject(o: IPlace | IBuilding): boolean {
         const el = this.findObjectOnMap(o);
         if (el) {
             this.centerOnElement(el);
@@ -271,20 +308,38 @@ export default class Scene extends EventEmitter implements IScene {
 
     public centerOnElement(el: SVGGElement): void {
         const coords = Scene.getElementCoords(el);
-        console.log(coords);
-        const {viewBox, realZoom} = this.panZoom.getSizes() as any;
-        const center = {
-            x: viewBox.x + viewBox.width / 2,
-            y: viewBox.y + viewBox.height / 2,
+        this.setCenter(coords);
+    }
+
+    /**
+     * @return ICoords coords on the map
+     */
+    public getCenter(): ICoords {
+        const pan = this.panZoom.getPan();
+        const sizes = this.panZoom.getSizes() as any;
+        return {
+            x: sizes.viewBox.width / 2 - pan.x / sizes.realZoom,
+            y: sizes.viewBox.height / 2 - pan.y / sizes.realZoom,
         };
-        console.log(center);
-        const diff = Vector.scale(Vector.sub(center, coords), realZoom);
-        console.log(diff);
-        this.panZoom.pan(diff);
     }
 
     public setCenter(coords: ICoords): void {
-        this.panZoom.pan(coords);
+        const current = this.getCenter();
+        const {realZoom} = this.panZoom.getSizes();
+        const diff = Vector.scale(Vector.sub(current, coords), realZoom);
+        const pan = this.panZoom.getPan();
+        const to = Vector.add(pan, diff);
+        TweenLite.to(
+            pan,
+            .4,
+            {
+                x: to.x,
+                y: to.y,
+                onUpdate: () => {
+                    this.panZoom.pan(pan);
+                },
+            },
+        );
     }
 
     public setViewBox(viewBox: number[]): void {

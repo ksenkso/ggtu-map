@@ -33,4 +33,6 @@ export default interface IScene extends IEventEmitter {
   centerOnObject(o: IPlace|IBuilding): boolean;
   centerOnElement(el: SVGGElement): void;
   setCenter(coords: ICoords): void;
+  showLoader(): void;
+  hideLoader(): void;
 }
