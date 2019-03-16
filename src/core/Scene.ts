@@ -57,7 +57,7 @@ export default class Scene extends EventEmitter implements IScene {
                     };
                 }
                 default: {
-                    const box = area.getBBox();
+                    const box = el.getBBox();
                     return {
                         x: box.x + box.width / 2,
                         y: box.y + box.height / 2,
@@ -230,6 +230,10 @@ export default class Scene extends EventEmitter implements IScene {
                         if (this.panZoom) {
                             this.panZoom.reset();
                             this.panZoom.destroy();
+                            /*this.panZoom.resetZoom();
+                            this.panZoom.updateBBox();
+                            this.panZoom.fit();
+                            this.panZoom.center();*/
                         }
                         this.panZoom = svgPanZoom(this.root, {
                             onPan: () => this._shouldHandleMapClick = false,
