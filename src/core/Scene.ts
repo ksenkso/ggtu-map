@@ -31,7 +31,7 @@ export interface IMapMouseEvent {
 export default class Scene extends EventEmitter implements IScene {
 
     public static getElementCoords(el: SVGGElement): ICoords {
-        const area = el.querySelector('[data-type="area"]');
+        const area = el.querySelector('[data-type="area"]') as SVGGraphicsElement;
         if (area) {
             switch (area.nodeName) {
                 case 'polygon': {
@@ -57,13 +57,20 @@ export default class Scene extends EventEmitter implements IScene {
                     };
                 }
                 default: {
-                    const box = el.getBBox();
+                    const box = area.getBBox();
                     return {
                         x: box.x + box.width / 2,
                         y: box.y + box.height / 2,
                     };
                 }
             }
+        } else {
+            // Use the element box
+            const box = el.getBBox();
+            return {
+                x: box.x + box.width / 2,
+                y: box.y + box.height / 2,
+            };
         }
     }
 
@@ -245,7 +252,7 @@ export default class Scene extends EventEmitter implements IScene {
         }
     }
 
-    public findObjectOnMap(object) {
+    public findObjectOnMap(object): SVGGElement {
         const selector = '#' + CSS.escape(object.container);
         return this.mapContainer.querySelector(selector) as SVGGElement;
     }
