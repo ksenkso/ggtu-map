@@ -178,16 +178,16 @@ export default class Scene extends EventEmitter implements IScene {
 
     public showLoader() {
         if (!this._loaderVisible) {
+            this._loaderVisible = true;
             this.loader.style.display = 'block';
             this.loader.classList.add('map__loader_visible');
-            this._loaderVisible = true;
         }
     }
 
     public hideLoader() {
         if (this._loaderVisible) {
-            this.loader.classList.remove('map__loader_visible');
             this._loaderVisible = false;
+            this.loader.classList.remove('map__loader_visible');
         }
     }
 
@@ -207,6 +207,7 @@ export default class Scene extends EventEmitter implements IScene {
                     .then((response) => {
                         if (response.status === 200) {
                             this.setMapFromString(response.data as string);
+                            this.hideLoader();
                             return this.objectManager.updateLocation(value.id);
                         }
                     })
@@ -232,7 +233,6 @@ export default class Scene extends EventEmitter implements IScene {
                         });
                         console.log(this.panZoom);
                         // End transition
-                        this.hideLoader();
                         this.emit('mapChanged');
                     })
                     .catch((error) => {
@@ -410,11 +410,42 @@ export default class Scene extends EventEmitter implements IScene {
 
     private _resizeDrawings(oldZoom: number, newZoom: number) {
         const ratio = newZoom / oldZoom;
+        console.log(newZoom);
         if (newZoom > 2) {
-            this.root.style.setProperty('--label-base-font-size', '3px');
+            this.root.style.setProperty('--place-label-base-fz', '2.7px');
+            this.root.classList.remove('map__root_no-place-labels');
         } else {
-            this.root.style.setProperty('--label-base-font-size', '2.5px');
+            // Hide labels for places
+            if (newZoom < .75) {
+                // this.root.classList.add('map__root_no-place-labels');
+                this.root.style.setProperty('--place-label-base-fz', '1.7px');
+            } else {
+                this.root.classList.remove('map__root_no-place-labels');
+                this.root.classList.remove('map__root_no-building-labels');
+                this.root.style.setProperty('--place-label-base-fz', '1.9px');
+            }
+            // Hide labels for buildings
+            if (newZoom < .35) {
+                this.root.classList.add('map__root_no-building-labels');
+            } else {
+                this.root.classList.remove('map__root_no-building-labels');
+            }
+            if (newZoom > 1.7) {
+                this.root.style.setProperty('--place-label-base-fz', '2.2px');
+            }
         }
+        /*
+        if (newZoom > 2) {
+            this.root.style.setProperty('--label-base-font-size', '2.7px');
+            this.root.classList.remove('map__root_no-place-labels');
+        } else if (newZoom < .75) {
+            this.root.classList.add('map__root_no-place-labels');
+        } else if (newZoom < .6) {
+            this.root.classList.add('map__root_no-building-labels');
+        } else {
+            this.root.classList.remove('map__root_no-labels');
+            this.root.style.setProperty('--label-base-font-size', '1.9px');
+        }*/
         const invertedZoom = 1 / newZoom;
         this.root.style.setProperty('--scale', String(invertedZoom));
         this._graphicsCollection.forEach((graphics) => {

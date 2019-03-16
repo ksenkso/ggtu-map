@@ -7,11 +7,20 @@ $outer-wall: $inner-wall * 2
     height: 100%
     --scale: 1
     --origin: 50% 50%
-    --label-base-font-size: 2.5px
+    --place-label-base-fz: 1.9px
+    --building-label-base-fz: 2.5px
+    --label-base-font-size: 1.9px
     --base-primitive-stroke: 0.5
-    --label-font-size: calc(var(--scale) * var(--label-base-font-size))
+    --place-label-font-size: calc(var(--scale) * var(--place-label-base-fz))
+    --building-label-font-size: calc(var(--scale) * var(--building-label-base-fz))
     &:focus
       outline: none
+    &_no-place-labels
+      [data-type=place] .primitive_label
+        display: none
+    &_no-building-labels
+      [data-type=building] .primitive_label
+        display: none
   &__loader
     transition: opacity .1s ease-in-out
     opacity: 0
