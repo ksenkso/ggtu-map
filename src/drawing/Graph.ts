@@ -147,20 +147,21 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
     /**
      * Recursively adds points from the list to graph
      *
-     * @param list
-     * @param i
      */
-    private _restore(list: IAdjacencyNode[], i = 0) {
+    private _restore(list: IAdjacencyNode[], i = 0, edgeId = null) {
         if (list.length && !list[i].marked) {
             list[i].marked = true;
             const current = this.addPoint(Object.assign(
                 {},
-                {connectCurrent: (list[i].siblings && list[i].siblings.length) || !list[i].siblings},
+                {
+                    connectCurrent: (list[i].siblings && list[i].siblings.length) || !list[i].siblings,
+                    edgeId,
+                },
                 list[i]),
             );
             if (list[i].siblings.length) {
                 list[i].siblings.forEach((sibling) => {
-                    this._restore(list, sibling.index);
+                    this._restore(list, sibling.index, sibling.id);
                     this.selection.set([current]);
                 });
             } else {

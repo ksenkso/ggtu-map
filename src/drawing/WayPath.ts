@@ -97,7 +97,10 @@ export default class WayPath extends Graph implements IWayPath {
         if (options.connectCurrent !== false) {
             if (this.selection) {
                 if (this.selection.last && this.selection.last instanceof WayPoint) {
-                    this.connectPoints(this.selection.last, point, options.id);
+                    this.connectPoints(
+                        this.selection.last, point,
+                        options.edgeId,
+                    );
                 }
             }
         }
