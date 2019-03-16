@@ -34,12 +34,6 @@ export default class Scene extends EventEmitter implements IScene {
         const area = el.querySelector('[data-type="area"]');
         if (area) {
             switch (area.nodeName) {
-                /*case 'rect': {
-                    return {
-                        x: +area.getAttribute('x') + +area.getAttribute('width') / 2,
-                        y: +area.getAttribute('y') + +area.getAttribute('height') / 2,
-                    };
-                }*/
                 case 'polygon': {
                     const points = area
                         .getAttribute('points')
