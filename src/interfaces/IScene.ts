@@ -30,8 +30,10 @@ export default interface IScene extends IEventEmitter {
   setLocation(location: ILocation): Promise<void>;
   getZoom(): number;
   setZoom(f: number): void;
+  findObjectOnMap(object): SVGGElement;
   centerOnObject(o: IPlace|IBuilding): boolean;
   centerOnElement(el: SVGGElement): void;
+  getCenter(): ICoords;
   setCenter(coords: ICoords): void;
   showLoader(): void;
   hideLoader(): void;
