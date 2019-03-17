@@ -158,12 +158,7 @@ export default class Scene extends EventEmitter implements IScene {
         this.loader = Graphics.createElement('g', false) as SVGGElement;
         this.loader.classList.add('map__loader');
         this.loader.innerHTML = require('../assets/rings.svg');
-        this.loader.addEventListener('transitionend', () => {
-            // If the loader is already visually hidden
-            if (!this._loaderVisible) {
-                this.loader.style.display = 'none';
-            }
-        });
+
         this.root.appendChild(this.loader);
         // Set up singletons
         this.apiClient = ApiClient.getInstance();
@@ -195,6 +190,7 @@ export default class Scene extends EventEmitter implements IScene {
         if (this._loaderVisible) {
             this._loaderVisible = false;
             this.loader.classList.remove('map__loader_visible');
+            setTimeout(() => this.loader.style.display = 'none', 100);
         }
     }
 
