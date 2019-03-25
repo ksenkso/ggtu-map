@@ -15,7 +15,6 @@ import {ICoords} from '../utils';
 import {getMapElementAtCoords} from '../utils/dom';
 import DragManager from '../utils/DragManager';
 import EventEmitter from '../utils/EventEmitter';
-import Vector from '../utils/Vector';
 import ApiClient from './ApiClient';
 import ObjectManager from './ObjectManager';
 import Selection from './Selection';
@@ -319,17 +318,20 @@ export default class Scene extends EventEmitter implements IScene {
         const pan = this.panZoom.getPan();
         const sizes = this.panZoom.getSizes() as any;
         return {
-            x: sizes.viewBox.width / 2 - pan.x / sizes.realZoom,
-            y: sizes.viewBox.height / 2 - pan.y / sizes.realZoom,
+            x: (sizes.viewBox.width + sizes.viewBox.x - pan.x / sizes.realZoom) / 2,
+            y: (sizes.viewBox.height + sizes.viewBox.y - pan.y / sizes.realZoom) / 2,
         };
     }
 
     public setCenter(coords: ICoords): void {
-        const current = this.getCenter();
-        const {realZoom} = this.panZoom.getSizes();
-        const diff = Vector.scale(Vector.sub(current, coords), realZoom);
         const pan = this.panZoom.getPan();
-        const to = Vector.add(pan, diff);
+        const sizes = this.panZoom.getSizes() as any;
+        const to = {
+            x: (sizes.width - (sizes.viewBox.width + 2 * sizes.viewBox.x) * sizes.realZoom) / 2
+                + (sizes.viewBox.width / 2 - coords.x) * sizes.realZoom,
+            y: (sizes.height - (sizes.viewBox.height + 2 * sizes.viewBox.y) * sizes.realZoom) / 2
+                + (sizes.viewBox.height / 2 - coords.y) * sizes.realZoom,
+        };
         TweenLite.to(
             pan,
             .4,
@@ -339,6 +341,7 @@ export default class Scene extends EventEmitter implements IScene {
                 onUpdate: () => {
                     this.panZoom.pan(pan);
                 },
+                onComplete: () => console.log('new center', this.getCenter()),
             },
         );
     }
@@ -425,7 +428,7 @@ export default class Scene extends EventEmitter implements IScene {
             // Hide labels for places
             if (newZoom < .75) {
                 // this.root.classList.add('map__root_no-place-labels');
-                this.root.style.setProperty('--place-label-base-fz', '1.7px');
+                this.root.style.setProperty('--place-label-base-fz', '1.6px');
             } else {
                 this.root.classList.remove('map__root_no-place-labels');
                 this.root.classList.remove('map__root_no-building-labels');
