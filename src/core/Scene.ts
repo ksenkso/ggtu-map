@@ -5,6 +5,7 @@ import {IBuilding} from '../api/endpoints/BuildingsEndpoint';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import {IPlace} from '../api/endpoints/PlacesEndpoint';
 import Label from '../components/Label';
+import PlaceLabel from '../components/PlaceLabel';
 import Graph from '../drawing/Graph';
 import Graphics from '../drawing/Graphics';
 import GraphPoint from '../drawing/GraphPoint';
@@ -74,26 +75,25 @@ export default class Scene extends EventEmitter implements IScene {
         }
     }
 
+    public static setLabelFor(object: MapObject, el: SVGGElement) {
+        let label;
+        if ((object as any).type) {
+            label = new PlaceLabel(object as IPlace);
+        } else {
+            label = new Label((object as IBuilding).name);
+        }
+        Scene.setLabel(label, el);
+    }
+
     /**
      * Sets a label for an object on the map
+     * @param label
      * @param el
-     * @param name
      */
-    public static setLabel(el: SVGGElement | ICoords, name: string) {
-        const label = new Label(name);
-        let x, y;
-        if (el instanceof SVGGraphicsElement) {
-            // get the box before text element is appended,
-            // otherwise it will extend the box to the top-left corner of the SVG
-            const rect = el.getBBox();
-            el.appendChild(label.element);
-            x = rect.x + rect.width / 2;
-            y = rect.y + rect.height / 2;
-        } else {
-            x = el.x;
-            y = el.y;
-        }
-        label.setPosition({x, y});
+    public static setLabel(label: Label, el: SVGGElement) {
+        const coords = Scene.getElementCoords(el);
+        label.setPosition(coords);
+        el.appendChild(label.element);
     }
 
     public readonly apiClient: ApiClient;
@@ -208,21 +208,17 @@ export default class Scene extends EventEmitter implements IScene {
                         }
                     })
                     .then(() => {
-                        const objects: any[] = (this.objectManager.places as any[])
-                            .concat(this.objectManager.buildings);
-                        for (const object of objects) {
-                            const el = this.findObjectOnMap(object);
-                            if (el) {
-                                Scene.setLabel(el, object.name);
-                            }
-                        }
+                        this.objectManager.places
+                            .forEach((place) => {
+                                this.renderPlace(place);
+                            });
+                        this.objectManager.buildings
+                            .forEach((building) => {
+                                this.renderBuilding(building);
+                            });
                         if (this.panZoom) {
                             this.panZoom.reset();
                             this.panZoom.destroy();
-                            /*this.panZoom.resetZoom();
-                            this.panZoom.updateBBox();
-                            this.panZoom.fit();
-                            this.panZoom.center();*/
                         }
                         this.panZoom = svgPanZoom(this.root, {
                             onPan: () => this._shouldHandleMapClick = false,
@@ -236,7 +232,6 @@ export default class Scene extends EventEmitter implements IScene {
                         this.emit('mapChanged');
                     })
                     .catch((error) => {
-                        //  TODO: create an error handling system
                         console.error(error);
                     });
             } else {
@@ -438,18 +433,6 @@ export default class Scene extends EventEmitter implements IScene {
                 this.root.style.setProperty('--place-label-base-fz', '2.2px');
             }
         }
-        /*
-        if (newZoom > 2) {
-            this.root.style.setProperty('--label-base-font-size', '2.7px');
-            this.root.classList.remove('map__root_no-place-labels');
-        } else if (newZoom < .75) {
-            this.root.classList.add('map__root_no-place-labels');
-        } else if (newZoom < .6) {
-            this.root.classList.add('map__root_no-building-labels');
-        } else {
-            this.root.classList.remove('map__root_no-labels');
-            this.root.style.setProperty('--label-base-font-size', '1.9px');
-        }*/
         const invertedZoom = 1 / newZoom;
         this.root.style.setProperty('--scale', String(invertedZoom));
         this._graphicsCollection.forEach((graphics) => {
@@ -498,5 +481,19 @@ export default class Scene extends EventEmitter implements IScene {
                 this.selection.elements[1] as GraphPoint,
             );
         }
+    }
+
+    private renderPlace(place: IPlace) {
+        const el = this.findObjectOnMap(place);
+        const label = new PlaceLabel(place);
+        label.appendTo(this);
+        Scene.setLabel(label, el);
+    }
+
+    private renderBuilding(building: IBuilding) {
+        const el = this.findObjectOnMap(building);
+        const label = new Label(building.name);
+        label.appendTo(this);
+        Scene.setLabel(label, el);
     }
 }
