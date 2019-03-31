@@ -11,7 +11,7 @@ export interface IPlace {
   LocationId: number;
   type: PlaceType;
   container: string;
-  Props?: IDictionary;
+  props?: IDictionary;
   MapObject?: IMapObject;
 }
 export default class PlacesEndpoint extends BaseEndpoint implements IPlacesEndpoint {
