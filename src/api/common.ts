@@ -43,7 +43,12 @@ export interface ILocationObjectsCollection {
     transitionViews?: ITransitionView[];
 }
 
-export type PlaceType = 'cabinet' | 'wc' | 'gym' | 'other';
+export enum PlaceType {
+    CABINET = 'cabinet',
+    WC = 'wc',
+    GYM = 'gym',
+    OTHER = 'other',
+}
 
 export interface IDictionary<T = any> {
     [key: string]: T;
