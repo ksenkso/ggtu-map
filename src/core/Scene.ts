@@ -4,6 +4,7 @@ import {MapObject, ObjectType} from '../api/common';
 import {IBuilding} from '../api/endpoints/BuildingsEndpoint';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import {IPlace} from '../api/endpoints/PlacesEndpoint';
+import Label from '../components/Label';
 import Graph from '../drawing/Graph';
 import Graphics from '../drawing/Graphics';
 import GraphPoint from '../drawing/GraphPoint';
@@ -79,27 +80,20 @@ export default class Scene extends EventEmitter implements IScene {
      * @param name
      */
     public static setLabel(el: SVGGElement | ICoords, name: string) {
-        const text = Primitive.createElement('text') as SVGTextElement;
-        text.classList.add('primitive_label');
-
-        text.textContent = name;
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('dominant-baseline', 'middle');
-
+        const label = new Label(name);
         let x, y;
         if (el instanceof SVGGraphicsElement) {
             // get the box before text element is appended,
             // otherwise it will extend the box to the top-left corner of the SVG
             const rect = el.getBBox();
-            el.appendChild(text);
+            el.appendChild(label.element);
             x = rect.x + rect.width / 2;
             y = rect.y + rect.height / 2;
         } else {
             x = el.x;
             y = el.y;
         }
-        text.setAttribute('x', String(x));
-        text.setAttribute('y', String(y));
+        label.setPosition({x, y});
     }
 
     public readonly apiClient: ApiClient;
