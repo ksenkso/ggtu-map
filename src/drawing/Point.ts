@@ -1,4 +1,5 @@
 import {ICoords, IPoint} from '..';
+import IPositioned from '../interfaces/IPositioned';
 import IScene from '../interfaces/IScene';
 import Graphics from './Graphics';
 import Primitive, {IPrimitiveOptions} from './Primitive';
@@ -6,7 +7,7 @@ import Primitive, {IPrimitiveOptions} from './Primitive';
 export type PointOptions = IPrimitiveOptions & {
   position?: ICoords,
 };
-export default class Point extends Primitive implements IPoint {
+export default class Point extends Primitive implements IPoint, IPositioned {
 
   private _radius: number;
   private _position: ICoords;
