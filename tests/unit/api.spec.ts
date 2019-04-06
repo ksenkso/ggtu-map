@@ -1,6 +1,7 @@
 import {expect} from 'chai';
 import cheerio = require('cheerio');
 import request = require('request');
+import {PlaceType} from '../../src';
 import {IBuilding} from '../../src/api/endpoints/BuildingsEndpoint';
 import {ILocation} from '../../src/api/endpoints/LocationsEndpoint';
 import {IPlace} from '../../src/api/endpoints/PlacesEndpoint';
@@ -163,11 +164,11 @@ describe.skip('ApiClient', () => {
         const place: IPlace = {
           container: '6b8143d9-934c-4418-9e04-755a53101f50',
           name: 'test place',
-          Props: {
+          props: {
             hasProjector: true,
           },
           LocationId: 2,
-          type: 'cabinet',
+          type: PlaceType.CABINET,
         };
         it('should create a place', () => {
           return api.places
@@ -175,8 +176,8 @@ describe.skip('ApiClient', () => {
             .then((created) => {
               expect(created).to.have.property('id');
               expect(created).to.have.property('props');
-              expect(created.Props).to.be.an('object');
-              expect(created.Props).to.have.property('hasProjector');
+              expect(created.props).to.be.an('object');
+              expect(created.props).to.have.property('hasProjector');
               expect(created.name).to.be.equal(place.name);
               place.id = created.id;
               return api.locations
@@ -201,15 +202,15 @@ describe.skip('ApiClient', () => {
         });
         it('should should update a place', () => {
           const newName = 'new place name';
-          const newType = 'gym';
-          const newProps = {hasTrainers: false};
+          const newType = PlaceType.GYM;
+          const newprops = {hasTrainers: false};
           return api.places
-            .update(place.id, {name: newName, type: newType, Props: newProps})
+            .update(place.id, {name: newName, type: newType, props: newprops})
             .then((updated) => {
               expect(updated).to.have.property('props');
-              expect(updated.Props).to.be.an('object');
-              expect(updated.Props).to.have.property('hasTrainers');
-              expect(updated.Props.hasTrainers).to.be.false;
+              expect(updated.props).to.be.an('object');
+              expect(updated.props).to.have.property('hasTrainers');
+              expect(updated.props.hasTrainers).to.be.false;
               expect(updated.name).to.be.equal(newName);
               expect(updated.type).to.be.equal(newType);
             });
