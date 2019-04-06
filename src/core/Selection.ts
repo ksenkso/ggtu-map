@@ -28,4 +28,9 @@ export default class Selection {
       return item;
     });
   }
+
+  public reset(): void {
+    this.elements.forEach((element) => element.selected = false);
+    this.elements = [];
+  }
 }
