@@ -17,3 +17,4 @@ export {default as IScene} from './IScene';
 export {default as IGraphPointOptions} from './IGraphPointOptions';
 export {default as IMapObject} from './IMapObject';
 export {default as IWayEdge} from './IWayEdge';
+export {default as IPathItem} from './IPathItem';

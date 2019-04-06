@@ -5,6 +5,7 @@ import IGraph from '../interfaces/IGraph';
 import IGraphEdge from '../interfaces/IGraphEdge';
 import IGraphPoint from '../interfaces/IGraphPoint';
 import IGraphPointOptions from '../interfaces/IGraphPointOptions';
+import IPathItem from '../interfaces/IPathItem';
 import IScene from '../interfaces/IScene';
 import ISerializable from '../interfaces/ISerializable';
 import DragManager from '../utils/DragManager';
@@ -26,6 +27,17 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
             this.selection = selection;
         }
         this.container = Graphics.createElement('g', false) as SVGGElement;
+    }
+
+    /**
+     * Draws a path from start to end
+     *
+     * @param path
+     */
+    public showPath(path: IPathItem[]) {
+        path.forEach((item) => {
+            this.addPoint(item);
+        });
     }
 
     public createEdge(p1: IGraphPoint, p2: IGraphPoint): GraphEdge {
