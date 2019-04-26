@@ -6,6 +6,7 @@ import {ITransition} from './TransitionsEndpoint';
 export interface IBuildingsEndpoint extends IEndpoint<IBuilding> {
   getLocations(id: number, where?: IWhereCondition): Promise<ILocation[] | null>;
   getTransitions(locationId: number, params?: IGetParams): Promise<ITransition[]>;
+  getFloor(buildingId: number, floor: number): Promise<ILocation>;
 }
 
 export interface IBuilding {
@@ -23,7 +24,7 @@ export default class BuildingsEndpoint extends BaseEndpoint implements IBuilding
   }
 
   public async getLocations(id: number, where?: IWhereCondition): Promise<ILocation[] | null> {
-    const response = await this.api.get<ILocation[]>(this.route + id + '/locations');
+    const response = await this.api.get<ILocation[]>(this.route + id + '/floors');
     if (response.status === 200) {
       return response.data;
     } else {
@@ -33,6 +34,15 @@ export default class BuildingsEndpoint extends BaseEndpoint implements IBuilding
 
   public async getTransitions(locationId: number, params?: IGetParams): Promise<ITransition[]> {
     const response = await this.api.get(this.route + locationId + '/transitions');
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      return null;
+    }
+  }
+
+  public async getFloor(buildingId: number, floor: number): Promise<ILocation> {
+    const response = await this.api.get(this.route + buildingId + '/floors/' + floor);
     if (response.status === 200) {
       return response.data;
     } else {
