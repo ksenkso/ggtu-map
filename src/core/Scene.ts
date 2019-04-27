@@ -154,7 +154,6 @@ export default class Scene extends EventEmitter implements IScene {
 
         this.root.appendChild(this.loader);
         this.searchbox = new SearchBox(this);
-        this.searchbox.render();
         // Set up singletons
         this.apiClient = ApiClient.getInstance();
         this.selection = new Selection();
