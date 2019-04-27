@@ -20,6 +20,7 @@ export default class SearchBox {
     public container: HTMLElement;
     private results: ISearchResult[] = [];
     private readonly resultsContainer: HTMLElement;
+    private readonly noResults: HTMLElement;
 
     constructor(public scene: IScene) {
         this.container = document.createElement('div');
@@ -34,14 +35,15 @@ export default class SearchBox {
 </div>
 </form>
 <div class="search__results">
-    <div class="no-results d-none">Ничего не найдено</div>
+    <div class="search__no-results d-none">Ничего не найдено</div>
 </div>`;
         this.resultsContainer = this.container.querySelector('.search__results');
+        this.noResults = this.container.querySelector('.search__no-results');
         this.container.querySelector('.js-open-paths')
             .addEventListener('click', this.openPathfinder.bind(this));
         this.container.querySelector('.js-find-places')
             .addEventListener('submit', this.findPlaces.bind(this));
-
+        this.scene.container.appendChild(this.container);
     }
     public openPathfinder(): void {
         this.scene.showPanel('pathfinder');
@@ -55,36 +57,55 @@ export default class SearchBox {
                 this.resultsContainer.innerHTML = '';
                 this.results = results;
                 if (results.length) {
-                    if (results[0].location && results[0].location.id !== this.scene.getLocation().id) {
-                        await this.scene.setLocation(results[0].location);
-                    }
-                    if (results[0].place || results[0].building) {
-                        this.scene.centerOnObject(results[0].place || results[0].building);
-                    }
+                    this.noResults.classList.add('d-none');
+                    this.results.forEach((result, i) => {
+                        const el = this.createResultElement(result, i);
+                        this.resultsContainer.appendChild(el);
+                    });
+                    this.centerOnResult(results[0]);
+                } else {
+                    this.noResults.classList.remove('d-none');
                 }
-                this.results.forEach((result) => {
-                    const deepest = SearchBox.deepestSearchResult(result);
-                    const el = document.createElement('div');
-                    el.classList.add('search__result');
-                    const place = document.createElement('h4');
-                    place.textContent = deepest.name;
-                    el.appendChild(place);
-                    if (result.location && result.place) {
-                        const location = document.createElement('h6');
-                        location.innerText = result.location.name;
-                        el.appendChild(location);
-                    }
-                    if (result.building && (result.place || result.location)) {
-                        const building = document.createElement('h6');
-                        building.innerText = result.building.name;
-                        el.appendChild(building);
-                    }
-                    this.resultsContainer.appendChild(el);
-                });
             });
     }
 
-    public render(): void {
-        this.scene.container.appendChild(this.container);
+    public async centerOnResult(result) {
+        if (result.location && result.location.id !== this.scene.getLocation().id) {
+            await this.scene.setLocation(result.location);
+        }
+        if (result.place || result.building) {
+            this.scene.centerOnObject(result.place || result.building);
+        }
+    }
+
+    public onResultClick(event: MouseEvent): void {
+        let target = event.target as HTMLElement;
+        while (target.className !== 'search__result') {
+            target = target.parentElement;
+        }
+        this.centerOnResult(this.results[+target.dataset.result]);
+    }
+
+    public createResultElement(result: ISearchResult, index: number): HTMLElement {
+        const deepest = SearchBox.deepestSearchResult(result);
+        const el = document.createElement('div');
+        el.classList.add('search__result');
+        el.id = `search-result-${index}`;
+        const place = document.createElement('h4');
+        place.textContent = deepest.name;
+        el.appendChild(place);
+        if (result.location && result.place) {
+            const location = document.createElement('h6');
+            location.innerText = result.location.name;
+            el.appendChild(location);
+        }
+        if (result.building && (result.place || result.location)) {
+            const building = document.createElement('h6');
+            building.innerText = result.building.name;
+            el.appendChild(building);
+        }
+        el.dataset.result = '' + index;
+        el.addEventListener('click', this.onResultClick.bind(this));
+        return el;
     }
 }
