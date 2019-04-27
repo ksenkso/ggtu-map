@@ -226,6 +226,7 @@ export default class Scene extends EventEmitter implements IScene {
                                 this._resizeDrawings(oldZoom, newZoom);
                                 return true;
                             },
+                            eventsListenerElement: this.container as any,
                         });
                         console.log(this.panZoom);
                         // End transition
