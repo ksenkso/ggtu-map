@@ -6,6 +6,7 @@ import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import {IPlace} from '../api/endpoints/PlacesEndpoint';
 import Label from '../components/Label';
 import PlaceLabel from '../components/PlaceLabel';
+import SearchBox from '../components/SearchBox';
 import Graph from '../drawing/Graph';
 import Graphics from '../drawing/Graphics';
 import GraphPoint from '../drawing/GraphPoint';
@@ -30,7 +31,6 @@ export interface IMapMouseEvent {
 }
 
 export default class Scene extends EventEmitter implements IScene {
-
     public static getElementCoords(el: SVGGElement): ICoords {
         const area = el.querySelector('[data-type="area"]') as SVGGraphicsElement;
         if (area) {
@@ -95,7 +95,7 @@ export default class Scene extends EventEmitter implements IScene {
         label.setPosition(coords);
         el.appendChild(label.element);
     }
-
+    public readonly searchbox: SearchBox;
     public readonly apiClient: ApiClient;
     public readonly selection: Selection;
     public readonly objectManager: ObjectManager;
@@ -153,6 +153,8 @@ export default class Scene extends EventEmitter implements IScene {
         this.loader.innerHTML = require('../assets/rings.svg');
 
         this.root.appendChild(this.loader);
+        this.searchbox = new SearchBox(this);
+        this.searchbox.render();
         // Set up singletons
         this.apiClient = ApiClient.getInstance();
         this.selection = new Selection();
@@ -226,7 +228,7 @@ export default class Scene extends EventEmitter implements IScene {
                                 this._resizeDrawings(oldZoom, newZoom);
                                 return true;
                             },
-                            eventsListenerElement: this.container as any,
+                            // eventsListenerElement: this.container as any,
                         });
                         console.log(this.panZoom);
                         // End transition
@@ -360,6 +362,14 @@ export default class Scene extends EventEmitter implements IScene {
 
     public setZoom(f: number): void {
         this.panZoom.zoom(f);
+    }
+
+    public showPanel(name: string): void {
+        if (name === 'pathfinder') {
+            {
+                console.log('pathfinder open');
+            }
+        }
     }
 
     /**

@@ -37,4 +37,5 @@ export default interface IScene extends IEventEmitter {
   setCenter(coords: ICoords): void;
   showLoader(): void;
   hideLoader(): void;
+  showPanel(name: string): void;
 }
