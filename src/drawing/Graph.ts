@@ -1,8 +1,10 @@
 import {ICoords} from '..';
 import Selection from '../core/Selection';
 import IAdjacencyNode from '../interfaces/IAdjacencyNode';
+import IDrawable from '../interfaces/IDrawable';
 import IGraph from '../interfaces/IGraph';
 import IGraphEdge from '../interfaces/IGraphEdge';
+import IGraphOptions from '../interfaces/IGraphOptions';
 import IGraphPoint from '../interfaces/IGraphPoint';
 import IGraphPointOptions from '../interfaces/IGraphPointOptions';
 import IPathItem from '../interfaces/IPathItem';
@@ -13,7 +15,7 @@ import GraphEdge from './GraphEdge';
 import Graphics from './Graphics';
 import GraphPoint from './GraphPoint';
 
-export default class Graph extends Graphics implements IGraph, ISerializable {
+export default class Graph extends Graphics implements IGraph, ISerializable, IDrawable {
     public vertices: IGraphPoint[] = [];
     public edges: IGraphEdge[] = [];
     public readonly container: SVGGElement;
@@ -21,10 +23,10 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
     public scene: IScene;
     private dragManager: DragManager;
 
-    constructor(selection?: Selection) {
+    constructor(public options: IGraphOptions = {}) {
         super();
-        if (selection) {
-            this.selection = selection;
+        if (this.options.selection) {
+            this.selection = this.options.selection;
         }
         this.container = Graphics.createElement('g', false) as SVGGElement;
     }
@@ -104,7 +106,7 @@ export default class Graph extends Graphics implements IGraph, ISerializable {
         if (this.selection) {
             this.selection.set([point]);
         }
-        if (this.dragManager) {
+        if (this.dragManager && this.options.draggable) {
             this.dragManager.enableDragging(point);
         }
     }

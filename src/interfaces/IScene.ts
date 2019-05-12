@@ -38,4 +38,5 @@ export default interface IScene extends IEventEmitter {
   showLoader(): void;
   hideLoader(): void;
   showPanel(name: string): void;
+  setLocationById(locationId: number): Promise<void>;
 }

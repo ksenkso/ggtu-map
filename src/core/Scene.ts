@@ -124,7 +124,7 @@ export default class Scene extends EventEmitter implements IScene {
         this.root = Primitive.createElement('svg', false) as SVGSVGElement;
         this.root.classList.add('map__root');
         this.container.appendChild(this.root);
-        // Add tabindex to make container focusable
+        // Add tabindex to make element focusable
         let tabIndex = 0;
         document.querySelectorAll('[tabindex]')
             .forEach((el) => {
@@ -169,6 +169,10 @@ export default class Scene extends EventEmitter implements IScene {
         this.container.addEventListener('click', this.onMapClick.bind(this));
         this.container.addEventListener('keyup', this.onKeyUp.bind(this));
         this.container.addEventListener('mousedown', this.onMouseDown.bind(this));
+    }
+    public setLocationById(locationId: number, force = false): Promise<void> {
+        return this.apiClient.locations.get(locationId)
+            .then((location) => this.setLocation(location, force));
     }
 
     public showLoader() {
@@ -226,7 +230,6 @@ export default class Scene extends EventEmitter implements IScene {
                                 this._resizeDrawings(oldZoom, newZoom);
                                 return true;
                             },
-                            // eventsListenerElement: this.container as any,
                         });
                         console.log(this.panZoom);
                         // End transition
@@ -241,7 +244,7 @@ export default class Scene extends EventEmitter implements IScene {
         }
     }
 
-    public findObjectOnMap(object): SVGGElement {
+    public findObjectOnMap(object: IPlace | IBuilding): SVGGElement {
         const selector = '#' + CSS.escape(object.container);
         return this.mapContainer.querySelector(selector) as SVGGElement;
     }
