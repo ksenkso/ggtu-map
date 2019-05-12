@@ -6,7 +6,6 @@ import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import {IPlace} from '../api/endpoints/PlacesEndpoint';
 import Label from '../components/Label';
 import PlaceLabel from '../components/PlaceLabel';
-import SearchBox from '../components/SearchBox';
 import Graph from '../drawing/Graph';
 import Graphics from '../drawing/Graphics';
 import GraphPoint from '../drawing/GraphPoint';
@@ -95,7 +94,7 @@ export default class Scene extends EventEmitter implements IScene {
         label.setPosition(coords);
         el.appendChild(label.element);
     }
-    public readonly searchbox: SearchBox;
+    // public readonly searchbox: SearchBox;
     public readonly apiClient: ApiClient;
     public readonly selection: Selection;
     public readonly objectManager: ObjectManager;
@@ -153,7 +152,7 @@ export default class Scene extends EventEmitter implements IScene {
         this.loader.innerHTML = require('../assets/rings.svg');
 
         this.root.appendChild(this.loader);
-        this.searchbox = new SearchBox(this);
+        // this.searchbox = new SearchBox(this);
         // Set up singletons
         this.apiClient = ApiClient.getInstance();
         this.selection = new Selection();
