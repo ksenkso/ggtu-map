@@ -1,4 +1,3 @@
-import ApiClient from '../core/ApiClient';
 import WayPath from '../drawing/WayPath';
 import IDrawable from '../interfaces/IDrawable';
 import IPathItem from '../interfaces/IPathItem';
@@ -16,32 +15,33 @@ export default class PathRenderer implements IDrawable {
         }
         return groups;
     }
-    public current: IPathItem;
+    public currentIndex: number;
     private scene: IScene;
     private graph: WayPath = new WayPath({draggable: false});
-    constructor(private path: IPathItem[]) {}
+    private path: IPathItem[][];
+    constructor(path: IPathItem[]) {
+        this.setPath(path);
+    }
 
     public appendTo(scene: IScene) {
-        this.scene = scene;
         this.graph.appendTo(scene);
+        this.scene = scene;
         this.renderPath();
     }
 
     public setPath(path: IPathItem[]) {
-        this.path = path;
+        this.path = PathRenderer.subdividePath(path);
         this.renderPath();
     }
 
     public async renderPath() {
         this.graph.clear();
         const location = this.scene.getLocation();
-        if (location.id !== this.path[0].LocationId) {
-            await this.scene.setLocationById(this.path[0].LocationId);
+        if (location.id !== this.path[0][0].LocationId) {
+            await this.scene.setLocationById(this.path[0][0].LocationId);
         }
-        this.graph.showPath(this.path);
-        this.scene.setCenter(this.path[0].position);
+        this.currentIndex = 0;
+        this.graph.showPath(this.path[0]);
+        this.scene.setCenter(this.path[0][0].position);
     }
-
-    public next() {}
-    public prev() {}
 }
