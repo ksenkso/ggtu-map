@@ -1,3 +1,4 @@
+import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import WayPath from '../drawing/WayPath';
 import IDrawable from '../interfaces/IDrawable';
 import IPathItem from '../interfaces/IPathItem';
@@ -15,33 +16,86 @@ export default class PathRenderer implements IDrawable {
         }
         return groups;
     }
-    public currentIndex: number;
+
+    public path: IPathItem[][];
     private scene: IScene;
-    private graph: WayPath = new WayPath({draggable: false});
-    private path: IPathItem[][];
-    constructor(path: IPathItem[]) {
-        this.setPath(path);
+    private locationIndex = 0;
+    private polyline: SVGPolylineElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    private backButton: SVGCircleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    private forwardButton: SVGCircleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+
+    constructor(path?: IPathItem[]) {
+        if (path) {
+            this.path = PathRenderer.subdividePath(path);
+        } else {
+            this.path = [];
+        }
+        this.polyline.classList.add('waypath');
+        this.backButton.setAttribute('r', '1');
+        this.forwardButton.setAttribute('r', '1');
+        this.backButton.classList.add('waypath__button', 'waypath__button_back');
+        this.forwardButton.classList.add('waypath__button', 'waypath__button_forward');
     }
 
     public appendTo(scene: IScene) {
-        this.graph.appendTo(scene);
         this.scene = scene;
-        this.renderPath();
+        // this.scene.on('mapChanged', this.updateGraph.bind(this));
+        this.scene.drawingContainer.appendChild(this.polyline);
+        this.scene.drawingContainer.appendChild(this.forwardButton);
+        this.scene.drawingContainer.appendChild(this.backButton);
     }
 
     public setPath(path: IPathItem[]) {
         this.path = PathRenderer.subdividePath(path);
-        this.renderPath();
+    }
+
+    public show() {
+        this.polyline.classList.add('visible');
+        this.backButton.classList.add('visible');
+        this.forwardButton.classList.add('visible');
+    }
+
+    public hide() {
+        this.polyline.classList.remove('visible');
+        this.backButton.classList.remove('visible');
+        this.forwardButton.classList.remove('visible');
     }
 
     public async renderPath() {
-        this.graph.clear();
         const location = this.scene.getLocation();
-        if (location.id !== this.path[0][0].LocationId) {
-            await this.scene.setLocationById(this.path[0][0].LocationId);
+        if (location.id !== this.path[this.locationIndex][0].LocationId) {
+            await this.scene.setLocationById(this.path[this.locationIndex][0].LocationId);
         }
-        this.currentIndex = 0;
-        this.graph.showPath(this.path[0]);
-        this.scene.setCenter(this.path[0][0].position);
+        this.show();
+        this.polyline.setAttribute('points', this.path[this.locationIndex].map((step) => {
+            return `${step.position.x},${step.position.y}`;
+        }).join(' '));
+        this.backButton.setAttribute('cx', String(this.path[this.locationIndex][0].position.x));
+        this.backButton.setAttribute('cy', String(this.path[this.locationIndex][0].position.y));
+        this.forwardButton.setAttribute('cx', String(this.path[this.locationIndex][this.path[this.locationIndex].length - 1].position.x));
+        this.forwardButton.setAttribute('cy', String(this.path[this.locationIndex][this.path[this.locationIndex].length - 1].position.y));
+        // TODO: render 'location change' buttons
+        this.scene.setCenter(this.path[this.locationIndex][0].position);
+    }
+
+    /**
+     * Moves one location forward if it is possible
+     */
+    public async next() {
+
+    }
+
+    /**
+     * Moves one location back if it is possible
+     */
+    public async prev() {
+
+    }
+
+    private updateGraph(location: ILocation): Promise<void> {
+        this.locationIndex = this.path.findIndex((group) => group[0].LocationId === location.id);
+        if (this.locationIndex !== -1) {
+            return this.renderPath();
+        }
     }
 }
