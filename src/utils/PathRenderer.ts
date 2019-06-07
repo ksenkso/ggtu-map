@@ -1,5 +1,3 @@
-import {ILocation} from '../api/endpoints/LocationsEndpoint';
-import WayPath from '../drawing/WayPath';
 import IDrawable from '../interfaces/IDrawable';
 import IPathItem from '../interfaces/IPathItem';
 import IScene from '../interfaces/IScene';
@@ -35,6 +33,8 @@ export default class PathRenderer implements IDrawable {
         this.forwardButton.setAttribute('r', '1');
         this.backButton.classList.add('waypath__button', 'waypath__button_back');
         this.forwardButton.classList.add('waypath__button', 'waypath__button_forward');
+        this.backButton.addEventListener('click', this.prev.bind(this));
+        this.forwardButton.addEventListener('click', this.next.bind(this));
     }
 
     public appendTo(scene: IScene) {
@@ -64,6 +64,7 @@ export default class PathRenderer implements IDrawable {
     public async renderPath() {
         const location = this.scene.getLocation();
         if (location.id !== this.path[this.locationIndex][0].LocationId) {
+            this.hide();
             await this.scene.setLocationById(this.path[this.locationIndex][0].LocationId);
         }
         this.show();
@@ -74,27 +75,23 @@ export default class PathRenderer implements IDrawable {
         this.backButton.setAttribute('cy', String(this.path[this.locationIndex][0].position.y));
         this.forwardButton.setAttribute('cx', String(this.path[this.locationIndex][this.path[this.locationIndex].length - 1].position.x));
         this.forwardButton.setAttribute('cy', String(this.path[this.locationIndex][this.path[this.locationIndex].length - 1].position.y));
-        // TODO: render 'location change' buttons
         this.scene.setCenter(this.path[this.locationIndex][0].position);
     }
 
     /**
      * Moves one location forward if it is possible
      */
-    public async next() {
-
+    public next(): Promise<void> {
+        if (++this.locationIndex < this.path.length) {
+            return this.renderPath();
+        }
     }
 
     /**
      * Moves one location back if it is possible
      */
     public async prev() {
-
-    }
-
-    private updateGraph(location: ILocation): Promise<void> {
-        this.locationIndex = this.path.findIndex((group) => group[0].LocationId === location.id);
-        if (this.locationIndex !== -1) {
+        if (--this.locationIndex >= 0) {
             return this.renderPath();
         }
     }
