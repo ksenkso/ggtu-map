@@ -18,9 +18,12 @@ export default class PathRenderer implements IDrawable {
     public path: IPathItem[][];
     private scene: IScene;
     private locationIndex = 0;
-    private polyline: SVGPolylineElement = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-    private backButton: SVGCircleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    private forwardButton: SVGCircleElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    private polyline: SVGPolylineElement =
+        document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    private backButton: SVGCircleElement =
+        document.createElementNS('http://www.w3.org/2000/svg', 'circle') as SVGCircleElement;
+    private forwardButton: SVGCircleElement =
+        document.createElementNS('http://www.w3.org/2000/svg', 'circle') as SVGCircleElement;
 
     constructor(path?: IPathItem[]) {
         if (path) {
@@ -29,10 +32,10 @@ export default class PathRenderer implements IDrawable {
             this.path = [];
         }
         this.polyline.classList.add('waypath');
-        this.backButton.setAttribute('r', '1');
-        this.forwardButton.setAttribute('r', '1');
         this.backButton.classList.add('waypath__button', 'waypath__button_back');
         this.forwardButton.classList.add('waypath__button', 'waypath__button_forward');
+        this.forwardButton.setAttribute('r', '1');
+        this.backButton.setAttribute('r', '1');
         this.backButton.addEventListener('click', this.prev.bind(this));
         this.forwardButton.addEventListener('click', this.next.bind(this));
     }
@@ -63,19 +66,20 @@ export default class PathRenderer implements IDrawable {
 
     public async renderPath() {
         const location = this.scene.getLocation();
-        if (location.id !== this.path[this.locationIndex][0].LocationId) {
+        const pathElement = this.path[this.locationIndex];
+        if (location.id !== pathElement[0].LocationId) {
             this.hide();
-            await this.scene.setLocationById(this.path[this.locationIndex][0].LocationId);
+            await this.scene.setLocationById(pathElement[0].LocationId);
         }
         this.show();
-        this.polyline.setAttribute('points', this.path[this.locationIndex].map((step) => {
+        this.polyline.setAttribute('points', pathElement.map((step) => {
             return `${step.position.x},${step.position.y}`;
         }).join(' '));
-        this.backButton.setAttribute('cx', String(this.path[this.locationIndex][0].position.x));
-        this.backButton.setAttribute('cy', String(this.path[this.locationIndex][0].position.y));
-        this.forwardButton.setAttribute('cx', String(this.path[this.locationIndex][this.path[this.locationIndex].length - 1].position.x));
-        this.forwardButton.setAttribute('cy', String(this.path[this.locationIndex][this.path[this.locationIndex].length - 1].position.y));
-        this.scene.setCenter(this.path[this.locationIndex][0].position);
+        this.backButton.setAttribute('cx', String(pathElement[0].position.x));
+        this.backButton.setAttribute('cy', String(pathElement[0].position.y));
+        this.forwardButton.setAttribute('cx', String(pathElement[pathElement.length - 1].position.x));
+        this.forwardButton.setAttribute('cy', String(pathElement[pathElement.length - 1].position.y));
+        this.scene.setCenter(pathElement[0].position);
     }
 
     /**
