@@ -94,9 +94,19 @@ export default class PathRenderer implements IDrawable {
     /**
      * Moves one location back if it is possible
      */
-    public async prev() {
+    public prev(): Promise<void> {
         if (--this.locationIndex >= 0) {
             return this.renderPath();
         }
+    }
+
+    public async goTo(step: IPathItem): Promise<void> {
+        if (this.scene.getLocation().id !== step.LocationId) {
+            this.hide();
+            await this.scene.setLocationById(step.LocationId);
+        }
+        this.scene.setCenter(step.position);
+        this.locationIndex = this.path.findIndex((group) => group[0].LocationId === step.LocationId);
+        return this.renderPath();
     }
 }
