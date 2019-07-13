@@ -225,13 +225,14 @@ export default class Scene extends EventEmitter implements IScene {
                             this.panZoom.destroy();
                         }
                         this.panZoom = svgPanZoom(this.root, {
-                            onPan: () => this._shouldHandleMapClick = false,
+                            onPan: () => {
+                                this._shouldHandleMapClick = false;
+                            },
                             beforeZoom: (oldZoom: number, newZoom: number) => {
                                 this._resizeDrawings(oldZoom, newZoom);
                                 return true;
                             },
                         });
-                        console.log(this.panZoom);
                         // End transition
                         this.emit('mapChanged');
                     })
@@ -334,7 +335,6 @@ export default class Scene extends EventEmitter implements IScene {
                 onUpdate: () => {
                     this.panZoom.pan(pan);
                 },
-                onComplete: () => console.log('new center', this.getCenter()),
             },
         );
     }
@@ -366,11 +366,7 @@ export default class Scene extends EventEmitter implements IScene {
     }
 
     public showPanel(name: string): void {
-        if (name === 'pathfinder') {
-            {
-                console.log('pathfinder open');
-            }
-        }
+        throw new Error('Not implemented');
     }
 
     /**
@@ -421,7 +417,6 @@ export default class Scene extends EventEmitter implements IScene {
 
     private _resizeDrawings(oldZoom: number, newZoom: number) {
         const ratio = newZoom / oldZoom;
-        console.log(newZoom);
         if (newZoom > 2) {
             this.root.style.setProperty('--place-label-base-fz', '2.7px');
             this.root.classList.remove('map__root_no-place-labels');
