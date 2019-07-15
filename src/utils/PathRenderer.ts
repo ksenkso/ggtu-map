@@ -50,6 +50,7 @@ export default class PathRenderer implements IDrawable {
 
     public setPath(path: IPathItem[]) {
         this.path = PathRenderer.subdividePath(path);
+        this.locationIndex = 0;
     }
 
     public show() {
@@ -64,7 +65,7 @@ export default class PathRenderer implements IDrawable {
         this.forwardButton.classList.remove('visible');
     }
 
-    public async renderPath() {
+    public async renderPath(focusOnFirst = true) {
         const location = this.scene.getLocation();
         const pathElement = this.path[this.locationIndex];
         if (location.id !== pathElement[0].LocationId) {
@@ -79,7 +80,9 @@ export default class PathRenderer implements IDrawable {
         this.backButton.setAttribute('cy', String(pathElement[0].position.y));
         this.forwardButton.setAttribute('cx', String(pathElement[pathElement.length - 1].position.x));
         this.forwardButton.setAttribute('cy', String(pathElement[pathElement.length - 1].position.y));
-        this.scene.setCenter(pathElement[0].position);
+        if (focusOnFirst) {
+            this.scene.setCenter(pathElement[0].position);
+        }
     }
 
     /**
@@ -101,12 +104,10 @@ export default class PathRenderer implements IDrawable {
     }
 
     public async goTo(step: IPathItem): Promise<void> {
+        this.locationIndex = this.path.findIndex((group) => group[0].LocationId === step.LocationId);
         if (this.scene.getLocation().id !== step.LocationId) {
-            this.hide();
-            await this.scene.setLocationById(step.LocationId);
+            await this.renderPath(false);
         }
         this.scene.setCenter(step.position);
-        this.locationIndex = this.path.findIndex((group) => group[0].LocationId === step.LocationId);
-        return this.renderPath();
     }
 }
