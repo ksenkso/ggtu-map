@@ -94,7 +94,6 @@ export default class Scene extends EventEmitter implements IScene {
         label.setPosition(coords);
         el.appendChild(label.element);
     }
-    // public readonly searchbox: SearchBox;
     public readonly apiClient: ApiClient;
     public readonly selection: Selection;
     public readonly objectManager: ObjectManager;
