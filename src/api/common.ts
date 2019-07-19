@@ -32,7 +32,7 @@ export interface IEndpoint<T> {
 
     create(data: T): Promise<T>;
 
-    update(id: number, fields: IPartial<T>): Promise<T>;
+    update(id: number, fields: IPartial<T> | T): Promise<T>;
 
     delete(id: number): Promise<boolean>;
 }
@@ -130,7 +130,7 @@ export class BaseEndpoint {
         }
     }
 
-    public async update<T = any>(id: number, fields: IPartial<T>): Promise<T | null> {
+    public async update<T = any>(id: number, fields: IPartial<T> | T): Promise<T | null> {
         const response = await this.api.patch<T>(this.route + id, fields);
         if (response.status === 200) {
             return response.data;
