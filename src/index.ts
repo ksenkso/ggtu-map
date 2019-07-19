@@ -6,3 +6,4 @@ export * from './core';
 export * from './drawing';
 export * from './utils';
 export * from './interfaces';
+export * from './components';

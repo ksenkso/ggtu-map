@@ -6,38 +6,44 @@ import IScene from '../interfaces/IScene';
 import {ICoords} from '../utils';
 
 export default class Label extends Primitive implements IPositioned {
+    protected text: SVGTextElement;
     constructor(text = '', options?: ILabelOptions) {
         super();
-        this.element = Graphics.createElement('text');
-        this.element.classList.add('primitive_label');
-        this.element.setAttribute('text-anchor', 'middle');
-        this.element.setAttribute('dominant-baseline', 'middle');
-        this.element.textContent = text;
+        this.element = Graphics.createElement('g');
+        this.element.classList.add('label');
+        // store a link to label in the dom element
+        (this.element as any).labelInstance = this;
+        this.text = Graphics.createElement('text') as SVGTextElement;
+        this.text.classList.add('primitive_label');
+        this.text.setAttribute('text-anchor', 'middle');
+        this.text.setAttribute('dominant-baseline', 'middle');
+        this.text.textContent = text;
         if (options) {
             if (options.fontSize) {
-                this.element.style.fontSize = options.fontSize;
+                this.text.style.fontSize = options.fontSize;
             }
         }
+        this.element.appendChild(this.text);
     }
 
     public setText(text: string) {
-        this.element.textContent = text;
+        this.text.textContent = text;
     }
 
     public getText(): string {
-        return this.element.textContent;
+        return this.text.textContent;
     }
 
     public getPosition(): ICoords {
         return {
-            x: +this.element.getAttribute('x'),
-            y: +this.element.getAttribute('y'),
+            x: +this.text.getAttribute('x'),
+            y: +this.text.getAttribute('y'),
         };
     }
 
     public setPosition(coords: ICoords): void {
-        this.element.setAttribute('x', String(coords.x));
-        this.element.setAttribute('y', String(coords.y));
+        this.text.setAttribute('x', String(coords.x));
+        this.text.setAttribute('y', String(coords.y));
     }
 
     public appendTo(scene: IScene): void {

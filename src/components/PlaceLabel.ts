@@ -25,8 +25,15 @@ export default class PlaceLabel extends IconLabel {
         }
         return name;
     }
-    constructor(public place: IPlace) {
-        super(PlaceLabel.getIcon(place.type));
+    public set place(value: IPlace) {
+        this._place = value;
+        this.setText(PlaceLabel.getPlaceName(value));
+    }
+    public get place(): IPlace {
+        return this._place;
+    }
+    constructor(private _place: IPlace) {
+        super(PlaceLabel.getIcon(_place.type));
         this.init();
     }
 
