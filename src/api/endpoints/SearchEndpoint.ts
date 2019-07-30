@@ -4,7 +4,11 @@ import IPathItem from '../../interfaces/IPathItem';
 import {IBuilding} from './BuildingsEndpoint';
 import {ILocation} from './LocationsEndpoint';
 import {IPlace} from './PlacesEndpoint';
-
+export interface IPathInfo {
+    distance: number;
+    time: number;
+    vertices: IPathItem[];
+}
 export interface ISearchResult {
     building?: IBuilding;
     location?: ILocation;
@@ -12,7 +16,7 @@ export interface ISearchResult {
 }
 export interface ISearchEndpoint {
     query(input: string): Promise<ISearchResult[]>;
-    findPath(from: string, to: string): Promise<IPathItem[]>;
+    findPath(from: string, to: string): Promise<IPathInfo>;
 }
 
 export default class SearchEndpoint implements ISearchEndpoint {
@@ -30,8 +34,8 @@ export default class SearchEndpoint implements ISearchEndpoint {
         }
     }
 
-    public async findPath(from: string, to: string): Promise<IPathItem[]> {
-        const response = await this.api.get<IPathItem[]>(
+    public async findPath(from: string, to: string): Promise<IPathInfo> {
+        const response = await this.api.get<IPathInfo>(
             ApiClient.apiBase + this.route + '/path',
             {params: {from, to}},
         );
