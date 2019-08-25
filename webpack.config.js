@@ -8,7 +8,8 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         filename: 'ggtu-map.js',
         library: 'ggtuMap',
-        libraryTarget: 'umd'
+        libraryTarget: 'umd',
+        chunkFilename: "[name].bundle.js"
     },
     module: {
         rules: [
@@ -50,5 +51,5 @@ module.exports = {
             /node_modules/,
             /dist/
         ]
-    },
+    }
 };
