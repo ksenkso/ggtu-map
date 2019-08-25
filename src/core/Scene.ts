@@ -1,5 +1,5 @@
 import {TweenLite} from 'gsap';
-import svgPanZoom = require('svg-pan-zoom');
+import * as svgPanZoom from 'svg-pan-zoom';
 import {MapObject, ObjectType} from '../api/common';
 import {IBuilding} from '../api/endpoints/BuildingsEndpoint';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
@@ -31,47 +31,11 @@ export interface IMapMouseEvent {
 
 export default class Scene extends EventEmitter implements IScene {
     public static getElementCoords(el: SVGGElement): ICoords {
-        const area = el.querySelector('[data-type="area"]') as SVGGraphicsElement;
-        if (area) {
-            switch (area.nodeName) {
-                case 'polygon': {
-                    const points = area
-                        .getAttribute('points')
-                        .split(' ');
-                    const center = points
-                        .map((point) => {
-                            const coords = point.split(',');
-                            return {
-                                x: +coords[0],
-                                y: +coords[1],
-                            };
-                        })
-                        .reduce((prev, next) => {
-                            prev.x += next.x;
-                            prev.y += next.y;
-                            return prev;
-                        }, {x: 0, y: 0});
-                    return {
-                        x: center.x / points.length,
-                        y: center.y / points.length,
-                    };
-                }
-                default: {
-                    const box = el.getBBox();
-                    return {
-                        x: box.x + box.width / 2,
-                        y: box.y + box.height / 2,
-                    };
-                }
-            }
-        } else {
-            // Use the element box
-            const box = el.getBBox();
-            return {
-                x: box.x + box.width / 2,
-                y: box.y + box.height / 2,
-            };
-        }
+        const box = el.getBBox();
+        return {
+            x: box.x + box.width / 2,
+            y: box.y + box.height / 2,
+        };
     }
 
     public static setLabelFor(object: MapObject, el: SVGGElement) {
@@ -94,6 +58,7 @@ export default class Scene extends EventEmitter implements IScene {
         label.setPosition(coords);
         el.appendChild(label.element);
     }
+
     public readonly apiClient: ApiClient;
     public readonly selection: Selection;
     public readonly objectManager: ObjectManager;
@@ -169,6 +134,7 @@ export default class Scene extends EventEmitter implements IScene {
         this.container.addEventListener('keyup', this.onKeyUp.bind(this));
         this.container.addEventListener('mousedown', this.onMouseDown.bind(this));
     }
+
     public setLocationById(locationId: number, force = false): Promise<void> {
         return this.apiClient.locations.get(locationId)
             .then((location) => this.setLocation(location, force));
@@ -223,7 +189,8 @@ export default class Scene extends EventEmitter implements IScene {
                             this.panZoom.reset();
                             this.panZoom.destroy();
                         }
-                        this.panZoom = svgPanZoom(this.root, {
+                        const panZoomOptions: any = {
+                            zoomEnabled: true,
                             onPan: () => {
                                 this._shouldHandleMapClick = false;
                             },
@@ -231,7 +198,46 @@ export default class Scene extends EventEmitter implements IScene {
                                 this._resizeDrawings(oldZoom, newZoom);
                                 return true;
                             },
-                        });
+                        };
+                        if ('ontouchstart' in document.documentElement) {
+                            let isScaling = false, isPanning = false, pan, currentPoint, instance;
+
+                            function onPanStart(event: TouchEvent) {
+                                if (event.touches.length === 1 && !isScaling) {
+                                    isPanning = true;
+                                    pan = instance.getPan();
+                                    currentPoint = {
+                                        x: event.touches[0].clientX,
+                                        y: event.touches[0].clientY,
+                                    };
+                                }
+                            }
+
+                            function onPanMove(event: TouchEvent) {
+                                if (isPanning) {
+                                    instance.panBy({
+                                        x: event.touches[0].clientX - currentPoint.x,
+                                        y: event.touches[0].clientY - currentPoint.y,
+                                    });
+                                    currentPoint.x = event.touches[0].clientX;
+                                    currentPoint.y = event.touches[0].clientY;
+                                }
+                            }
+                            panZoomOptions.customEventsHandler = {
+                                haltEventListeners: [
+                                    'touchstart', 'touchend', 'touchmove', 'touchleave', 'touchcancel',
+                                ],
+                                init(options) {
+                                    instance = options.instance;
+                                    this.element = options.svgElement;
+                                    this.element.addEventListener('touchstart', onPanStart);
+                                    this.element.addEventListener('touchmove', onPanMove);
+                                    // Prevent moving the page on some devices when panning over SVG
+                                    this.element.addEventListener('touchstart', (e) => e.preventDefault());
+                                },
+                            };
+                        }
+                        this.panZoom = svgPanZoom(this.root, panZoomOptions);
                         // End transition
                         this.emit('mapChanged');
                     })
