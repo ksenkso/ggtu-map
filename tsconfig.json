@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
     "target": "es6",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "declaration": true,
     "declarationDir": "dist/types",
-    "outDir": "dist"
+    "outDir": "dist",
+    "moduleResolution": "node"
   },
   "exclude": [
     "node_modules"

@@ -1,6 +1,6 @@
 import {expect} from 'chai';
-import cheerio = require('cheerio');
-import request = require('request');
+import * as cheerio from 'cheerio';
+import * as request from 'request';
 import {PlaceType} from '../../src';
 import {IBuilding} from '../../src/api/endpoints/BuildingsEndpoint';
 import {ILocation} from '../../src/api/endpoints/LocationsEndpoint';

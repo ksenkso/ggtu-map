@@ -1,5 +1,5 @@
 import axios, {AxiosInstance, AxiosResponse} from 'axios';
-import qs = require('qs');
+import * as qs from 'qs';
 import {IAuthState, IEndpoint, IUser} from '..';
 import BuildingsEndpoint, {IBuildingsEndpoint} from '../api/endpoints/BuildingsEndpoint';
 import LocationsEndpoint, {ILocationsEndpoint} from '../api/endpoints/LocationsEndpoint';
@@ -25,7 +25,7 @@ export default class ApiClient {
     return this.userInfo.user.token;
     // return this.api.defaults.headers['Authorization'].substring(7);
   }
-  public static base = 'http://localhost:3000';
+  public static base = 'http://192.168.1.68:3000';
   public static apiBase = ApiClient.base + '/v1';
   public static  mapsBase = ApiClient.base + '/maps';
 
@@ -49,7 +49,7 @@ export default class ApiClient {
     this.api = axios.create({
       baseURL: ApiClient.apiBase,
     });
-    this.api.defaults.paramsSerializer = (params) => qs.stringify(params, {encodeValuesOnly: true});
+    this.api.defaults.paramsSerializer = (params) => qs.stringify(params, '&', '=', {encodeValuesOnly: true});
     this.userInfo = new UserInfo(this);
     if (user) {
       this.userInfo.user = user;

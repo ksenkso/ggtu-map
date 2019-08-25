@@ -1,4 +1,4 @@
-import uuid = require('uuid/v4');
+import * as uuid from 'uuid/v4';
 import ISerializedWayPoint from '../interfaces/ISerializedWayPoint';
 import IWayEdge from '../interfaces/IWayEdge';
 import IWayPoint from '../interfaces/IWayPoint';
