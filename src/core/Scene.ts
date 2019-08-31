@@ -3,6 +3,8 @@ import {MapObject, ObjectType} from '../api/common';
 import {IBuilding} from '../api/endpoints/BuildingsEndpoint';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import {IPlace} from '../api/endpoints/PlacesEndpoint';
+import {ITransition} from '../api/endpoints/TransitionsEndpoint';
+import {ITransitionView} from '../api/endpoints/TransitionViewsEndpoint';
 import Label from '../components/Label';
 import PlaceLabel from '../components/PlaceLabel';
 import Graph from '../drawing/Graph';
@@ -141,6 +143,7 @@ export default class Scene extends EventEmitter implements IScene {
 
     public showLoader() {
         if (!this._loaderVisible) {
+
             this._loaderVisible = true;
             this.loader.style.display = 'block';
             this.loader.classList.add('map__loader_visible');
@@ -292,7 +295,7 @@ export default class Scene extends EventEmitter implements IScene {
         }
     }
 
-    public findObjectOnMap(object: IPlace | IBuilding): SVGGElement {
+    public findObjectOnMap(object: IPlace | IBuilding | ITransitionView): SVGGElement {
         const selector = '#' + object.container;
         return this.mapContainer.querySelector(selector) as SVGGElement;
     }
@@ -338,7 +341,7 @@ export default class Scene extends EventEmitter implements IScene {
         return this.root.getAttribute('viewBox').split(' ').map((v) => +v);
     }
 
-    public centerOnObject(o: IPlace | IBuilding): Promise<void> {
+    public centerOnObject(o: IPlace | IBuilding | ITransitionView): Promise<void> {
         const el = this.findObjectOnMap(o);
         if (el) {
             return this.centerOnElement(el);
@@ -374,7 +377,7 @@ export default class Scene extends EventEmitter implements IScene {
                     + (sizes.viewBox.height / 2 - coords.y) * sizes.realZoom,
             };
             let x = 0, current = 0;
-            const xDiff = 60 / 1000
+            const xDiff = 60 / 5000
                 , yDiff = {x: to.x - pan.x, y: to.y - pan.y};
             const animation = setInterval(() => {
                 current = -( Math.cos( Math.PI * x ) - 1 ) / 2;
@@ -385,7 +388,7 @@ export default class Scene extends EventEmitter implements IScene {
                     clearInterval(animation);
                     resolve();
                 }
-            }, 1000 / 40);
+            }, 5000 / 40);
         });
     }
 
