@@ -65,7 +65,7 @@ export default class PathRenderer implements IDrawable {
         this.forwardButton.classList.remove('visible');
     }
 
-    public async renderPath(focusOnFirst = true) {
+    public async renderPath(focusOnFirst = true): Promise<void> {
         const location = this.scene.getLocation();
         const pathElement = this.path[this.locationIndex];
         if (location.id !== pathElement[0].LocationId) {
@@ -81,7 +81,7 @@ export default class PathRenderer implements IDrawable {
         this.forwardButton.setAttribute('cx', String(pathElement[pathElement.length - 1].position.x));
         this.forwardButton.setAttribute('cy', String(pathElement[pathElement.length - 1].position.y));
         if (focusOnFirst) {
-            this.scene.setCenter(pathElement[0].position);
+            return this.scene.setCenter(pathElement[0].position);
         }
     }
 
@@ -108,6 +108,6 @@ export default class PathRenderer implements IDrawable {
         if (this.scene.getLocation().id !== step.LocationId) {
             await this.renderPath(false);
         }
-        this.scene.setCenter(step.position);
+        return this.scene.setCenter(step.position);
     }
 }

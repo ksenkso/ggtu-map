@@ -74,7 +74,7 @@ export default class SearchBox {
             await this.scene.setLocation(result.location);
         }
         if (result.place || result.building) {
-            this.scene.centerOnObject(result.place || result.building);
+            return this.scene.centerOnObject(result.place || result.building);
         }
     }
 

@@ -46,7 +46,6 @@ export default class ApiClient {
   private readonly api: AxiosInstance;
 
   private constructor(user?: IUser) {
-    console.log(stringify);
     this.api = axios.create({
       baseURL: ApiClient.apiBase,
     });

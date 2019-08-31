@@ -187,6 +187,9 @@ export default class Scene extends EventEmitter implements IScene {
                             };
                             if ('ontouchstart' in document.documentElement) {
                                 let isScaling = false, isPanning = false, pan, currentPoint, instance, distance = 1;
+                                function preventDefault(e) {
+                                    return e.preventDefault();
+                                }
 
                                 function onPanStart(event: TouchEvent) {
                                     if (event.touches.length === 1) {
@@ -229,6 +232,20 @@ export default class Scene extends EventEmitter implements IScene {
                                         distance = newDistance;
                                     }
                                 }
+
+                                function onTouchEnd(e) {
+                                    if (e.touches.length === 2) {
+                                        isScaling = true;
+                                        isPanning = false;
+                                    } else if (e.touches.length === 1) {
+                                        isScaling = false;
+                                        isPanning = true;
+                                    } else {
+                                        isScaling = false;
+                                        isPanning = false;
+                                    }
+                                }
+
                                 panZoomOptions.customEventsHandler = {
                                     haltEventListeners: [
                                         'touchstart', 'touchend', 'touchmove', 'touchleave', 'touchcancel',
@@ -238,8 +255,14 @@ export default class Scene extends EventEmitter implements IScene {
                                         this.element = options.svgElement;
                                         this.element.addEventListener('touchstart', onPanStart);
                                         this.element.addEventListener('touchmove', onPanMove);
+                                        this.element.addEventListener('touchend', onTouchEnd);
                                         // Prevent moving the page on some devices when panning over SVG
-                                        this.element.addEventListener('touchstart', (e) => e.preventDefault());
+                                        this.element.addEventListener('touchstart', preventDefault);
+                                    },
+                                    destroy() {
+                                        this.element.removeEventListener('touchstart', onPanStart);
+                                        this.element.removeEventListener('touchstart', preventDefault);
+                                        this.element.removeEventListener('touchmove', onPanMove);
                                     },
                                 };
                             }
@@ -315,18 +338,17 @@ export default class Scene extends EventEmitter implements IScene {
         return this.root.getAttribute('viewBox').split(' ').map((v) => +v);
     }
 
-    public centerOnObject(o: IPlace | IBuilding): boolean {
+    public centerOnObject(o: IPlace | IBuilding): Promise<void> {
         const el = this.findObjectOnMap(o);
         if (el) {
-            this.centerOnElement(el);
-            return true;
+            return this.centerOnElement(el);
         }
-        return false;
+        return Promise.reject();
     }
 
-    public centerOnElement(el: SVGGElement): void {
+    public centerOnElement(el: SVGGElement): Promise<void> {
         const coords = Scene.getElementCoords(el);
-        this.setCenter(coords);
+        return this.setCenter(coords);
     }
 
     /**
@@ -341,27 +363,30 @@ export default class Scene extends EventEmitter implements IScene {
         };
     }
 
-    public setCenter(coords: ICoords): void {
-        const pan = this.panZoom.getPan();
-        const sizes = this.panZoom.getSizes() as any;
-        const to = {
-            x: (sizes.width - (sizes.viewBox.width + 2 * sizes.viewBox.x) * sizes.realZoom) / 2
-                + (sizes.viewBox.width / 2 - coords.x) * sizes.realZoom,
-            y: (sizes.height - (sizes.viewBox.height + 2 * sizes.viewBox.y) * sizes.realZoom) / 2
-                + (sizes.viewBox.height / 2 - coords.y) * sizes.realZoom,
-        };
-        let x = 0, current = 0;
-        const xDiff = 60 / 1000
-            , yDiff = {x: to.x - pan.x, y: to.y - pan.y};
-        const animation = setInterval(() => {
-            current = -( Math.cos( Math.PI * x ) - 1 ) / 2;
-            this.panZoom.pan({x: pan.x + yDiff.x * current, y: pan.y + yDiff.y * current});
-            x += xDiff;
-            if (x >= 1) {
-                clearInterval(animation);
-                console.log(this.panZoom.getPan());
-            }
-        }, 1000 / 40);
+    public setCenter(coords: ICoords): Promise<void> {
+        return new Promise((resolve) => {
+            const pan = this.panZoom.getPan();
+            const sizes = this.panZoom.getSizes() as any;
+            const to = {
+                x: (sizes.width - (sizes.viewBox.width + 2 * sizes.viewBox.x) * sizes.realZoom) / 2
+                    + (sizes.viewBox.width / 2 - coords.x) * sizes.realZoom,
+                y: (sizes.height - (sizes.viewBox.height + 2 * sizes.viewBox.y) * sizes.realZoom) / 2
+                    + (sizes.viewBox.height / 2 - coords.y) * sizes.realZoom,
+            };
+            let x = 0, current = 0;
+            const xDiff = 60 / 1000
+                , yDiff = {x: to.x - pan.x, y: to.y - pan.y};
+            const animation = setInterval(() => {
+                current = -( Math.cos( Math.PI * x ) - 1 ) / 2;
+                this.panZoom.pan({x: pan.x + yDiff.x * current, y: pan.y + yDiff.y * current});
+                x = Math.min(x + xDiff, 1);
+                if (x === 1) {
+                    this.panZoom.pan(to);
+                    clearInterval(animation);
+                    resolve();
+                }
+            }, 1000 / 40);
+        });
     }
 
     public setViewBox(viewBox: number[]): void {
@@ -387,7 +412,7 @@ export default class Scene extends EventEmitter implements IScene {
     }
 
     public setZoom(f: number): void {
-        this.panZoom.zoom(f);
+        this.panZoom.zoomAtPoint(f, this.getCenter());
     }
 
     public showPanel(name: string): void {
