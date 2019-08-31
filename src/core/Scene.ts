@@ -186,16 +186,25 @@ export default class Scene extends EventEmitter implements IScene {
                                 },
                             };
                             if ('ontouchstart' in document.documentElement) {
-                                let isScaling = false, isPanning = false, pan, currentPoint, instance;
+                                let isScaling = false, isPanning = false, pan, currentPoint, instance, distance = 1;
 
                                 function onPanStart(event: TouchEvent) {
-                                    if (event.touches.length === 1 && !isScaling) {
-                                        isPanning = true;
-                                        pan = instance.getPan();
-                                        currentPoint = {
-                                            x: event.touches[0].clientX,
-                                            y: event.touches[0].clientY,
-                                        };
+                                    if (event.touches.length === 1) {
+                                        if (!isScaling) {
+                                            isPanning = true;
+                                            pan = instance.getPan();
+                                            currentPoint = {
+                                                x: event.touches[0].clientX,
+                                                y: event.touches[0].clientY,
+                                            };
+                                        }
+                                    } else if (event.touches.length === 2) {
+                                        isPanning = false;
+                                        isScaling = true;
+                                        distance = Math.hypot(
+                                            event.touches[0].clientX - event.touches[1].clientX,
+                                            event.touches[0].clientY - event.touches[1].clientY,
+                                        );
                                     }
                                 }
 
@@ -207,6 +216,18 @@ export default class Scene extends EventEmitter implements IScene {
                                         });
                                         currentPoint.x = event.touches[0].clientX;
                                         currentPoint.y = event.touches[0].clientY;
+                                    } else if (isScaling) {
+                                        // pinch-zoom
+                                        const dx = event.touches[0].clientX - event.touches[1].clientX;
+                                        const dy = event.touches[0].clientY - event.touches[1].clientY;
+                                        const zoomPoint = {
+                                            x: (dx) / 2,
+                                            y: (dy) / 2,
+                                        };
+                                        const newDistance = Math.hypot(dx, dy);
+                                        const k = newDistance / distance;
+                                        instance.zoomAtPointBy(k, zoomPoint);
+                                        distance = newDistance;
                                     }
                                 }
                                 panZoomOptions.customEventsHandler = {
@@ -237,8 +258,6 @@ export default class Scene extends EventEmitter implements IScene {
                             .forEach((building) => {
                                 this.renderBuilding(building);
                             });
-
-
                         // End transition
                         this.emit('mapChanged');
                     })

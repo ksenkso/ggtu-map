@@ -1,4 +1,3 @@
-import 'css.escape';
 import './styles/main.sass';
 export * from './api/common';
 export * from './api/endpoints';

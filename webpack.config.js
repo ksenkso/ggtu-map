@@ -1,5 +1,6 @@
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
     mode: 'development',
@@ -9,7 +10,6 @@ module.exports = {
         filename: 'ggtu-map.js',
         library: 'ggtuMap',
         libraryTarget: 'umd',
-        chunkFilename: "[name].bundle.js"
     },
     module: {
         rules: [
@@ -50,6 +50,15 @@ module.exports = {
         ignored: [
             /node_modules/,
             /dist/
+        ]
+    },
+    optimization: {
+        minimizer: [
+            new UglifyJsPlugin({
+                uglifyOptions: {
+                    ecma: 8
+                }
+            })
         ]
     }
 };
