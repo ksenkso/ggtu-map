@@ -190,14 +190,13 @@ export default class Scene extends EventEmitter implements IScene {
 
                                 function onPanStart(event: TouchEvent) {
                                     if (event.touches.length === 1) {
-                                        if (!isScaling) {
-                                            isPanning = true;
-                                            pan = instance.getPan();
-                                            currentPoint = {
-                                                x: event.touches[0].clientX,
-                                                y: event.touches[0].clientY,
-                                            };
-                                        }
+                                        isPanning = true;
+                                        isScaling = false;
+                                        pan = instance.getPan();
+                                        currentPoint = {
+                                            x: event.touches[0].clientX,
+                                            y: event.touches[0].clientY,
+                                        };
                                     } else if (event.touches.length === 2) {
                                         isPanning = false;
                                         isScaling = true;
@@ -218,13 +217,13 @@ export default class Scene extends EventEmitter implements IScene {
                                         currentPoint.y = event.touches[0].clientY;
                                     } else if (isScaling) {
                                         // pinch-zoom
-                                        const dx = event.touches[0].clientX - event.touches[1].clientX;
-                                        const dy = event.touches[0].clientY - event.touches[1].clientY;
                                         const zoomPoint = {
-                                            x: (dx) / 2,
-                                            y: (dy) / 2,
+                                            x: (event.touches[0].clientX + event.touches[1].clientX) / 2,
+                                            y: (event.touches[0].clientY + event.touches[1].clientY) / 2,
                                         };
-                                        const newDistance = Math.hypot(dx, dy);
+                                        const newDistance = Math.hypot(
+                                            event.touches[0].clientX - event.touches[1].clientX,
+                                            event.touches[0].clientY - event.touches[1].clientY);
                                         const k = newDistance / distance;
                                         instance.zoomAtPointBy(k, zoomPoint);
                                         distance = newDistance;
