@@ -13,6 +13,7 @@ export interface ITransition {
 
 export interface ITransitionsEndpoint extends IEndpoint<ITransition> {
   views: IEndpoint<ITransitionView>;
+  getLocations(transitionId: number): Promise<ILocation[]>;
 }
 
 export default class TransitionsEndpoint extends BaseEndpoint implements ITransitionsEndpoint {
