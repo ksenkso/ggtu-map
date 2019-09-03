@@ -44,17 +44,13 @@ export default interface IScene extends IEventEmitter {
 
     findObjectOnMap(object: IPlace | IBuilding | ITransitionView): SVGGElement;
 
-    centerOnObject(o: IPlace | IBuilding | ITransitionView): Promise<void>;
+    centerOnObject(o: IPlace | IBuilding | ITransitionView, animate?: boolean): Promise<void>;
 
-    centerOnElement(el: SVGGElement): Promise<void>;
+    centerOnElement(el: SVGGElement, animate?: boolean): Promise<void>;
 
     getCenter(): ICoords;
 
-    setCenter(coords: ICoords): Promise<void>;
-
-    showLoader(): void;
-
-    hideLoader(): void;
+    setCenter(coords: ICoords, animate?: boolean): Promise<void>;
 
     showPanel(name: string): void;
 

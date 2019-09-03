@@ -3,9 +3,9 @@ import {MapObject, ObjectType} from '../api/common';
 import {IBuilding} from '../api/endpoints/BuildingsEndpoint';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import {IPlace} from '../api/endpoints/PlacesEndpoint';
-import {ITransition} from '../api/endpoints/TransitionsEndpoint';
 import {ITransitionView} from '../api/endpoints/TransitionViewsEndpoint';
 import Label from '../components/Label';
+import Loader from '../components/Loader';
 import PlaceLabel from '../components/PlaceLabel';
 import Graph from '../drawing/Graph';
 import Graphics from '../drawing/Graphics';
@@ -70,11 +70,10 @@ export default class Scene extends EventEmitter implements IScene {
     public mapContainer: SVGGElement;
     public labelsContainer: SVGGElement;
     public root: SVGSVGElement;
-    public loader: SVGGElement;
+    public loader: Loader = new Loader();
     public container: HTMLElement;
     public panZoom: SvgPanZoom.Instance;
 
-    private _loaderVisible: boolean;
     private _location: ILocation;
     private _shouldHandleMapClick: boolean;
     private svg: SVGSVGElement;
@@ -112,11 +111,8 @@ export default class Scene extends EventEmitter implements IScene {
         this.labelsContainer = Graphics.createElement('g', false) as SVGGElement;
         this.labelsContainer.classList.add('map__labels');
         this.viewport.appendChild(this.labelsContainer);
-        this.loader = Graphics.createElement('g', false) as SVGGElement;
-        this.loader.classList.add('map__loader');
-        this.loader.innerHTML = require('../assets/rings.svg');
 
-        this.root.appendChild(this.loader);
+        this.container.appendChild(this.loader.element);
         // this.searchbox = new SearchBox(this);
         // Set up singletons
         this.apiClient = ApiClient.getInstance();
@@ -141,23 +137,6 @@ export default class Scene extends EventEmitter implements IScene {
             .then((location) => this.setLocation(location, force));
     }
 
-    public showLoader() {
-        if (!this._loaderVisible) {
-
-            this._loaderVisible = true;
-            this.loader.style.display = 'block';
-            this.loader.classList.add('map__loader_visible');
-        }
-    }
-
-    public hideLoader() {
-        if (this._loaderVisible) {
-            this._loaderVisible = false;
-            this.loader.classList.remove('map__loader_visible');
-            setTimeout(() => this.loader.style.display = 'none', 100);
-        }
-    }
-
     public getLocation(): ILocation {
         return this._location;
     }
@@ -165,7 +144,7 @@ export default class Scene extends EventEmitter implements IScene {
     public setLocation(value: ILocation, force = false): Promise<void> {
         if (force || (!this._location || this._location.id !== value.id)) {
             // Start transition
-            this.showLoader();
+            this.loader.show();
             this._location = value;
             if (value.map) {
                 return this.apiClient
@@ -270,7 +249,10 @@ export default class Scene extends EventEmitter implements IScene {
                                 };
                             }
                             this.panZoom = svgPanZoom(this.root, panZoomOptions);
-                            this.hideLoader();
+                            this.panZoom.resize();
+                            this.panZoom.contain();
+                            this.panZoom.center();
+                            this.loader.hide();
                             return this.objectManager.updateLocation(value.id);
                         }
                     })
@@ -341,17 +323,17 @@ export default class Scene extends EventEmitter implements IScene {
         return this.root.getAttribute('viewBox').split(' ').map((v) => +v);
     }
 
-    public centerOnObject(o: IPlace | IBuilding | ITransitionView): Promise<void> {
+    public centerOnObject(o: IPlace | IBuilding | ITransitionView, animate: boolean = false): Promise<void> {
         const el = this.findObjectOnMap(o);
         if (el) {
-            return this.centerOnElement(el);
+            return this.centerOnElement(el, animate);
         }
         return Promise.reject();
     }
 
-    public centerOnElement(el: SVGGElement): Promise<void> {
+    public centerOnElement(el: SVGGElement, animate: boolean = false): Promise<void> {
         const coords = Scene.getElementCoords(el);
-        return this.setCenter(coords);
+        return this.setCenter(coords, animate);
     }
 
     /**
@@ -366,7 +348,7 @@ export default class Scene extends EventEmitter implements IScene {
         };
     }
 
-    public setCenter(coords: ICoords): Promise<void> {
+    public setCenter(coords: ICoords, animate: boolean = false): Promise<void> {
         return new Promise((resolve) => {
             const pan = this.panZoom.getPan();
             const sizes = this.panZoom.getSizes() as any;
@@ -376,19 +358,25 @@ export default class Scene extends EventEmitter implements IScene {
                 y: (sizes.height - (sizes.viewBox.height + 2 * sizes.viewBox.y) * sizes.realZoom) / 2
                     + (sizes.viewBox.height / 2 - coords.y) * sizes.realZoom,
             };
-            let x = 0, current = 0;
-            const xDiff = 60 / 5000
-                , yDiff = {x: to.x - pan.x, y: to.y - pan.y};
-            const animation = setInterval(() => {
-                current = -( Math.cos( Math.PI * x ) - 1 ) / 2;
-                this.panZoom.pan({x: pan.x + yDiff.x * current, y: pan.y + yDiff.y * current});
-                x = Math.min(x + xDiff, 1);
-                if (x === 1) {
-                    this.panZoom.pan(to);
-                    clearInterval(animation);
-                    resolve();
-                }
-            }, 5000 / 40);
+            if (animate) {
+                let x = 0, current = 0;
+                const fps = 60,
+                    time = 1000;
+                const xDiff = fps / time
+                    , yDiff = {x: to.x - pan.x, y: to.y - pan.y};
+                const animation = setInterval(() => {
+                    current = -( Math.cos( Math.PI * x ) - 1 ) / 2;
+                    this.panZoom.pan({x: pan.x + yDiff.x * current, y: pan.y + yDiff.y * current});
+                    x = Math.min(x + xDiff, 1);
+                    if (x === 1) {
+                        this.panZoom.pan(to);
+                        clearInterval(animation);
+                        resolve();
+                    }
+                }, time / fps);
+            } else {
+                this.panZoom.pan(to);
+            }
         });
     }
 
