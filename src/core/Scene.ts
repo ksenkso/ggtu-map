@@ -169,9 +169,6 @@ export default class Scene extends EventEmitter implements IScene {
                             };
                             if ('ontouchstart' in document.documentElement) {
                                 let isScaling = false, isPanning = false, pan, currentPoint, instance, distance = 1;
-                                function preventDefault(e) {
-                                    return e.preventDefault();
-                                }
 
                                 function onPanStart(event: TouchEvent) {
                                     if (event.touches.length === 1) {
@@ -238,13 +235,11 @@ export default class Scene extends EventEmitter implements IScene {
                                         this.element.addEventListener('touchstart', onPanStart);
                                         this.element.addEventListener('touchmove', onPanMove);
                                         this.element.addEventListener('touchend', onTouchEnd);
-                                        // Prevent moving the page on some devices when panning over SVG
-                                        this.element.addEventListener('touchstart', preventDefault);
                                     },
                                     destroy() {
                                         this.element.removeEventListener('touchstart', onPanStart);
-                                        this.element.removeEventListener('touchstart', preventDefault);
                                         this.element.removeEventListener('touchmove', onPanMove);
+                                        this.element.removeEventListener('touchend', onTouchEnd);
                                     },
                                 };
                             }
