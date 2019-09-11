@@ -527,16 +527,21 @@ export default class Scene extends EventEmitter implements IScene {
     }
 
     private renderPlace(place: IPlace) {
-        const el = this.findObjectOnMap(place);
-        const label = new PlaceLabel(place);
-        label.appendTo(this);
-        Scene.setLabel(label, el);
+        if (place.container) {
+            const el = this.findObjectOnMap(place);
+            const label = new PlaceLabel(place);
+            label.appendTo(this);
+            Scene.setLabel(label, el);
+        }
+
     }
 
     private renderBuilding(building: IBuilding) {
-        const el = this.findObjectOnMap(building);
-        const label = new Label(building.name);
-        label.appendTo(this);
-        Scene.setLabel(label, el);
+        if (building.container) {
+            const el = this.findObjectOnMap(building);
+            const label = new Label(building.name);
+            label.appendTo(this);
+            Scene.setLabel(label, el);
+        }
     }
 }
