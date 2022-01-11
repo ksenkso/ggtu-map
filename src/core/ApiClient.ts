@@ -15,6 +15,11 @@ export interface ITokenInfo {
   user_id: number;
 }
 
+export interface IApiOptions {
+    apiUrl: string;
+    user?: IUser;
+}
+
 export default class ApiClient {
 
   private set token(token: string) {
@@ -23,18 +28,14 @@ export default class ApiClient {
 
   private get token(): string {
     return this.userInfo.user.token;
-    // return this.api.defaults.headers['Authorization'].substring(7);
   }
-  public static base = 'http://192.168.1.68:3000';
-  public static apiBase = ApiClient.base + '/v1';
-  public static  mapsBase = ApiClient.base + '/maps';
 
-  public static getInstance(user?: IUser) {
+  public static getInstance(options?: IApiOptions) {
     if (!ApiClient.instance) {
-      ApiClient.instance = new ApiClient(user);
+        ApiClient.instance = new ApiClient(options);
     }
     return ApiClient.instance;
-  }
+}
 
   private static instance: ApiClient;
   public locations: ILocationsEndpoint;
@@ -45,14 +46,14 @@ export default class ApiClient {
   public readonly userInfo: UserInfo;
   private readonly api: AxiosInstance;
 
-  private constructor(user?: IUser) {
+  private constructor(options: IApiOptions) {
     this.api = axios.create({
-      baseURL: ApiClient.apiBase,
+      baseURL: options.apiUrl,
     });
     this.api.defaults.paramsSerializer = (params) => qs.stringify(params, '&', '=', {encodeValuesOnly: true});
     this.userInfo = new UserInfo(this);
-    if (user) {
-      this.userInfo.user = user;
+    if (options.user) {
+      this.userInfo.user = options.user;
     }
     this.buildings = new BuildingsEndpoint(this.api);
     this.locations = new LocationsEndpoint(this.api);
