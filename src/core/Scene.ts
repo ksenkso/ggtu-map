@@ -14,7 +14,7 @@ import Primitive from '../drawing/Primitive';
 import IGraph from '../interfaces/IGraph';
 import IScene from '../interfaces/IScene';
 import {ICoords} from '../utils';
-import {getMapElementAtCoords} from '../utils/dom';
+import {getMapElementAtCoords} from '../utils';
 import DragManager from '../utils/DragManager';
 import EventEmitter from '../utils/EventEmitter';
 import ApiClient from './ApiClient';
@@ -167,14 +167,12 @@ export default class Scene extends EventEmitter implements IScene {
             this._location = value;
             if (value.map) {
                 return this.apiClient
-                    .getTransport()
-                    .get(ApiClient.mapsBase + '/' + value.map)
-                    .then((response) => {
-                        if (response.status === 200) {
-                            this.setMapFromString(response.data as string);
-                            this.hideLoader();
-                            return this.objectManager.updateLocation(value.id);
-                        }
+                    .locations
+                    .getMap(value.map)
+                    .then((svg) => {
+                        this.updateMap(svg);
+                        this.hideLoader();
+                        return this.objectManager.updateLocation(value.id);
                     })
                     .then(() => {
                         this.objectManager.places
@@ -200,6 +198,8 @@ export default class Scene extends EventEmitter implements IScene {
                             },
                         };
                         if ('ontouchstart' in document.documentElement) {
+                            // TODO: investigate panning behaviour while scaling
+                            // tslint:disable-next-line:prefer-const
                             let isScaling = false, isPanning = false, pan, currentPoint, instance;
 
                             function onPanStart(event: TouchEvent) {
@@ -223,6 +223,7 @@ export default class Scene extends EventEmitter implements IScene {
                                     currentPoint.y = event.touches[0].clientY;
                                 }
                             }
+
                             panZoomOptions.customEventsHandler = {
                                 haltEventListeners: [
                                     'touchstart', 'touchend', 'touchmove', 'touchleave', 'touchcancel',
@@ -253,13 +254,6 @@ export default class Scene extends EventEmitter implements IScene {
     public findObjectOnMap(object: IPlace | IBuilding): SVGGElement {
         const selector = '#' + CSS.escape(object.container);
         return this.mapContainer.querySelector(selector) as SVGGElement;
-    }
-
-    public setMapFromString(map: string) {
-        const parser = new DOMParser();
-        const dom = parser.parseFromString(map, 'image/svg+xml');
-        const root = dom.firstElementChild;
-        this.updateMap(root as SVGSVGElement);
     }
 
     public getMouseEventInfo(event: MouseEvent): IMapMouseEvent {

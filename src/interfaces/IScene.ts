@@ -7,8 +7,8 @@ import ObjectManager from '../core/ObjectManager';
 import {IMapMouseEvent} from '../core/Scene';
 import Selection from '../core/Selection';
 import Graphics from '../drawing/Graphics';
+import {IEventEmitter} from '../utils';
 import DragManager from '../utils/DragManager';
-import {IEventEmitter} from '../utils/EventEmitter';
 
 export default interface IScene extends IEventEmitter {
   drawingContainer: SVGGElement;
@@ -20,7 +20,6 @@ export default interface IScene extends IEventEmitter {
   readonly selection: Selection;
   readonly objectManager: ObjectManager;
   readonly dragManager: DragManager;
-  setMapFromString(map: string): void;
   getMouseCoords(e: MouseEvent): ICoords;
   getViewBox(): number[];
   setViewBox(viewBox: number[]): void;

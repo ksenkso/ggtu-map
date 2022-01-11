@@ -1,5 +1,4 @@
 import {AxiosInstance} from 'axios';
-import ApiClient from '../../core/ApiClient';
 import IPathItem from '../../interfaces/IPathItem';
 import {IBuilding} from './BuildingsEndpoint';
 import {ILocation} from './LocationsEndpoint';
@@ -24,7 +23,7 @@ export default class SearchEndpoint implements ISearchEndpoint {
     constructor(protected api: AxiosInstance) {}
     public async query(input: string): Promise<ISearchResult[]> {
         const response = await this.api.get<ISearchResult[]>(
-            ApiClient.apiBase + this.route,
+            this.route,
             {params: {q: input}},
         );
         if (response.status === 200) {
@@ -36,7 +35,7 @@ export default class SearchEndpoint implements ISearchEndpoint {
 
     public async findPath(from: string, to: string): Promise<IPathInfo> {
         const response = await this.api.get<IPathInfo>(
-            ApiClient.apiBase + this.route + '/path',
+            this.route + '/path',
             {params: {from, to}},
         );
         if (response.status === 200) {

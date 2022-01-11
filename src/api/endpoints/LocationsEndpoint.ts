@@ -8,6 +8,7 @@ export interface ILocationsEndpoint extends IEndpoint<ILocation> {
   getRoot(): Promise<ILocation>;
   getObjects(locationId: number): Promise<ILocationObjectsCollection>;
   getPathGraph(locationId: number): Promise<IAdjacencyNode[]>;
+  getMap(name: string): Promise<SVGSVGElement>;
 }
 
 export interface ILocation {
@@ -60,4 +61,14 @@ export default class LocationsEndpoint extends BaseEndpoint implements ILocation
     }
   }
 
+  public async getMap(name: string): Promise<SVGSVGElement> {
+    const response = await this.api.get<string>('/maps/' + name);
+    if (response.status === 200) {
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(response.data as string, 'image/svg+xml');
+      return dom.firstElementChild as SVGSVGElement;
+    } else {
+      return null;
+    }
+  }
 }
