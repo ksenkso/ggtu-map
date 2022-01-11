@@ -71,4 +71,16 @@ export default class LocationsEndpoint extends BaseEndpoint implements ILocation
       return null;
     }
   }
+
+  public async uploadMap(locationId: number, file: File): Promise<void> {
+    const fd = new FormData();
+    fd.append('map', file);
+
+    const response = await this.api.patch<void>(this.route + locationId + '/upload', fd);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      return null;
+    }
+  }
 }
