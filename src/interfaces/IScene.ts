@@ -2,6 +2,7 @@ import {ICoords} from '..';
 import {IBuilding} from '../api/endpoints/BuildingsEndpoint';
 import {ILocation} from '../api/endpoints/LocationsEndpoint';
 import {IPlace} from '../api/endpoints/PlacesEndpoint';
+import {ITransitionView} from '../api/endpoints/TransitionViewsEndpoint';
 import ApiClient from '../core/ApiClient';
 import ObjectManager from '../core/ObjectManager';
 import {IMapMouseEvent} from '../core/Scene';
@@ -29,13 +30,11 @@ export default interface IScene extends IEventEmitter {
   setLocation(location: ILocation): Promise<void>;
   getZoom(): number;
   setZoom(f: number): void;
-  findObjectOnMap(object): SVGGElement;
-  centerOnObject(o: IPlace|IBuilding): boolean;
+  findObjectOnMap(object: IPlace | IBuilding | ITransitionView): SVGGElement;
+  centerOnObject(o: IPlace | IBuilding | ITransitionView, animate?: boolean): Promise<void>;
   centerOnElement(el: SVGGElement): void;
   getCenter(): ICoords;
   setCenter(coords: ICoords): void;
-  showLoader(): void;
-  hideLoader(): void;
   showPanel(name: string): void;
   setLocationById(locationId: number): Promise<void>;
 }

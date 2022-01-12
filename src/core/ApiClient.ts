@@ -1,5 +1,5 @@
 import axios, {AxiosInstance, AxiosResponse} from 'axios';
-import * as qs from 'qs';
+import stringify from 'qs/lib/stringify.js';
 import {IAuthState, IEndpoint, IUser} from '..';
 import BuildingsEndpoint, {IBuildingsEndpoint} from '../api/endpoints/BuildingsEndpoint';
 import LocationsEndpoint, {ILocationsEndpoint} from '../api/endpoints/LocationsEndpoint';
@@ -50,7 +50,7 @@ export default class ApiClient {
     this.api = axios.create({
       baseURL: options.apiUrl,
     });
-    this.api.defaults.paramsSerializer = (params) => qs.stringify(params, '&', '=', {encodeValuesOnly: true});
+    this.api.defaults.paramsSerializer = (params) => stringify(params, '&', '=', {encodeValuesOnly: true});
     this.userInfo = new UserInfo(this);
     if (options.user) {
       this.userInfo.user = options.user;

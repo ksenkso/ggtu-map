@@ -1,5 +1,6 @@
 import {AxiosInstance} from 'axios';
 import {BaseEndpoint, IEndpoint} from '../common';
+import {ILocation} from './LocationsEndpoint';
 import TransitionViewsEndpoint, {ITransitionView} from './TransitionViewsEndpoint';
 
 export interface ITransition {
@@ -12,6 +13,7 @@ export interface ITransition {
 
 export interface ITransitionsEndpoint extends IEndpoint<ITransition> {
   views: IEndpoint<ITransitionView>;
+  getLocations(transitionId: number): Promise<ILocation[]>;
 }
 
 export default class TransitionsEndpoint extends BaseEndpoint implements ITransitionsEndpoint {
@@ -20,5 +22,14 @@ export default class TransitionsEndpoint extends BaseEndpoint implements ITransi
   constructor(api: AxiosInstance) {
     super(api);
     this.views = new TransitionViewsEndpoint(api);
+  }
+
+  public async getLocations(transitionId: number): Promise<ILocation[]> {
+    const response = await this.api.get(this.route + transitionId + '/' + 'locations');
+    if (response.status === 200) {
+      return response.data as ILocation[];
+    } else {
+      return null;
+    }
   }
 }
